@@ -1,0 +1,2 @@
+CREATE DATABASE Testbase
+GO
