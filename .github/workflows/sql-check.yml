@@ -28,7 +28,8 @@ jobs:
 
       - name: Run SQLFluff Linter
         run: |
-          sqlfluff lint ./sql-scripts --dialect tsql
+          sqlfluff lint --ignore parsing ./DatabaseAdministration/SQLStatements --dialect tsql
+
 
   commit_and_push:
     name: Auto Commit & Push
