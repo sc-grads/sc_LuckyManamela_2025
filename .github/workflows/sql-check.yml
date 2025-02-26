@@ -1,0 +1,66 @@
+name: SQL Script CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  sql_linter:
+    name: SQL Linting and Code Standards Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set Up Python (For SQLFluff)
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install SQLFluff (SQL Linter)
+        run: |
+          pip install sqlfluff
+
+      - name: Run SQLFluff Linter
+        run: |
+          sqlfluff lint ./sql-scripts --dialect tsql
+
+  commit_and_push:
+    name: Auto Commit & Push
+    needs: sql_linter
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
+      - name: Auto Format SQL (Using SQLFluff)
+        run: |
+          sqlfluff fix ./sql-scripts --dialect tsql
+
+      - name: Check for Changes
+        id: git-status
+        run: |
+          git diff --exit-code || echo "changes=true" >> $GITHUB_ENV
+
+      - name: Commit Changes (If Any)
+        if: env.changes == 'true'
+        run: |
+          git add .
+          git commit -m "Auto-fixed SQL formatting"
+
+      - name: Push Changes
+        if: env.changes == 'true'
+        run: |
+          git push origin main
