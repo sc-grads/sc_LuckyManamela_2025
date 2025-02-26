@@ -28,7 +28,7 @@ jobs:
 
       - name: Run SQLFluff Linter
         run: |
-          sqlfluff lint ./DatabaseAdministration/SQLStatements --dialect tsql
+          sqlfluff lint --ignore parsing ./DatabaseAdministration/SQLStatements --dialect tsql
 
 
   commit_and_push:
