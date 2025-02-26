@@ -1,4 +1,4 @@
-USE master
+USE Pascal
 CREATE TABLE Customers (
     CustomerID INT PRIMARY KEY,
     FirstName VARCHAR(50),
