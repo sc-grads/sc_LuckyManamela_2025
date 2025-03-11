@@ -17,3 +17,16 @@ FROM #TempPersonTBL
 
 --Droping the table #TempPersonTBL (Note that Temp table are only available till the session end)
 DROP TABLE #TempPersonTBL
+
+--Using the create statement to create a temporary table 
+CREATE TABLE #TempPersonTable(
+BusinesEntityID INT,
+FirstName NVARCHAR(50),
+LastName NVARCHAR(50),
+)
+
+--Inserting details from the Person table int the temporary table 
+INSERT INTO #TempPersonTable
+SELECT BusinessEntityID,FirstName,LastName
+FROM Person.Person
+WHERE Title = 'mr.'
