@@ -21,3 +21,5 @@ Phone VARCHAR(20),
 Store_ID INT NOT NULL,
 FOREIGN KEY (Store_ID) REFERENCES Sales.StoreNew (Store_ID)
 )
+
+SELECT * FROM [AdventureWorks2016].[Sales].[Visits];
