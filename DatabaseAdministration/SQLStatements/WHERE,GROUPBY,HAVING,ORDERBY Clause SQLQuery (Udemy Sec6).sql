@@ -12,3 +12,7 @@ WHERE PostalCode = '98011'
 SELECT *
 FROM Person.Address
 WHERE PostalCode != '98011'
+--Alternative way to Access everything from the Person.Address tbl where postal code is not 98011
+SELECT *
+FROM Person.Address
+WHERE PostalCode <> '98011'
