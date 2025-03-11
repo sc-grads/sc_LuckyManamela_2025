@@ -16,3 +16,8 @@ WHERE PostalCode != '98011'
 SELECT *
 FROM Person.Address
 WHERE PostalCode <> '98011'
+
+-- Counting the number of postal address that does not have the NO 98011
+SELECT COUNT(*)
+FROM Person.Address
+WHERE PostalCode <> '98011'
