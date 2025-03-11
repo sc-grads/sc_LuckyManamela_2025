@@ -21,3 +21,16 @@ WHERE PostalCode <> '98011'
 SELECT COUNT(*)
 FROM Person.Address
 WHERE PostalCode <> '98011'
+
+--Accessing information where the Modification date is greater or equals to 2013-05-30 00:00:00.000
+SELECT *
+FROM Person.Address
+WHERE ModifiedDate >= '2013-05-30 00:00:00.000'
+
+--Accessing information where the Modification date is lessthan or equals to 2013-05-30 00:00:00.000
+SELECT *
+FROM Person.Address
+WHERE ModifiedDate <= '2013-05-30 00:00:00.000'
+
+
+
