@@ -11,3 +11,18 @@ SELECT
     SUBSTRING(FirstName, 1, 3) AS FirstThreeLetters -- Extracting the first 3 letters of first name
 FROM Person.Person;
 
+--Mathematical Functions
+--Calculating Discounted Prices and Rounding
+
+SELECT
+    ProductID, 
+    Name, 
+    ListPrice, 
+    ROUND(ListPrice * 0.9, 2) AS DiscountedPrice, -- Apply a 10% discount and round to 2 decimal places
+    CEILING(ListPrice) AS RoundedUpPrice,        -- Round up to the nearest whole number
+    FLOOR(ListPrice) AS RoundedDownPrice,        -- Round down to the nearest whole number
+    ABS(ListPrice - 500) AS DifferenceFrom500    -- Get absolute difference from 500
+FROM Production.Product;
+
+--Date and Time Functions
+
