@@ -13,4 +13,4 @@ GO
 RESTORE LOG AdventureWorks2016 
 FROM DISK = 'C:\Backup\AW_LogBackup.trn'
 WITH NORECOVERY;
-GO
+
