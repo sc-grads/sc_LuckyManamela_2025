@@ -23,3 +23,4 @@ GO
 --Enable TDE on the database
 ALTER DATABASE AdventureWorks2016
 SET ENCRYPTION ON;
+Go
