@@ -34,7 +34,7 @@ jobs:
           /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "LuckyManamela@$2000" -i setup.sql
 
       - name: Expose SQL Server using ngrok
-        uses: luisboto/ngrok-tunnel-action@v1.1.1
+        uses: apogiatzis/ngrok-tunneling-action@<VERSION>
         with:
           # This must match your secret name in GitHub
           ngrok_authtoken: ${{ secrets.NGROK_AUTH_TOKEN }}
