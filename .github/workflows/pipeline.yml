@@ -7,7 +7,6 @@ on:
 
 jobs:
   setup-sql:
-    # Use ubuntu-latest to ensure Microsoft packages for sqlcmd are available
     runs-on: ubuntu-latest
 
     services:
@@ -15,51 +14,63 @@ jobs:
         image: mcr.microsoft.com/mssql/server:2019-latest
         env:
           ACCEPT_EULA: "Y"
-          SA_PASSWORD: "LuckyManamela@$2000"
+          SA_PASSWORD: ${{ secrets.SA_PASSWORD }}  # Move password to secrets
         ports:
           - 1433:1433
         options: >-
-          --health-cmd "exit 0"
+          --health-cmd "/opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P '${{ secrets.SA_PASSWORD }}' -Q 'SELECT 1' || exit 1"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 3
+          --health-retries 5
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
 
       - name: Wait for SQL Server to be ready
-        run: sleep 30
-
-      - name: Install sqlcmd and run setup.sql
         run: |
-          # Install dependencies and add Microsoft repo
+          for i in {1..30}; do
+            if /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "${{ secrets.SA_PASSWORD }}" -Q "SELECT 1" &> /dev/null; then
+              echo "SQL Server is ready"
+              exit 0
+            fi
+            echo "Waiting for SQL Server to start..."
+            sleep 2
+          done
+          echo "SQL Server did not start in time"
+          exit 1
+
+      - name: Install sqlcmd and dependencies
+        run: |
           sudo apt-get update
           sudo apt-get install -y curl apt-transport-https gnupg2
           curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
           curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
-
-          # Install mssql-tools (includes sqlcmd)
           sudo apt-get update
           sudo apt-get install -y mssql-tools unixodbc-dev
+          echo "::add-path::/opt/mssql-tools/bin"
 
-          # Update PATH in this shell so subsequent commands can use sqlcmd immediately
-          export PATH="$PATH:/opt/mssql-tools/bin"
-
-          # Confirm sqlcmd is installed
-          which sqlcmd
-
-          # Execute your SQL script against the local SQL Server service
-          sqlcmd -S localhost -U sa -P "LuckyManamela@$2000" -i setup.sql
+      - name: Run setup.sql
+        run: |
+          sqlcmd -S localhost -U SA -P "${{ secrets.SA_PASSWORD }}" -i setup.sql -b -o sqlcmd.log || (cat sqlcmd.log && exit 1)
+          cat sqlcmd.log
 
       - name: Install ngrok
         run: |
-          wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
-          unzip ngrok-stable-linux-amd64.zip
+          wget -q https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
+          unzip -o ngrok-stable-linux-amd64.zip
           sudo mv ngrok /usr/local/bin
+          rm ngrok-stable-linux-amd64.zip
 
       - name: Start ngrok TCP tunnel
         run: |
-          nohup ngrok tcp 1433 --authtoken ${{ secrets.NGROK_AUTH_TOKEN }} > ngrok.log 2>&1 &
+          nohup ngrok tcp 1433 --authtoken ${{ secrets.NGROK_AUTH_TOKEN }} --log=stdout > ngrok.log 2>&1 &
           sleep 5
+          curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url'
           echo "ngrok tunnel started."
+
+      - name: Cleanup ngrok (always run)
+        if: always()
+        run: |
+          pkill ngrok || true
+          rm -f ngrok.log
