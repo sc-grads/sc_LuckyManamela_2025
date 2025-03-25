@@ -7,8 +7,8 @@ on:
 
 jobs:
   setup-sql:
-    # Use ubuntu-22.04 to ensure Microsoft packages for sqlcmd are available
-    runs-on: ubuntu-22.04
+    # Use ubuntu-latest to ensure Microsoft packages for sqlcmd are available
+    runs-on: ubuntu-latest
 
     services:
       mssql:
