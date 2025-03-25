@@ -1,4 +1,4 @@
-name: SQL Automation Pipeline
+name: Expose SQL Server with ngrok
 
 on:
   push:
@@ -6,8 +6,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  setup-sql:
+  setup-and-expose-sql:
     runs-on: ubuntu-latest
+    
     services:
       mssql:
         image: mcr.microsoft.com/mssql/server:2019-latest
@@ -23,26 +24,49 @@ jobs:
           --health-retries 3
 
     steps:
-      - name: Checkout repository
+      - name: Check out repository
         uses: actions/checkout@v3
 
       - name: Wait for SQL Server to be ready
         run: sleep 30
 
-      - name: Run SQL Script to Setup DB and Stored Procedure
+      - name: Run SQL script to set up DB and stored procedure
         run: |
           /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "LuckyManamela@$2000" -i setup.sql
 
-      - name: Expose SQL Server using ngrok
-        uses: apogiatzis/ngrok-tunneling-action@<VERSION>
-        with:
-          # This must match your secret name in GitHub
-          ngrok_authtoken: ${{ secrets.NGROK_AUTH_TOKEN }}
-          # Expose the SQL Server port
-          port: 1433
-          # For SQL Server, you typically want a TCP tunnel
-          tunnel_type: tcp
-          # How long to keep the tunnel open
-          timeout: 1h
-          # Save the public URL to a file for later steps
-          save_url_to_filename: tunnelURL.md
+      - name: Install dependencies (wget, unzip, jq)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget unzip jq
+
+      - name: Install ngrok
+        run: |
+          wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
+          unzip ngrok-stable-linux-amd64.zip
+          sudo mv ngrok /usr/local/bin
+
+      - name: Start ngrok TCP tunnel on port 1433
+        run: |
+          # Start ngrok in the background
+          nohup ngrok tcp 1433 --authtoken ${{ secrets.NGROK_AUTH_TOKEN }} --region=us > ngrok.log 2>&1 &
+          
+          # Wait a few seconds for ngrok to initialize
+          sleep 5
+          
+          # Fetch tunnel info from ngrok's local API
+          curl -s http://127.0.0.1:4040/api/tunnels > tunnels.json
+          echo "tunnels.json output:"
+          cat tunnels.json
+          
+          # Extract the public TCP URL (e.g. 'tcp://0.tcp.ngrok.io:12345')
+          export NGROK_TCP_URL=$(jq -r '.tunnels[] | select(.proto=="tcp") | .public_url' tunnels.json)
+          echo "NGROK_TCP_URL=$NGROK_TCP_URL"
+
+          # Optionally, write the address to a file for reference in subsequent steps
+          echo "$NGROK_TCP_URL" > tunnel-url.txt
+
+      - name: Display the ngrok tunnel address
+        run: |
+          echo "Use the following connection string to reach SQL Server:"
+          echo "Server=${NGROK_TCP_URL#tcp://};User ID=sa;Password=LuckyManamela@$2000;"
+
