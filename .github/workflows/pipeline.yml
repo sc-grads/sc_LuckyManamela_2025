@@ -5,23 +5,26 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
-env:
-  SA_PASSWORD: ${{ secrets.SA_PASSWORD }}  # Define at workflow level
-
 jobs:
   setup-sql:
     runs-on: ubuntu-latest
+    
+    # Optionally, set SA_PASSWORD for steps here
+    env:
+      SA_PASSWORD: ${{ secrets.SA_PASSWORD }}
 
     services:
       mssql:
         image: mcr.microsoft.com/mssql/server:2019-latest
+        # Pass your secret directly to the container environment
         env:
           ACCEPT_EULA: "Y"
-          SA_PASSWORD: ${{ env.SA_PASSWORD }}  # Reference the env variable
+          SA_PASSWORD: ${{ secrets.SA_PASSWORD }}
         ports:
           - 1433:1433
+        # Use a shell command that expands $SA_PASSWORD inside the container
         options: >-
-          --health-cmd "/opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P '${{ env.SA_PASSWORD }}' -Q 'SELECT 1' || exit 1"
+          --health-cmd "/bin/sh -c '/opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P $SA_PASSWORD -Q \"SELECT 1\" || exit 1'"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -32,8 +35,9 @@ jobs:
 
       - name: Wait for SQL Server to be ready
         run: |
+          # The runner also has SA_PASSWORD from env if you need to reference it here
           for i in {1..30}; do
-            if /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "${{ env.SA_PASSWORD }}" -Q "SELECT 1" &> /dev/null; then
+            if /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "$SA_PASSWORD" -Q "SELECT 1" &> /dev/null; then
               echo "SQL Server is ready"
               exit 0
             fi
@@ -55,7 +59,7 @@ jobs:
 
       - name: Run setup.sql
         run: |
-          sqlcmd -S localhost -U SA -P "${{ env.SA_PASSWORD }}" -i setup.sql -b -o sqlcmd.log || (cat sqlcmd.log && exit 1)
+          sqlcmd -S localhost -U SA -P "$SA_PASSWORD" -i setup.sql -b -o sqlcmd.log || (cat sqlcmd.log && exit 1)
           cat sqlcmd.log
 
       - name: Install ngrok
