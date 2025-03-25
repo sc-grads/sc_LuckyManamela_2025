@@ -7,7 +7,7 @@ on:
 
 jobs:
   setup-sql:
-    # Use ubuntu-22.04 to ensure mssql-tools is available
+    # Use ubuntu-22.04 to ensure Microsoft packages for sqlcmd are available
     runs-on: ubuntu-22.04
 
     services:
@@ -31,26 +31,25 @@ jobs:
       - name: Wait for SQL Server to be ready
         run: sleep 30
 
-      - name: Install mssql-tools (sqlcmd)
+      - name: Install sqlcmd and run setup.sql
         run: |
+          # Install dependencies and add Microsoft repo
           sudo apt-get update
           sudo apt-get install -y curl apt-transport-https gnupg2
-          # Add Microsoft package keys
           curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-          # Add the MS SQL repo for Ubuntu 22.04
           curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
+
+          # Install mssql-tools (includes sqlcmd)
           sudo apt-get update
           sudo apt-get install -y mssql-tools unixodbc-dev
 
-          # Persist sqlcmd path for subsequent steps
-          echo "PATH=\$PATH:/opt/mssql-tools/bin" >> $GITHUB_ENV
+          # Update PATH in this shell so subsequent commands can use sqlcmd immediately
+          export PATH="$PATH:/opt/mssql-tools/bin"
 
-      - name: Confirm sqlcmd installed
-        run: which sqlcmd
+          # Confirm sqlcmd is installed
+          which sqlcmd
 
-      - name: Run SQL Script to Setup DB and Stored Procedure
-        # Use the updated PATH
-        run: |
+          # Execute your SQL script against the local SQL Server service
           sqlcmd -S localhost -U sa -P "LuckyManamela@$2000" -i setup.sql
 
       - name: Install ngrok
