@@ -34,8 +34,15 @@ jobs:
           /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "LuckyManamela@$2000" -i setup.sql
 
       - name: Expose SQL Server using ngrok
-        uses: luisboto/ngrok-tunnel-action@<VERSION>
+        uses: luisboto/ngrok-tunnel-action@v1.1.1
         with:
-          token: ${{ secrets.NGROK_AUTH_TOKEN }}
-          port: 8080
-
+          # This must match your secret name in GitHub
+          ngrok_authtoken: ${{ secrets.NGROK_AUTH_TOKEN }}
+          # Expose the SQL Server port
+          port: 1433
+          # For SQL Server, you typically want a TCP tunnel
+          tunnel_type: tcp
+          # How long to keep the tunnel open
+          timeout: 1h
+          # Save the public URL to a file for later steps
+          save_url_to_filename: tunnelURL.md
