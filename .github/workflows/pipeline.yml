@@ -1,0 +1,40 @@
+name: SQL Automation Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  setup-sql:
+    runs-on: ubuntu-latest
+    services:
+      mssql:
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        env:
+          ACCEPT_EULA: "Y"
+          SA_PASSWORD: "LuckyManamela@$2000"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "exit 0"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 3
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Wait for SQL Server to be ready
+        run: sleep 30
+
+      - name: Run SQL Script to Setup DB and Stored Procedure
+        run: |
+          /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "LuckyManamela@$2000" -i setup.sql
+
+      - name: Expose SQL Server using ngrok
+        uses: w9jds/ngrok-action@v2
+        with:
+          token: ${{ secrets.NGROK_AUTH_TOKEN }}
+          port: 1433
