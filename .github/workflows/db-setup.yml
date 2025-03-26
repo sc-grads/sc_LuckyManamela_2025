@@ -30,9 +30,9 @@ jobs:
       - name: Execute SQL Script
         env:
           SQL_SERVER: ${{ secrets.SQL_SERVER_HOST }}  # rnuae-197-184-73-144.a.free.pinggy.link
-          #SQL_PORT: ${{ secrets.SQL_SERVER_PORT }}    # 36329
+          SQL_PORT: ${{ secrets.SQL_SERVER_PORT }}    # 36329
           SQL_USER: Auto_user
           SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}   # Store password in GitHub Secrets
         run: |
-          /opt/mssql-tools/bin/sqlcmd -S "$SQL_SERVER" -U "$SQL_USER" -P "$SQL_PASSWORD" -i scripts/setup.sql -o output.log
+          /opt/mssql-tools/bin/sqlcmd -S "$SQL_SERVER,$SQL_PORT" -U "$SQL_USER" -P "$SQL_PASSWORD" -i scripts/setup.sql -o output.log || echo "sqlcmd failed, check output.log"
           cat output.log
