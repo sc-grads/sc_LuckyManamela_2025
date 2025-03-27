@@ -31,7 +31,7 @@ jobs:
           SQL_USER: Auto_user
           SQL_PASSWORD: ${{ secrets.DEV_SQL_PASSWORD }}
         run: |
-          /opt/mssql-tools/bin/sqlcmd -S "$SQL_SERVER,$SQL_PORT" -U "$SQL_USER" -P "$SQL_PASSWORD" -i scripts/setup.sql -o output.log -x || echo "sqlcmd failed, check output.log"
+          /opt/mssql-tools/bin/sqlcmd -S "$SQL_SERVER,$SQL_PORT" -U "$SQL_USER" -P "$SQL_PASSWORD" -i scripts/setup1.sql -o output.log -x || echo "sqlcmd failed, check output.log"
           cat output.log
 
   deploy-prod:
