@@ -1,10 +1,10 @@
-IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'AutoDBLuckyManamela')
+IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'AutoDBLuckyManamela_27March2025')
 BEGIN
-    EXEC('CREATE DATABASE AutoDBLuckyManamela');
+    EXEC('CREATE DATABASE AutoDBLuckyManamela_27March2025');
 END
 GO
 
-USE AutoDBLuckyManamela;
+USE AutoDBLuckyManamela_27March2025;
 GO
 
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'user')
