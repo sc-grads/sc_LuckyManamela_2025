@@ -1,4 +1,4 @@
-name: Setup AutoDBFirstName Database
+name: Setup AutoDBLuckyManamela Database
 
 on:
   push:
