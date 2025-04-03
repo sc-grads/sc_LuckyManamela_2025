@@ -1,0 +1,45 @@
+name: Deploy SQL Script
+
+# Define this as a reusable workflow with `workflow_call`
+on:
+  workflow_call:
+    inputs:
+      sql_server:
+        description: 'SQL Server hostname'
+        required: true
+        type: string
+      sql_port:
+        description: 'SQL Server port'
+        required: true
+        type: string
+      sql_user:
+        description: 'SQL Server username'
+        required: true
+        type: string
+    secrets:
+      sql_password:
+        description: 'SQL Server password'
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install SQL Server Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl gnupg
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+          curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
+          sudo apt-get update
+          sudo apt-get install -y mssql-tools unixodbc-dev
+          echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
+          source ~/.bashrc
+
+      - name: Execute SQL Script
+        run: |
+          /opt/mssql-tools/bin/sqlcmd -S "${{ inputs.sql_server }},${{ inputs.sql_port }}" -U "${{ inputs.sql_user }}" -P "${{ secrets.sql_password }}" -i scripts/setup1.sql -o output.log -x || echo "sqlcmd failed, check output.log"
+          cat output.log
