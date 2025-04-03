@@ -11,10 +11,10 @@ jobs:
     uses: ./.github/workflows/deploy-sql-template.yml
     with:
       environment: development
+    secrets:
       sql_server_host: ${{ secrets.DEV_SQL_SERVER_HOST }}
       sql_server_port: ${{ secrets.DEV_SQL_SERVER_PORT }}
       sql_password: ${{ secrets.DEV_SQL_PASSWORD }}
-    secrets: inherit
 
   deploy-prod:
     needs: deploy-dev
@@ -22,7 +22,7 @@ jobs:
     uses: ./.github/workflows/deploy-sql-template.yml
     with:
       environment: production
+    secrets:
       sql_server_host: ${{ secrets.PROD_SQL_SERVER_HOST }}
       sql_server_port: ${{ secrets.PROD_SQL_SERVER_PORT }}
       sql_password: ${{ secrets.PROD_SQL_PASSWORD }}
-    secrets: inherit
