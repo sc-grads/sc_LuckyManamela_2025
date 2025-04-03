@@ -11,7 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     environment: development
     steps:
-      - uses: ./.github/workflows/deploy-sql-template.yml
+      - name: Checkout Repository
+        uses: actions/checkout@v3  # Add this step to checkout the code
+
+      - name: Deploy to Development
+        uses: ./.github/workflows/deploy-sql-template.yml
         with:
           environment: development
           sql_server_host: ${{ secrets.DEV_SQL_SERVER_HOST }}
@@ -24,7 +28,11 @@ jobs:
     needs: deploy-dev
     if: success()
     steps:
-      - uses: ./.github/workflows/deploy-sql-template.yml
+      - name: Checkout Repository
+        uses: actions/checkout@v3  # Add this step to checkout the code
+
+      - name: Deploy to Production
+        uses: ./.github/workflows/deploy-sql-template.yml
         with:
           environment: production
           sql_server_host: ${{ secrets.PROD_SQL_SERVER_HOST }}
