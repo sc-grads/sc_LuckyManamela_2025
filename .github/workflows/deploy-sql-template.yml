@@ -2,15 +2,22 @@ name: Deploy SQL Script
 
 on:
   workflow_call:
-    secrets:
+    inputs:
+      environment:
+        required: true
+        type: string
+        description: "The deployment environment"
       sql_server_host:
         required: true
+        type: string
         description: "The SQL Server host address"
       sql_server_port:
         required: true
+        type: string
         description: "The SQL Server port"
       sql_password:
         required: true
+        type: string
         description: "The SQL Server password"
 
 jobs:
@@ -18,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3  # Optional here if already checked out in the calling workflow
 
       - name: Install SQL Server Tools
         run: |
@@ -33,12 +40,12 @@ jobs:
 
       - name: Execute SQL Script
         env:
-          SQL_SERVER: ${{ secrets.sql_server_host }}
-          SQL_PORT: ${{ secrets.sql_server_port }}
+          SQL_SERVER: ${{ inputs.sql_server_host }}
+          SQL_PORT: ${{ inputs.sql_server_port }}
           SQL_USER: Auto_user
-          SQL_PASSWORD: ${{ secrets.sql_password }}
+          SQL_PASSWORD: ${{ inputs.sql_password }}
         run: |
-          echo "Running SQL script on $SQL_SERVER:$SQL_PORT..."
+          echo "Running SQL script on $SQL_SERVER:$SQL_PORT for ${{ inputs.environment }}..."
           /opt/mssql-tools/bin/sqlcmd -S "$SQL_SERVER,$SQL_PORT" -U "$SQL_USER" -P "$SQL_PASSWORD" -i scripts/setup1.sql -o output.log -x
           EXIT_CODE=$?
           if [ $EXIT_CODE -ne 0 ]; then
