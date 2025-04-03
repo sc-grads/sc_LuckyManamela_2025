@@ -1,5 +1,7 @@
 BEGIN TRY
-    -- 1. Create the database if it doesn't exist.
+    ----------------------------------------------------------------------------
+    -- 1. Create the database if it doesn't exist (On-Premise / SQL Server only)
+    ----------------------------------------------------------------------------
     IF DB_ID('AutoDBLuckyManamela') IS NULL
     BEGIN
         CREATE DATABASE [AutoDBLuckyManamela];
@@ -10,30 +12,37 @@ BEGIN TRY
         PRINT 'Database already exists.';
     END;
 
-    -- 2. Switch context to the newly created or existing database.
+    ----------------------------------------------------------------------------
+    -- 2. Switch context to the target database
+    ----------------------------------------------------------------------------
     USE [AutoDBLuckyManamela];
 
-    -- 3. Create the [User] table if it doesn't exist.
+    ----------------------------------------------------------------------------
+    -- 3. Create the [Users] table if it doesn't exist
+    ----------------------------------------------------------------------------
     IF NOT EXISTS (
         SELECT 1
         FROM sys.tables
-        WHERE [name] = 'User'
+        WHERE [name] = 'Users'
           AND [schema_id] = SCHEMA_ID('dbo')
     )
     BEGIN
-        CREATE TABLE [dbo].[User] (
-            [Name]    VARCHAR(50) NOT NULL,
-            [Surname] VARCHAR(50) NOT NULL,
-            [Email]   VARCHAR(100) NOT NULL
+        CREATE TABLE [dbo].[Users] (
+            [Name]       VARCHAR(50)  NOT NULL,
+            [Surname]    VARCHAR(50)  NOT NULL,
+            [Email]      VARCHAR(100) NOT NULL,
+            [CreatedOn]  DATETIME     NOT NULL DEFAULT(GETDATE())
         );
-        PRINT 'User table created successfully.';
+        PRINT 'Users table created successfully.';
     END
     ELSE
     BEGIN
-        PRINT 'User table already exists.';
+        PRINT 'Users table already exists.';
     END;
 
-    -- 4. Create the stored procedure if it doesn't exist.
+    ----------------------------------------------------------------------------
+    -- 4. Create the stored procedure if it doesn't exist
+    ----------------------------------------------------------------------------
     IF NOT EXISTS (
         SELECT 1
         FROM sys.procedures
@@ -48,7 +57,7 @@ BEGIN TRY
                 @Email   VARCHAR(100)
             AS
             BEGIN
-                INSERT INTO [dbo].[User] ([Name], [Surname], [Email])
+                INSERT INTO [dbo].[Users] ([Name], [Surname], [Email])
                 VALUES (@Name, @Surname, @Email);
             END;
         ');
@@ -59,13 +68,18 @@ BEGIN TRY
         PRINT 'InsertUserData procedure already exists.';
     END;
 
-    -- 5. Insert sample data.
+    ----------------------------------------------------------------------------
+    -- 5. Insert sample rows using the stored procedure
+    ----------------------------------------------------------------------------
     EXEC [dbo].[InsertUserData] @Name = 'Lucky',    @Surname = 'Manamela', @Email = 'lucky.manamela@sambeconsulting.com';
     EXEC [dbo].[InsertUserData] @Name = 'Itumeleng', @Surname = 'Monyai',   @Email = 'itumeleng.monyai@sambeconsulting.com';
     PRINT 'Sample data inserted successfully.';
 
 END TRY
 BEGIN CATCH
+    ----------------------------------------------------------------------------
+    -- 6. Handle errors
+    ----------------------------------------------------------------------------
     DECLARE @ErrorMessage  NVARCHAR(4000) = ERROR_MESSAGE();
     DECLARE @ErrorSeverity INT           = ERROR_SEVERITY();
     DECLARE @ErrorState    INT           = ERROR_STATE();
