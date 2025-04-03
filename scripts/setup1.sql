@@ -1,65 +1,76 @@
 BEGIN TRY
-    -- Create database if it doesn't exist
-    IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'AutoDBLuckyManamela')
+    -- 1. Create the database if it doesn't exist.
+    IF DB_ID('AutoDBLuckyManamela') IS NULL
     BEGIN
-        EXEC('CREATE DATABASE AutoDBLuckyManamela');
-        PRINT 'Database created successfully';
+        CREATE DATABASE [AutoDBLuckyManamela];
+        PRINT 'Database created successfully.';
     END
     ELSE
     BEGIN
-        PRINT 'Database already exists';
-    END
+        PRINT 'Database already exists.';
+    END;
 
-    USE AutoDBLuckyManamela;
+    -- 2. Switch context to the newly created or existing database.
+    USE [AutoDBLuckyManamela];
 
-    -- Create table if it doesn't exist
-    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'user')
+    -- 3. Create the [User] table if it doesn't exist.
+    IF NOT EXISTS (
+        SELECT 1
+        FROM sys.tables
+        WHERE [name] = 'User'
+          AND [schema_id] = SCHEMA_ID('dbo')
+    )
     BEGIN
-        CREATE TABLE [user] (
-            Name VARCHAR(50),
-            Surname VARCHAR(50),
-            Email VARCHAR(100)
+        CREATE TABLE [dbo].[User] (
+            [Name]    VARCHAR(50) NOT NULL,
+            [Surname] VARCHAR(50) NOT NULL,
+            [Email]   VARCHAR(100) NOT NULL
         );
-        PRINT 'User table created successfully';
+        PRINT 'User table created successfully.';
     END
     ELSE
     BEGIN
-        PRINT 'User table already exists';
-    END
+        PRINT 'User table already exists.';
+    END;
 
-    -- Create procedure if it doesn't exist
-    IF NOT EXISTS (SELECT * FROM sys.procedures WHERE name = 'InsertUserData')
+    -- 4. Create the stored procedure if it doesn't exist.
+    IF NOT EXISTS (
+        SELECT 1
+        FROM sys.procedures
+        WHERE [name] = 'InsertUserData'
+          AND [schema_id] = SCHEMA_ID('dbo')
+    )
     BEGIN
         EXEC('
-            CREATE PROCEDURE InsertUserData
-                @Name VARCHAR(50),
+            CREATE PROCEDURE [dbo].[InsertUserData]
+                @Name    VARCHAR(50),
                 @Surname VARCHAR(50),
-                @Email VARCHAR(100)
+                @Email   VARCHAR(100)
             AS
             BEGIN
-                INSERT INTO [user] (Name, Surname, Email)
+                INSERT INTO [dbo].[User] ([Name], [Surname], [Email])
                 VALUES (@Name, @Surname, @Email);
-            END
+            END;
         ');
-        PRINT 'InsertUserData procedure created successfully';
+        PRINT 'InsertUserData procedure created successfully.';
     END
     ELSE
     BEGIN
-        PRINT 'InsertUserData procedure already exists';
-    END
+        PRINT 'InsertUserData procedure already exists.';
+    END;
 
-    -- Insert sample data
-    EXEC InsertUserData @Name = 'Lucky', @Surname = 'Manamela', @Email = 'lucky.manamela@sambeconsulting.com';
-    EXEC InsertUserData @Name = 'Itumeleng', @Surname = 'Monyai', @Email = 'itumeleng.monyai@sambeconsulting..com';
-    PRINT 'Sample data inserted successfully';
+    -- 5. Insert sample data.
+    EXEC [dbo].[InsertUserData] @Name = 'Lucky',    @Surname = 'Manamela', @Email = 'lucky.manamela@sambeconsulting.com';
+    EXEC [dbo].[InsertUserData] @Name = 'Itumeleng', @Surname = 'Monyai',   @Email = 'itumeleng.monyai@sambeconsulting.com';
+    PRINT 'Sample data inserted successfully.';
 
 END TRY
 BEGIN CATCH
-    DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-    DECLARE @ErrorSeverity INT = ERROR_SEVERITY();
-    DECLARE @ErrorState INT = ERROR_STATE();
+    DECLARE @ErrorMessage  NVARCHAR(4000) = ERROR_MESSAGE();
+    DECLARE @ErrorSeverity INT           = ERROR_SEVERITY();
+    DECLARE @ErrorState    INT           = ERROR_STATE();
 
     PRINT 'Error occurred: ' + @ErrorMessage;
     RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
-END CATCH
+END CATCH;
 GO
