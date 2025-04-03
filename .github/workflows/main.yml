@@ -8,33 +8,21 @@ on:
 
 jobs:
   deploy-dev:
-    runs-on: ubuntu-latest
-    environment: development
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3  # Add this step to checkout the code
-
-      - name: Deploy to Development
-        uses: ./.github/workflows/deploy-sql-template.yml
-        with:
-          environment: development
-          sql_server_host: ${{ secrets.DEV_SQL_SERVER_HOST }}
-          sql_server_port: ${{ secrets.DEV_SQL_SERVER_PORT }}
-          sql_password: ${{ secrets.DEV_SQL_PASSWORD }}
+    uses: ./.github/workflows/deploy-sql-template.yml
+    with:
+      environment: development
+      sql_server_host: ${{ secrets.DEV_SQL_SERVER_HOST }}
+      sql_server_port: ${{ secrets.DEV_SQL_SERVER_PORT }}
+      sql_password: ${{ secrets.DEV_SQL_PASSWORD }}
+    secrets: inherit
 
   deploy-prod:
-    runs-on: ubuntu-latest
-    environment: production
     needs: deploy-dev
     if: success()
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3  # Add this step to checkout the code
-
-      - name: Deploy to Production
-        uses: ./.github/workflows/deploy-sql-template.yml
-        with:
-          environment: production
-          sql_server_host: ${{ secrets.PROD_SQL_SERVER_HOST }}
-          sql_server_port: ${{ secrets.PROD_SQL_SERVER_PORT }}
-          sql_password: ${{ secrets.PROD_SQL_PASSWORD }}
+    uses: ./.github/workflows/deploy-sql-template.yml
+    with:
+      environment: production
+      sql_server_host: ${{ secrets.PROD_SQL_SERVER_HOST }}
+      sql_server_port: ${{ secrets.PROD_SQL_SERVER_PORT }}
+      sql_password: ${{ secrets.PROD_SQL_PASSWORD }}
+    secrets: inherit
