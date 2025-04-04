@@ -1,11 +1,14 @@
 BEGIN TRY
     ----------------------------------------------------------------------------
-    -- 1. Create the database if it doesn't exist (On-Premise / SQL Server only)
+    -- 1. Create the database if it doesn't exist
     ----------------------------------------------------------------------------
     IF DB_ID('AutoDBLuckyManamela') IS NULL
     BEGIN
         CREATE DATABASE [AutoDBLuckyManamela];
         PRINT 'Database AutoDBLuckyManamela created successfully.';
+        
+        -- Wait briefly to ensure the database is ready (optional)
+        WAITFOR DELAY '00:00:02';
     END
     ELSE
     BEGIN
@@ -15,7 +18,6 @@ BEGIN TRY
     ----------------------------------------------------------------------------
     -- 2. Switch context to the target database
     ----------------------------------------------------------------------------
-    -- Explicitly set the database context
     USE [AutoDBLuckyManamela];
     PRINT 'Switched context to AutoDBLuckyManamela.';
 
@@ -34,7 +36,7 @@ BEGIN TRY
             [Surname]    VARCHAR(50)  NOT NULL,
             [Email]      VARCHAR(100) NOT NULL,
             [CreatedOn]  DATETIME     NOT NULL DEFAULT(GETDATE()),
-            CONSTRAINT [PK_Users] PRIMARY KEY ([Email]) -- Added for uniqueness
+            CONSTRAINT [PK_Users] PRIMARY KEY ([Email])
         );
         PRINT 'Users table created successfully.';
     END
@@ -59,7 +61,7 @@ BEGIN TRY
             @Email   VARCHAR(100)
         AS
         BEGIN
-            SET NOCOUNT ON; -- Reduces unnecessary output
+            SET NOCOUNT ON;
             INSERT INTO [dbo].[Users] ([Name], [Surname], [Email])
             VALUES (@Name, @Surname, @Email);
             PRINT 'Inserted user: ' + @Name + ' ' + @Surname + ', ' + @Email;
@@ -74,7 +76,6 @@ BEGIN TRY
     ----------------------------------------------------------------------------
     -- 5. Insert sample rows using the stored procedure
     ----------------------------------------------------------------------------
-    -- Check if the sample data already exists to avoid duplicates
     IF NOT EXISTS (SELECT 1 FROM [dbo].[Users] WHERE [Email] = 'lucky.manamela@sambeconsulting.com')
     BEGIN
         EXEC [dbo].[InsertUserData] @Name = 'Lucky', @Surname = 'Manamela', @Email = 'lucky.manamela@sambeconsulting.com';
@@ -94,7 +95,6 @@ BEGIN CATCH
     DECLARE @ErrorSeverity INT           = ERROR_SEVERITY();
     DECLARE @ErrorState    INT           = ERROR_STATE();
 
-    -- Enhanced error reporting
     PRINT 'Error occurred:';
     PRINT 'Message: ' + @ErrorMessage;
     PRINT 'Severity: ' + CAST(@ErrorSeverity AS NVARCHAR(10));
