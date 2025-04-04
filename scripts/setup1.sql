@@ -1,103 +1,49 @@
-BEGIN TRY
-    ----------------------------------------------------------------------------
-    -- 1. Create the database if it doesn't exist
-    ----------------------------------------------------------------------------
-    IF DB_ID('AutoDBLuckyManamela') IS NULL
-    BEGIN
-        CREATE DATABASE [AutoDBLuckyManamela];
-        PRINT 'Database AutoDBLuckyManamela created successfully.';
-        
-        -- Wait briefly to ensure the database is ready (optional)
-        WAITFOR DELAY '00:00:02';
-    END
-    ELSE
-    BEGIN
-        PRINT 'Database AutoDBLuckyManamela already exists.';
-    END;
+IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'AutoDBLuckyManamela')
+BEGIN
+    EXEC('CREATE DATABASE AutoDBLuckyManamela');
+END
+GO
 
-    ----------------------------------------------------------------------------
-    -- 2. Switch context to the target database
-    ----------------------------------------------------------------------------
-    USE [AutoDBLuckyManamela];
-    PRINT 'Switched context to AutoDBLuckyManamela.';
+USE AutoDBLuckyManamela;
+GO
 
-    ----------------------------------------------------------------------------
-    -- 3. Create the [Users] table if it doesn't exist
-    ----------------------------------------------------------------------------
-    IF NOT EXISTS (
-        SELECT 1
-        FROM sys.tables
-        WHERE [name] = 'Users'
-          AND [schema_id] = SCHEMA_ID('dbo')
-    )
-    BEGIN
-        CREATE TABLE [dbo].[Users] (
-            [Name]       VARCHAR(50)  NOT NULL,
-            [Surname]    VARCHAR(50)  NOT NULL,
-            [Email]      VARCHAR(100) NOT NULL,
-            [CreatedOn]  DATETIME     NOT NULL DEFAULT(GETDATE()),
-            CONSTRAINT [PK_Users] PRIMARY KEY ([Email])
-        );
-        PRINT 'Users table created successfully.';
-    END
-    ELSE
-    BEGIN
-        PRINT 'Users table already exists.';
-    END;
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'user')
+BEGIN
+    CREATE TABLE [user] (
+        Name VARCHAR(50),
+        Surname VARCHAR(50),
+        Email VARCHAR(100)
+    );
+END
+GO
 
-    ----------------------------------------------------------------------------
-    -- 4. Create the stored procedure if it doesn't exist
-    ----------------------------------------------------------------------------
-    IF NOT EXISTS (
-        SELECT 1
-        FROM sys.procedures
-        WHERE [name] = 'InsertUserData'
-          AND [schema_id] = SCHEMA_ID('dbo')
-    )
-    BEGIN
-        CREATE PROCEDURE [dbo].[InsertUserData]
-            @Name    VARCHAR(50),
+IF NOT EXISTS (SELECT * FROM sys.procedures WHERE name = 'InsertUserData')
+BEGIN
+    EXEC('
+        CREATE PROCEDURE InsertUserData
+            @Name VARCHAR(50),
             @Surname VARCHAR(50),
-            @Email   VARCHAR(100)
+            @Email VARCHAR(100)
         AS
         BEGIN
-            SET NOCOUNT ON;
-            INSERT INTO [dbo].[Users] ([Name], [Surname], [Email])
-            VALUES (@Name, @Surname, @Email);
-            PRINT 'Inserted user: ' + @Name + ' ' + @Surname + ', ' + @Email;
-        END;
-        PRINT 'InsertUserData procedure created successfully.';
-    END
-    ELSE
-    BEGIN
-        PRINT 'InsertUserData procedure already exists.';
-    END;
+            BEGIN TRY
+                INSERT INTO [user] (Name, Surname, Email)
+                VALUES (@Name, @Surname, @Email);
+            END TRY
+            BEGIN CATCH
+                -- Retrieve error information and re-raise the error.
+                DECLARE @ErrorMessage NVARCHAR(4000), @ErrorSeverity INT, @ErrorState INT;
+                SELECT 
+                    @ErrorMessage = ERROR_MESSAGE(),
+                    @ErrorSeverity = ERROR_SEVERITY(),
+                    @ErrorState = ERROR_STATE();
+                RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
+            END CATCH
+        END
+    ');
+END
+GO
 
-    ----------------------------------------------------------------------------
-    -- 5. Insert sample rows using the stored procedure
-    ----------------------------------------------------------------------------
-    IF NOT EXISTS (SELECT 1 FROM [dbo].[Users] WHERE [Email] = 'lucky.manamela@sambeconsulting.com')
-    BEGIN
-        EXEC [dbo].[InsertUserData] @Name = 'Lucky', @Surname = 'Manamela', @Email = 'lucky.manamela@sambeconsulting.com';
-    END;
-    IF NOT EXISTS (SELECT 1 FROM [dbo].[Users] WHERE [Email] = 'itumeleng.monyai@sambeconsulting.com')
-    BEGIN
-        EXEC [dbo].[InsertUserData] @Name = 'Itumeleng', @Surname = 'Monyai', @Email = 'itumeleng.monyai@sambeconsulting.com';
-    END;
-    PRINT 'Sample data insertion attempted.';
-
-END TRY
-BEGIN CATCH
-    ----------------------------------------------------------------------------
-    -- 6. Handle errors
-    ----------------------------------------------------------------------------
-    DECLARE @ErrorMessage  NVARCHAR(4000) = ERROR_MESSAGE();
-    DECLARE @ErrorSeverity INT           = ERROR_SEVERITY();
-    DECLARE @ErrorState    INT           = ERROR_STATE();
-
-    PRINT 'Error occurred:';
-    PRINT 'Message: ' + @ErrorMessage;
-    PRINT 'Severity: ' + CAST(@ErrorSeverity AS NVARCHAR(10));
-    PRINT 'State: ' + CAST(@ErrorState AS NVARCHAR(10));
-    RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
-END CATCH;
+EXEC InsertUserData @Name = 'Lucky', @Surname = 'Manamela', @Email = 'lucky.manamela@sambeconsulting.com';
+EXEC InsertUserData @Name = 'Thabang', @Surname = 'Mothapo', @Email = 'thabang.mothapo@sambeconsulting.com';
+GO
