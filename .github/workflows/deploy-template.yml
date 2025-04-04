@@ -43,7 +43,7 @@ jobs:
       - name: Execute SQL Script
         run: |
           # Step 1: Run the script against master to create the database
-          /opt/mssql-tools/bin/sqlcmd -S "${{ secrets.SQL_SERVER_HOST }},${{ secrets.SQL_SERVER_PORT }}" -U "${{ secrets.SQL_USER }}" -P "${{ secrets.SQL_PASSWORD }}" -d master -i scripts/setup1.sql -o output.log -x
+          /opt/mssql-tools/bin/sqlcmd -S "${{ secrets.SQL_SERVER_HOST }},${{ secrets.SQL_SERVER_PORT }}" -U "${{ secrets.SQL_USER }}" -P "${{ secrets.SQL_PASSWORD }}" -d master -i scripts/setup2.sql -o output.log -x
           if grep -q "Msg [0-9]\+, Level [0-9]\+, State [0-9]\+" output.log; then
             echo "Error: SQL script execution failed. Check output.log for details."
             cat output.log
