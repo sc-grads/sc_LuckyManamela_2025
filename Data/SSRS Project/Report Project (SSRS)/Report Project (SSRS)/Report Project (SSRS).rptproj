@@ -61,10 +61,10 @@
     <Report Include="AddressMap.rdl" />
     <Report Include="ChartOfProductsByProductSubCategory.rdl" />
     <Report Include="ProductCategories.rdl" />
-    <Report Include="ProductCategoryR.rdl" />
     <Report Include="ProductReport.rdl" />
     <Report Include="Products.rdl" />
     <Report Include="ReportWizard.rdl" />
+    <Report Include="Sales Report.rdl" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Reporting Services\Microsoft.ReportingServices.MSBuilder.targets" />
 </Project>

@@ -1,0 +1,195 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report
+  xmlns="http://schemas.microsoft.com/sqlserver/reporting/2008/01/reportdefinition"
+  xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+	<!-- Data Source -->
+	<DataSources>
+		<DataSource Name="AdventureWorksDataSource">
+			<ConnectionProperties>
+				<DataProvider>SQL</DataProvider>
+				<ConnectString>Data Source=YOUR_SERVER_NAME;Initial Catalog=AdventureWorks2016;Integrated Security=True;</ConnectString>
+			</ConnectionProperties>
+			<rd:SecurityType>None</rd:SecurityType>
+			<rd:DataSourceID>a5f27268-c5f0-4efc-84c1-3678ee6750af</rd:DataSourceID>
+		</DataSource>
+	</DataSources>
+
+
+	<!-- DataSet -->
+	<DataSets>
+		<DataSet Name="SalesData">
+			<Query>
+				<DataSourceName>AdventureWorksDataSource</DataSourceName>
+				<CommandText>
+					<![CDATA[
+          SELECT 
+              DATEPART(YEAR, OrderDate) AS OrderYear, 
+              DATEPART(MONTH, OrderDate) AS OrderMonth, 
+              SUM(TotalDue) AS TotalSales
+          FROM Sales.SalesOrderHeader
+          GROUP BY DATEPART(YEAR, OrderDate), DATEPART(MONTH, OrderDate)
+          ORDER BY OrderYear, OrderMonth
+          ]]>
+				</CommandText>
+			</Query>
+			<Fields>
+				<Field Name="OrderYear">
+					<DataField>OrderYear</DataField>
+					<rd:TypeName>System.Int32</rd:TypeName>
+				</Field>
+				<Field Name="OrderMonth">
+					<DataField>OrderMonth</DataField>
+					<rd:TypeName>System.Int32</rd:TypeName>
+				</Field>
+				<Field Name="TotalSales">
+					<DataField>TotalSales</DataField>
+					<rd:TypeName>System.Decimal</rd:TypeName>
+				</Field>
+			</Fields>
+		</DataSet>
+	</DataSets>
+
+	<!-- Body of the Report -->
+	<Body>
+		<ReportItems>
+			<!-- Title Textbox -->
+			<Textbox Name="ReportTitle">
+				<CanGrow>true</CanGrow>
+				<KeepTogether>true</KeepTogether>
+				<Paragraphs>
+					<Paragraph>
+						<TextRuns>
+							<TextRun>
+								<Value>Yearly Sales Performance</Value>
+								<Style>
+									<FontSize>20pt</FontSize>
+									<FontWeight>Bold</FontWeight>
+								</Style>
+							</TextRun>
+						</TextRuns>
+						<Style />
+					</Paragraph>
+				</Paragraphs>
+				<rd:DefaultName>ReportTitle</rd:DefaultName>
+				<Top>0.25in</Top>
+				<Left>0.25in</Left>
+				<Height>0.5in</Height>
+				<Width>6in</Width>
+				<ZIndex>2</ZIndex>
+			</Textbox>
+
+			<!-- Chart to Display Sales Trend -->
+			<Chart Name="SalesChart">
+				<Left>0.25in</Left>
+				<Top>1in</Top>
+				<Width>6in</Width>
+				<Height>3in</Height>
+				<DataSetName>SalesData</DataSetName>
+				<!-- Define the Category (X) Axis Grouping -->
+				<ChartCategoryHierarchy>
+					<ChartMembers>
+						<ChartMember>
+							<Groupings>
+								<Grouping Name="MonthGrouping">
+									<!-- Display as Month/Year -->
+									<GroupingExpressions>
+										<GroupingExpression>=Fields!OrderMonth.Value &amp; "/" &amp; Fields!OrderYear.Value</GroupingExpression>
+									</GroupingExpressions>
+								</Grouping>
+							</Groupings>
+							<SortExpressions>
+								<SortExpression>
+									<!-- Sort by Year then Month -->
+									<Value>=Fields!OrderYear.Value * 100 + Fields!OrderMonth.Value</Value>
+								</SortExpression>
+							</SortExpressions>
+						</ChartMember>
+					</ChartMembers>
+				</ChartCategoryHierarchy>
+
+				<!-- Define the Value (Y) Axis -->
+				<ChartValueHierarchy>
+					<ChartMembers>
+						<ChartMember />
+					</ChartMembers>
+				</ChartValueHierarchy>
+
+				<!-- Chart Area Definition -->
+				<ChartAreas>
+					<ChartArea Name="Default" />
+				</ChartAreas>
+
+				<!-- Define the Series -->
+				<ChartSeriesCollection>
+					<ChartSeries>
+						<Name>Total Sales</Name>
+						<ChartType>Line</ChartType>
+						<DataPoints>
+							<DataPoint>
+								<DataValues>
+									<DataValue>
+										<Value>=Fields!TotalSales.Value</Value>
+									</DataValue>
+								</DataValues>
+								<Style>
+									<!-- Line styling with a light blue fill and black border -->
+									<BorderColor>Black</BorderColor>
+									<BorderStyle>Solid</BorderStyle>
+									<BorderWidth>1pt</BorderWidth>
+									<BackgroundColor>LightBlue</BackgroundColor>
+								</Style>
+							</DataPoint>
+						</DataPoints>
+					</ChartSeries>
+				</ChartSeriesCollection>
+				<Style />
+			</Chart>
+
+			<!-- Narrative Text Block -->
+			<Textbox Name="ReportStory">
+				<CanGrow>true</CanGrow>
+				<KeepTogether>true</KeepTogether>
+				<Paragraphs>
+					<Paragraph>
+						<TextRuns>
+							<TextRun>
+								<Value>
+									<![CDATA[
+This report tells the story of our company’s journey over time. The line chart above illustrates our monthly sales performance, highlighting how each period brings both challenges and opportunities. Notice the peaks and valleys which reflect seasonal trends, strategic initiatives, and market conditions. Let this story inspire you to continue driving success in every new month!
+                  ]]>
+								</Value>
+								<Style>
+									<FontSize>12pt</FontSize>
+								</Style>
+							</TextRun>
+						</TextRuns>
+						<Style />
+					</Paragraph>
+				</Paragraphs>
+				<rd:DefaultName>ReportStory</rd:DefaultName>
+				<Top>4.5in</Top>
+				<Left>0.25in</Left>
+				<Height>1in</Height>
+				<Width>6in</Width>
+				<ZIndex>3</ZIndex>
+			</Textbox>
+		</ReportItems>
+		<Height>6in</Height>
+		<Style />
+	</Body>
+
+	<!-- Report Page Settings -->
+	<Width>6.5in</Width>
+	<Page>
+		<PageHeight>11in</PageHeight>
+		<PageWidth>8.5in</PageWidth>
+		<LeftMargin>0.5in</LeftMargin>
+		<RightMargin>0.5in</RightMargin>
+		<TopMargin>0.5in</TopMargin>
+		<BottomMargin>0.5in</BottomMargin>
+	</Page>
+
+	<!-- Report Designer Settings -->
+	<rd:ReportUnitType>Inch</rd:ReportUnitType>
+	<rd:ReportID>e2c9b9bd-8a12-4aaf-9139-3e9d8880a203</rd:ReportID>
+</Report>
