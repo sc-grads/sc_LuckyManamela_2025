@@ -2,18 +2,48 @@
 <BuildLog xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <ProjectInfo>
     <Name>SSIS working</Name>
-    <LastWriteTime>2025-05-27T07:05:14.9774581Z</LastWriteTime>
+    <LastWriteTime>2025-05-28T08:09:34.5813063Z</LastWriteTime>
     <LastKnownProtectionLevel>EncryptSensitiveWithUserKey</LastKnownProtectionLevel>
   </ProjectInfo>
   <LastBuildInfos>
     <ProjectBuildItemInfo>
       <Name>SSISPackage.dtsx</Name>
-      <LastWriteTime>2025-05-27T07:05:24.836928Z</LastWriteTime>
+      <LastWriteTime>2025-05-27T08:15:12.9618523Z</LastWriteTime>
       <LastKnownProtectionLevel>EncryptSensitiveWithUserKey</LastKnownProtectionLevel>
     </ProjectBuildItemInfo>
     <ProjectBuildItemInfo>
       <Name>AddressPK.dtsx</Name>
-      <LastWriteTime>2025-05-27T07:05:24.7183892Z</LastWriteTime>
+      <LastWriteTime>2025-05-27T08:15:12.9409642Z</LastWriteTime>
+      <LastKnownProtectionLevel>EncryptSensitiveWithUserKey</LastKnownProtectionLevel>
+    </ProjectBuildItemInfo>
+    <ProjectBuildItemInfo>
+      <Name>ExportToCSV.dtsx</Name>
+      <LastWriteTime>2025-05-28T07:09:14.4099597Z</LastWriteTime>
+      <LastKnownProtectionLevel>EncryptSensitiveWithUserKey</LastKnownProtectionLevel>
+    </ProjectBuildItemInfo>
+    <ProjectBuildItemInfo>
+      <Name>CharacterMapTransformation.dtsx</Name>
+      <LastWriteTime>2025-05-28T07:20:51.3012111Z</LastWriteTime>
+      <LastKnownProtectionLevel>EncryptSensitiveWithUserKey</LastKnownProtectionLevel>
+    </ProjectBuildItemInfo>
+    <ProjectBuildItemInfo>
+      <Name>CopyColumnDemo.dtsx</Name>
+      <LastWriteTime>2025-05-28T07:29:07.8094165Z</LastWriteTime>
+      <LastKnownProtectionLevel>EncryptSensitiveWithUserKey</LastKnownProtectionLevel>
+    </ProjectBuildItemInfo>
+    <ProjectBuildItemInfo>
+      <Name>DerivedColumnDemo.dtsx</Name>
+      <LastWriteTime>2025-05-28T07:40:12.7338998Z</LastWriteTime>
+      <LastKnownProtectionLevel>EncryptSensitiveWithUserKey</LastKnownProtectionLevel>
+    </ProjectBuildItemInfo>
+    <ProjectBuildItemInfo>
+      <Name>PercentageSamplingDemo.dtsx</Name>
+      <LastWriteTime>2025-05-28T07:59:41.7152729Z</LastWriteTime>
+      <LastKnownProtectionLevel>EncryptSensitiveWithUserKey</LastKnownProtectionLevel>
+    </ProjectBuildItemInfo>
+    <ProjectBuildItemInfo>
+      <Name>RowSamplingDemo.dtsx</Name>
+      <LastWriteTime>2025-05-28T08:09:34.4799812Z</LastWriteTime>
       <LastKnownProtectionLevel>EncryptSensitiveWithUserKey</LastKnownProtectionLevel>
     </ProjectBuildItemInfo>
   </LastBuildInfos>
