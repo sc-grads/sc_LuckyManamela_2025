@@ -11,8 +11,8 @@
   DTS:LocaleID="1033"
   DTS:ObjectName="ExportToCSV"
   DTS:PackageType="5"
-  DTS:VersionBuild="4"
-  DTS:VersionGUID="{405DB963-A5D7-4ACA-A4FA-C6ADF8702804}">
+  DTS:VersionBuild="5"
+  DTS:VersionGUID="{1842B421-5DE6-474F-A10D-5157E9608C02}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:ConnectionManagers>
@@ -379,7 +379,7 @@
         <NodeLayout
           Size="141.6,41.6"
           Id="Package\ExportToCSV"
-          TopLeft="401.666644720569,56.3333329415984" />
+          TopLeft="119.166660155687,72.7999994937579" />
       </GraphLayout>
     </LayoutInfo>
   </Package>
