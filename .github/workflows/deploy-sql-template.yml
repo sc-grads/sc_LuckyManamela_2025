@@ -1,4 +1,4 @@
-name: Deploy SQL Script
+name: Deploy timesheet SQL Script
 
 on:
   workflow_call:
@@ -58,7 +58,7 @@ jobs:
             -S "$SQL_SERVER,$SQL_PORT" \
             -U "$SQL_USER" \
             -P "$SQL_PASSWORD" \
-            -i scripts/setup1.sql \
+            -i Hands on projects/DB Design/DB SQL script/create_timesheet_db.sql \
             -o output.log -x
 
           EXIT_CODE=$?
