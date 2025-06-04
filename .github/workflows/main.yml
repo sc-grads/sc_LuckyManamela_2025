@@ -1,4 +1,4 @@
-name: Setup AutoDBLuckyManamela2 Database
+name: Setup Timesheet Database
 
 on:
   push:
