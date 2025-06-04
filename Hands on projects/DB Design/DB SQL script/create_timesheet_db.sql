@@ -1,12 +1,12 @@
 -- Create Database
-IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'Timesheet')
+IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'TimesheetDB')
 BEGIN
-    CREATE DATABASE Timesheet;
+    CREATE DATABASE TimesheetDB;
 END
 GO
 
 -- Use the database
-USE Timesheet;
+USE TimesheetDB;
 GO
 
 -- Create Consultant table
@@ -70,11 +70,11 @@ BEGIN
 END
 GO
 
--- Create LeaveRequest table
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'LeaveRequest')
+-- Create Leave table
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Leave')
 BEGIN
-    CREATE TABLE LeaveRequest (
-        LeaveRequestID INT IDENTITY(1,1) PRIMARY KEY,
+    CREATE TABLE Leave (
+        LeaveID INT IDENTITY(1,1) PRIMARY KEY,
         ConsultantID INT NOT NULL,
         TypeOfLeave NVARCHAR(50) NOT NULL,
         StartDate DATE NOT NULL,
@@ -150,10 +150,10 @@ BEGIN
 END
 GO
 
-IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_LeaveRequest_ConsultantID_StartDate')
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Leave_ConsultantID_StartDate')
 BEGIN
-    CREATE NONCLUSTERED INDEX IX_LeaveRequest_ConsultantID_StartDate
-    ON LeaveRequest (ConsultantID, StartDate)
+    CREATE NONCLUSTERED INDEX IX_Leave_ConsultantID_StartDate
+    ON Leave (ConsultantID, StartDate)
     INCLUDE (TypeOfLeave, NumberOfDays);
 END
 GO
@@ -184,28 +184,28 @@ BEGIN
 END
 GO
 
--- Create Audit Trigger for LeaveRequest
-IF NOT EXISTS (SELECT * FROM sys.triggers WHERE name = 'tr_LeaveRequest_Audit')
+-- Create Audit Trigger for Leave
+IF NOT EXISTS (SELECT * FROM sys.triggers WHERE name = 'tr_Leave_Audit')
 BEGIN
     EXEC sp_executesql N'
-    CREATE TRIGGER tr_LeaveRequest_Audit
-    ON LeaveRequest
+    CREATE TRIGGER tr_Leave_Audit
+    ON Leave
     AFTER INSERT, UPDATE, DELETE
     AS
     BEGIN
         INSERT INTO AuditLog (TableName, Operation, RecordID, OldValue, NewValue, ChangeDate, TBUser)
         SELECT
-            ''LeaveRequest'',
+            ''Leave'',
             CASE WHEN EXISTS (SELECT * FROM inserted) AND EXISTS (SELECT * FROM deleted) THEN ''UPDATE''
                  WHEN EXISTS (SELECT * FROM inserted) THEN ''INSERT''
                  ELSE ''DELETE'' END,
-            COALESCE(i.LeaveRequestID, d.LeaveRequestID),
+            COALESCE(i.LeaveID, d.LeaveID),
             (SELECT TypeOfLeave, StartDate, EndDate, NumberOfDays FROM deleted FOR JSON PATH),
             (SELECT TypeOfLeave, StartDate, EndDate, NumberOfDays FROM inserted FOR JSON PATH),
             GETDATE(),
             SYSTEM_USER
         FROM inserted i
-        FULL OUTER JOIN deleted d ON i.LeaveRequestID = d.LeaveRequestID;
+        FULL OUTER JOIN deleted d ON i.LeaveID = d.LeaveID;
     END';
 END
 GO
