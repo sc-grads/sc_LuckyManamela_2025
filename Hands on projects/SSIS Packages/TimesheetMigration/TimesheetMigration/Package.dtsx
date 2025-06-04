@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="6/4/2025 10:04:28 AM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="MANAMELA"
+  DTS:CreatorName="MANAMELA\kgali"
+  DTS:DTSID="{830D857C-CAA6-45E8-9A2E-5BD47170357F}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="16.0.5685.0"
+  DTS:LocaleID="1033"
+  DTS:ObjectName="Package"
+  DTS:PackageType="5"
+  DTS:VersionGUID="{F7F76DA8-052E-40F7-9FC8-6C4A28FB8A7D}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:Variables />
+  <DTS:Executables />
+</DTS:Executable>
