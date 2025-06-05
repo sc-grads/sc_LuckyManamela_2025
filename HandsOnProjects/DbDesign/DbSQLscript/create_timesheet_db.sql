@@ -58,11 +58,11 @@ BEGIN
         Description NVARCHAR(500),
         BillableStatus NVARCHAR(20) NOT NULL,
         Comments NVARCHAR(1000),
-        TotalHours DECIMAL(5,2) NOT NULL,
+        TotalHours TIME NOT NULL,
         StartTime TIME,
         EndTime TIME,
         CONSTRAINT CHK_BillableStatus CHECK (BillableStatus IN ('Billable', 'Non-Billable')),
-        CONSTRAINT CHK_TotalHours CHECK (TotalHours >= 0),
+        CONSTRAINT CHK_TotalHours CHECK (TotalHours >= '00:00:00'),
         FOREIGN KEY (ConsultantID) REFERENCES Consultant(ConsultantID),
         FOREIGN KEY (ClientID) REFERENCES Client(ClientID),
         FOREIGN KEY (ProjectID) REFERENCES Project(ProjectID)
