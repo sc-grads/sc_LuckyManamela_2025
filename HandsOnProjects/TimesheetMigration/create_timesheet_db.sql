@@ -15,10 +15,6 @@ BEGIN
     CREATE TABLE Consultant (
         ConsultantID INT IDENTITY(1,1) PRIMARY KEY,
         ConsultantName NVARCHAR(100) NOT NULL,
-        Email NVARCHAR(100) UNIQUE,
-        LineManager NVARCHAR(100),
-        AddressDuringLeave NVARCHAR(500),
-        PhoneDuringLeave NVARCHAR(50)
     );
 END
 GO
@@ -33,17 +29,6 @@ BEGIN
 END
 GO
 
--- Create Project table
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Project')
-BEGIN
-    CREATE TABLE Project (
-        ProjectID INT IDENTITY(1,1) PRIMARY KEY,
-        ClientID INT NOT NULL,
-        ProjectName NVARCHAR(100),
-        FOREIGN KEY (ClientID) REFERENCES Client(ClientID)
-    );
-END
-GO
 
 -- Create Timesheet table
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Timesheet')
@@ -52,7 +37,6 @@ BEGIN
         TimesheetID INT IDENTITY(1,1) PRIMARY KEY,
         ConsultantID INT NOT NULL,
         ClientID INT NOT NULL,
-        ProjectID INT NULL,
         EntryDate DATE NOT NULL,
         DayOfWeek NVARCHAR(10),
         Description NVARCHAR(500),
@@ -65,7 +49,6 @@ BEGIN
         CONSTRAINT CHK_TotalHours CHECK (TotalHours >= '00:00:00'),
         FOREIGN KEY (ConsultantID) REFERENCES Consultant(ConsultantID),
         FOREIGN KEY (ClientID) REFERENCES Client(ClientID),
-        FOREIGN KEY (ProjectID) REFERENCES Project(ProjectID)
     );
 END
 GO
@@ -75,14 +58,14 @@ IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Leave')
 BEGIN
     CREATE TABLE Leave (
         LeaveID INT IDENTITY(1,1) PRIMARY KEY,
-        ConsultantID INT NOT NULL,
-        TypeOfLeave NVARCHAR(50) NOT NULL,
-        StartDate DATE NOT NULL,
-        EndDate DATE NOT NULL,
-        NumberOfDays DECIMAL(5,2) NOT NULL,
-        ApprovalObtained BIT NOT NULL,
-        SickNote BIT NOT NULL,
-        Comments NVARCHAR(1000),
+        ConsultantID INT NULL,
+        TypeOfLeave NVARCHAR(50) NULL,
+        StartDate DATE NULL,
+        EndDate DATE NULL,
+        NumberOfDays DECIMAL(5,2) NULL,
+        ApprovalObtained BIT NULL,
+        SickNote BIT NULL,
+        Comments NVARCHAR(1000)null,
         CONSTRAINT CHK_NumberOfDays CHECK (NumberOfDays >= 0),
         FOREIGN KEY (ConsultantID) REFERENCES Consultant(ConsultantID)
     );
