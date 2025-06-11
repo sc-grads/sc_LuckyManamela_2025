@@ -26,7 +26,7 @@
           <SSIS:Property SSIS:Name="CreatorComputerName">MANAMELA</SSIS:Property>
           <SSIS:Property SSIS:Name="Description">
           </SSIS:Property>
-          <SSIS:Property SSIS:Name="PasswordVerifier" SSIS:Sensitive="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAARTCIf0F5tkayy4cG2VVsnAAAAAACAAAAAAAQZgAAAAEAACAAAAAZJcLQUpi/6xIaXAwWoz2z7ikxjO0EnpCwSFw19qgjeAAAAAAOgAAAAAIAACAAAAC8EmTfjs8AF01jiVoOWa4CWF9eL2mF2l+wQql8Rpto8ZAAAABg4XXLcrSjZYl4UkV6Bt5oKFFWgpGBv+nDKDTNsDhZUTRTzasHNXADX0LWAJeNuz981WzkxFYMXAYwE4pq43ypIfhFAxTWmeUh9dLYgSy48w8S/8GkC1pENyJu2Wn/BdbvDeyNjRyPHfrm9niiH7INI9SQ9u1RJ1qMBY4YBDzZEbXz5Ur2lGQcCOgFZp2SBUJAAAAA7Iy8ip3ddxpZvemoGRC2Qt2/ZChHb6YPA9xg9Bxpqr5UMPoZwFgITSDy8y6z3nZP+N2vQnUdGne+KlD076Vkfw==</SSIS:Property>
+          <SSIS:Property SSIS:Name="PasswordVerifier" SSIS:Sensitive="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAARTCIf0F5tkayy4cG2VVsnAAAAAACAAAAAAAQZgAAAAEAACAAAADxlPFS45HDL3SLUUQh/VMxsSFkhFu298XIOslYxzxmqwAAAAAOgAAAAAIAACAAAAAIc/PKPy6Ty9WrdmlT8Ra6DAmSF+8IHZdZ8a0/XnnYRpAAAAAXWuIR1Nb1sb5Fqc6MgtOGbB7w7MH0p5SpWoTJqlZtIKdJ2urrIpsgpfGPbtQHoW6tO61wmAY65tX4TIR01FZRMUE/3jOEfxZPBMdYX4FMxe5wHI1WONKxnUZtUTXObMVEork3dLCgrKFXIEiI3QWXuOtOr5Q/RnpWrx6skIUMCd/Kl6I7gzKQ7EXGNXdcmtRAAAAAmL0JX9eVDozLLY/GTnozv1X/r2Y5UYkKOTvNWIj91YvAkYncktHLOsY+ws4TRpAeyxXwrdPk5Pm816bqMt1BVA==</SSIS:Property>
           <SSIS:Property SSIS:Name="FormatVersion">1</SSIS:Property>
         </SSIS:Properties>
         <SSIS:Packages>
@@ -1468,10 +1468,10 @@
                 <SSIS:Property SSIS:Name="Name">TimeSheetMigration</SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionMajor">1</SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionMinor">0</SSIS:Property>
-                <SSIS:Property SSIS:Name="VersionBuild">159</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionBuild">169</SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionComments">
                 </SSIS:Property>
-                <SSIS:Property SSIS:Name="VersionGUID">{594D6BDF-A0BB-4683-BA14-6E86302876E1}</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionGUID">{2895488C-46BA-4327-9B89-0E486FFF1D98}</SSIS:Property>
                 <SSIS:Property SSIS:Name="PackageFormatVersion">8</SSIS:Property>
                 <SSIS:Property SSIS:Name="Description">
                 </SSIS:Property>
@@ -1504,22 +1504,7 @@
                     <SSIS:Property SSIS:Name="IncludeInDebugDump">0</SSIS:Property>
                     <SSIS:Property SSIS:Name="Required">0</SSIS:Property>
                     <SSIS:Property SSIS:Name="Sensitive">0</SSIS:Property>
-                    <SSIS:Property SSIS:Name="Value">Provider=Microsoft.ACE.OLEDB.16.0;Data Source=C:\TimeSheets\Karabo\Karabo_Tsaoane_April_FinalWeek.xlsx;Extended Properties="Excel 12.0 XML;HDR=YES";</SSIS:Property>
-                    <SSIS:Property SSIS:Name="DataType">18</SSIS:Property>
-                  </SSIS:Properties>
-                </SSIS:Parameter>
-                <SSIS:Parameter SSIS:Name="CM.Excel Connection Manager.ExcelFilePath">
-                  <SSIS:Properties>
-                    <SSIS:Property SSIS:Name="ID">
-                    </SSIS:Property>
-                    <SSIS:Property SSIS:Name="CreationName">
-                    </SSIS:Property>
-                    <SSIS:Property SSIS:Name="Description">
-                    </SSIS:Property>
-                    <SSIS:Property SSIS:Name="IncludeInDebugDump">0</SSIS:Property>
-                    <SSIS:Property SSIS:Name="Required">0</SSIS:Property>
-                    <SSIS:Property SSIS:Name="Sensitive">0</SSIS:Property>
-                    <SSIS:Property SSIS:Name="Value">C:\TimeSheets\Karabo\Karabo_Tsaoane_April_FinalWeek.xlsx</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Value">Provider=Microsoft.ACE.OLEDB.16.0;Data Source=C:\TimeSheets\Karabo\Karabo_Tsaoane_April_FinalWeek.xlsx;Extended Properties="EXCEL 12.0 XML;HDR=YES";</SSIS:Property>
                     <SSIS:Property SSIS:Name="DataType">18</SSIS:Property>
                   </SSIS:Properties>
                 </SSIS:Parameter>
@@ -2032,7 +2017,7 @@
                     <SSIS:Property SSIS:Name="IncludeInDebugDump">0</SSIS:Property>
                     <SSIS:Property SSIS:Name="Required">0</SSIS:Property>
                     <SSIS:Property SSIS:Name="Sensitive">0</SSIS:Property>
-                    <SSIS:Property SSIS:Name="Value">Provider=Microsoft.ACE.OLEDB.16.0;Data Source=C:\TimeSheets\Karabo\Karabo_Tsaoane_April_FinalWeek.xlsx;Extended Properties="Excel 12.0 XML;HDR=NO";</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Value">Provider=Microsoft.ACE.OLEDB.16.0;Data Source=C:\TimeSheets\Karabo\Karabo_Tsaoane_April_FinalWeek.xlsx;Extended Properties="EXCEL 12.0 XML;HDR=NO";</SSIS:Property>
                     <SSIS:Property SSIS:Name="DataType">18</SSIS:Property>
                   </SSIS:Properties>
                 </SSIS:Parameter>
