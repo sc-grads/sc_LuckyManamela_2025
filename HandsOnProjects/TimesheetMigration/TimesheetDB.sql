@@ -29,7 +29,6 @@ BEGIN
 END
 GO
 
-
 -- Create Timesheet table
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Timesheet')
 BEGIN
@@ -58,14 +57,14 @@ IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Leave')
 BEGIN
     CREATE TABLE Leave (
         LeaveID INT IDENTITY(1,1) PRIMARY KEY,
-        ConsultantID INT NULL,
-        TypeOfLeave NVARCHAR(50) NULL,
-        StartDate DATE NULL,
-        EndDate DATE NULL,
-        NumberOfDays DECIMAL(5,2) NULL,
-        ApprovalObtained BIT NULL,
-        SickNote BIT NULL,
-        Comments NVARCHAR(1000)null,
+        ConsultantID INT NOT NULL,
+        TypeOfLeave NVARCHAR(50),
+        StartDate DATE NOT NULL,
+        EndDate DATE NOT NULL,
+        NumberOfDays DECIMAL(5,2) NOT NULL,
+        ApprovalObtained NVARCHAR(50) NOT NULL,
+        SickNote NVARCHAR(20) NULL,
+        Comments NVARCHAR(1000),
         CONSTRAINT CHK_NumberOfDays CHECK (NumberOfDays >= 0),
         FOREIGN KEY (ConsultantID) REFERENCES Consultant(ConsultantID)
     );
@@ -93,12 +92,12 @@ BEGIN
     CREATE TABLE AuditLog (
         AuditID INT IDENTITY(1,1) PRIMARY KEY,
         TableName NVARCHAR(50) NOT NULL,
-        Operation NVARCHAR(10) NOT NULL,
-        RecordID INT NOT NULL,
-        OldValue NVARCHAR(MAX),
-        NewValue NVARCHAR(MAX),
-        ChangeDate DATETIME NOT NULL,
-        TBUser NVARCHAR(100)
+		FileName NVARCHAR(1000),
+		EmployeeID INT,
+		UserName NVARCHAR(50) NULL,
+		Details NVARCHAR(MAX),
+		Timestamp DATETIME NULL DEFAULT GETDATE()
+      
     );
 END
 GO
@@ -108,11 +107,10 @@ IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'ErrorLog')
 BEGIN
     CREATE TABLE ErrorLog (
         ErrorID INT IDENTITY(1,1) PRIMARY KEY,
-        FilePath NVARCHAR(255),
-        SheetName NVARCHAR(100),
-        RowData NVARCHAR(MAX),
+        FilePath NVARCHAR(1000),
+        ErrorCode NVARCHAR(MAX),
         ErrorMessage NVARCHAR(1000),
-        ErrorDate DATETIME NOT NULL
+        Timestamp DATETIME DEFAULT GETDATE()
     );
 END
 GO
@@ -150,19 +148,35 @@ BEGIN
     AFTER INSERT, UPDATE, DELETE
     AS
     BEGIN
-        INSERT INTO AuditLog (TableName, Operation, RecordID, OldValue, NewValue, ChangeDate, TBUser)
+        SET NOCOUNT ON;
+
+        INSERT INTO AuditLog (TableName, FileName, EmployeeID, Details, Timestamp, UserName)
         SELECT
             ''Timesheet'',
-            CASE WHEN EXISTS (SELECT * FROM inserted) AND EXISTS (SELECT * FROM deleted) THEN ''UPDATE''
-                 WHEN EXISTS (SELECT * FROM inserted) THEN ''INSERT''
-                 ELSE ''DELETE'' END,
-            COALESCE(i.TimesheetID, d.TimesheetID),
-            (SELECT TotalHours, Description, BillableStatus FROM deleted FOR JSON PATH),
-            (SELECT TotalHours, Description, BillableStatus FROM inserted FOR JSON PATH),
+            NULL, -- FileName will populated via SSIS parameter
+            COALESCE(i.ConsultantID, d.ConsultantID), -- Map to ConsultantID
+            (
+                SELECT 
+                    ''Old'' AS Action,
+                    d.TimesheetID, d.ConsultantID, d.ClientID, d.EntryDate, d.DayOfWeek, d.Description, 
+                    d.BillableStatus, d.Comments, d.TotalHours, d.StartTime, d.EndTime
+                FOR JSON PATH, INCLUDE_NULL_VALUES
+            ) + CASE 
+                    WHEN EXISTS (SELECT 1 FROM inserted) THEN
+                        '', '' + (
+                            SELECT 
+                                ''New'' AS Action,
+                                i.TimesheetID, i.ConsultantID, i.ClientID, i.EntryDate, i.DayOfWeek, i.Description, 
+                                i.BillableStatus, i.Comments, i.TotalHours, i.StartTime, i.EndTime
+                            FOR JSON PATH, INCLUDE_NULL_VALUES
+                        )
+                    ELSE ''''
+                END AS Details,
             GETDATE(),
             SYSTEM_USER
         FROM inserted i
-        FULL OUTER JOIN deleted d ON i.TimesheetID = d.TimesheetID;
+        FULL OUTER JOIN deleted d ON i.TimesheetID = d.TimesheetID
+        WHERE i.TimesheetID IS NOT NULL OR d.TimesheetID IS NOT NULL;
     END';
 END
 GO
@@ -176,19 +190,35 @@ BEGIN
     AFTER INSERT, UPDATE, DELETE
     AS
     BEGIN
-        INSERT INTO AuditLog (TableName, Operation, RecordID, OldValue, NewValue, ChangeDate, TBUser)
+        SET NOCOUNT ON;
+
+        INSERT INTO AuditLog (TableName, FileName, EmployeeID, Details, Timestamp, UserName)
         SELECT
             ''Leave'',
-            CASE WHEN EXISTS (SELECT * FROM inserted) AND EXISTS (SELECT * FROM deleted) THEN ''UPDATE''
-                 WHEN EXISTS (SELECT * FROM inserted) THEN ''INSERT''
-                 ELSE ''DELETE'' END,
-            COALESCE(i.LeaveID, d.LeaveID),
-            (SELECT TypeOfLeave, StartDate, EndDate, NumberOfDays FROM deleted FOR JSON PATH),
-            (SELECT TypeOfLeave, StartDate, EndDate, NumberOfDays FROM inserted FOR JSON PATH),
+            NULL, -- FileName will be populated via SSIS parameter
+            COALESCE(i.ConsultantID, d.ConsultantID), -- Map to ConsultantID
+            (
+                SELECT 
+                    ''Old'' AS Action,
+                    d.LeaveID, d.ConsultantID, d.TypeOfLeave, d.StartDate, d.EndDate, d.NumberOfDays, 
+                    d.ApprovalObtained, d.SickNote, d.Comments
+                FOR JSON PATH, INCLUDE_NULL_VALUES
+            ) + CASE 
+                    WHEN EXISTS (SELECT 1 FROM inserted) THEN
+                        '', '' + (
+                            SELECT 
+                                ''New'' AS Action,
+                                i.LeaveID, i.ConsultantID, i.TypeOfLeave, i.StartDate, i.EndDate, i.NumberOfDays, 
+                                i.ApprovalObtained, i.SickNote, i.Comments
+                            FOR JSON PATH, INCLUDE_NULL_VALUES
+                        )
+                    ELSE ''''
+                END AS Details,
             GETDATE(),
             SYSTEM_USER
         FROM inserted i
-        FULL OUTER JOIN deleted d ON i.LeaveID = d.LeaveID;
+        FULL OUTER JOIN deleted d ON i.LeaveID = d.LeaveID
+        WHERE i.LeaveID IS NOT NULL OR d.LeaveID IS NOT NULL;
     END';
 END
 GO
