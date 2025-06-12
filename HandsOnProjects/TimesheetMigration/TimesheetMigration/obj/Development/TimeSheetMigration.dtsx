@@ -11,8 +11,8 @@
   DTS:LocaleID="1033"
   DTS:ObjectName="TimeSheetMigration"
   DTS:PackageType="5"
-  DTS:VersionBuild="165"
-  DTS:VersionGUID="{432A8EAC-1090-4857-B417-497CC09DD026}">
+  DTS:VersionBuild="170"
+  DTS:VersionGUID="{A0CB1704-BFA4-44CB-A724-AA71727BCB7B}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:ConnectionManagers>
@@ -246,13 +246,13 @@
       <DTS:Variables />
       <DTS:Executables>
         <DTS:Executable
-          DTS:refId="Package\Loop Through Excel Files\Data Flow Task"
+          DTS:refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL"
           DTS:CreationName="Microsoft.Pipeline"
           DTS:Description="Data Flow Task"
           DTS:DTSID="{f7111f54-dfa7-4d75-b196-206be2aa6adf}"
           DTS:ExecutableType="Microsoft.Pipeline"
           DTS:LocaleID="-1"
-          DTS:ObjectName="Data Flow Task"
+          DTS:ObjectName="Data Flow Task Leave TBL"
           DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
           <DTS:Variables />
           <DTS:ObjectData>
@@ -260,7 +260,7 @@
               version="1">
               <components>
                 <component
-                  refId="Package\Loop Through Excel Files\Data Flow Task\Conditional Split"
+                  refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Conditional Split"
                   componentClassID="Microsoft.ConditionalSplit"
                   contactInfo="Conditional Split;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
                   description="Routes data rows to different outputs depending on the content of the data. Use conditions (SSIS expressions) to specify which rows are routed. For example, separate records that need to be cleaned from those that are ready to be loaded or route only a subset of records."
@@ -268,40 +268,40 @@
                   usesDispositions="true">
                   <inputs>
                     <input
-                      refId="Package\Loop Through Excel Files\Data Flow Task\Conditional Split.Inputs[Conditional Split Input]"
+                      refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Conditional Split.Inputs[Conditional Split Input]"
                       description="Input to the Conditional Split Transformation"
                       name="Conditional Split Input">
                       <inputColumns>
                         <inputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Conditional Split.Inputs[Conditional Split Input].Columns[Start Date]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Conditional Split.Inputs[Conditional Split Input].Columns[Start Date]"
                           cachedDataType="date"
                           cachedName="Start Date"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].Columns[Start Date]" />
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].Columns[Start Date]" />
                         <inputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Conditional Split.Inputs[Conditional Split Input].Columns[End Date]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Conditional Split.Inputs[Conditional Split Input].Columns[End Date]"
                           cachedDataType="date"
                           cachedName="End Date"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].Columns[End Date]" />
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].Columns[End Date]" />
                       </inputColumns>
                       <externalMetadataColumns />
                     </input>
                   </inputs>
                   <outputs>
                     <output
-                      refId="Package\Loop Through Excel Files\Data Flow Task\Conditional Split.Outputs[Case 1]"
+                      refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Conditional Split.Outputs[Case 1]"
                       description="Output 1 of the Conditional Split Transformation"
                       errorOrTruncationOperation="Computation"
                       errorRowDisposition="FailComponent"
                       exclusionGroup="1"
                       name="Case 1"
-                      synchronousInputId="Package\Loop Through Excel Files\Data Flow Task\Conditional Split.Inputs[Conditional Split Input]"
+                      synchronousInputId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Conditional Split.Inputs[Conditional Split Input]"
                       truncationRowDisposition="FailComponent">
                       <properties>
                         <property
                           containsID="true"
                           dataType="System.String"
                           description="Specifies the expression. This expression version uses lineage identifiers instead of column names."
-                          name="Expression">![ISNULL](#{Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].Columns[Start Date]}) &amp;&amp; ![ISNULL](#{Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].Columns[End Date]})</property>
+                          name="Expression">![ISNULL](#{Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].Columns[Start Date]}) &amp;&amp; ![ISNULL](#{Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].Columns[End Date]})</property>
                         <property
                           containsID="true"
                           dataType="System.String"
@@ -316,11 +316,11 @@
                       <externalMetadataColumns />
                     </output>
                     <output
-                      refId="Package\Loop Through Excel Files\Data Flow Task\Conditional Split.Outputs[Conditional Split Default Output]"
+                      refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Conditional Split.Outputs[Conditional Split Default Output]"
                       description="Default Output of the Conditional Split Transformation"
                       exclusionGroup="1"
                       name="Conditional Split Default Output"
-                      synchronousInputId="Package\Loop Through Excel Files\Data Flow Task\Conditional Split.Inputs[Conditional Split Input]">
+                      synchronousInputId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Conditional Split.Inputs[Conditional Split Input]">
                       <properties>
                         <property
                           dataType="System.Boolean"
@@ -329,23 +329,23 @@
                       <externalMetadataColumns />
                     </output>
                     <output
-                      refId="Package\Loop Through Excel Files\Data Flow Task\Conditional Split.Outputs[Conditional Split Error Output]"
+                      refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Conditional Split.Outputs[Conditional Split Error Output]"
                       description="Error Output of the Conditional Split Transformation"
                       exclusionGroup="1"
                       isErrorOut="true"
                       name="Conditional Split Error Output"
-                      synchronousInputId="Package\Loop Through Excel Files\Data Flow Task\Conditional Split.Inputs[Conditional Split Input]">
+                      synchronousInputId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Conditional Split.Inputs[Conditional Split Input]">
                       <outputColumns>
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Conditional Split.Outputs[Conditional Split Error Output].Columns[ErrorCode]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Conditional Split.Outputs[Conditional Split Error Output].Columns[ErrorCode]"
                           dataType="i4"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Conditional Split.Outputs[Conditional Split Error Output].Columns[ErrorCode]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Conditional Split.Outputs[Conditional Split Error Output].Columns[ErrorCode]"
                           name="ErrorCode"
                           specialFlags="1" />
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Conditional Split.Outputs[Conditional Split Error Output].Columns[ErrorColumn]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Conditional Split.Outputs[Conditional Split Error Output].Columns[ErrorColumn]"
                           dataType="i4"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Conditional Split.Outputs[Conditional Split Error Output].Columns[ErrorColumn]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Conditional Split.Outputs[Conditional Split Error Output].Columns[ErrorColumn]"
                           name="ErrorColumn"
                           specialFlags="2" />
                       </outputColumns>
@@ -354,7 +354,7 @@
                   </outputs>
                 </component>
                 <component
-                  refId="Package\Loop Through Excel Files\Data Flow Task\Derived Column"
+                  refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Derived Column"
                   componentClassID="Microsoft.DerivedColumn"
                   contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
                   description="Creates new column values by applying expressions to transformation input columns. Create new columns or overwrite existing ones. For example, concatenate the values from the 'first name' and 'last name' column to make a 'full name' column."
@@ -362,7 +362,7 @@
                   usesDispositions="true">
                   <inputs>
                     <input
-                      refId="Package\Loop Through Excel Files\Data Flow Task\Derived Column.Inputs[Derived Column Input]"
+                      refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Derived Column.Inputs[Derived Column Input]"
                       description="Input to the Derived Column Transformation"
                       name="Derived Column Input">
                       <externalMetadataColumns />
@@ -370,19 +370,19 @@
                   </inputs>
                   <outputs>
                     <output
-                      refId="Package\Loop Through Excel Files\Data Flow Task\Derived Column.Outputs[Derived Column Output]"
+                      refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Derived Column.Outputs[Derived Column Output]"
                       description="Default Output of the Derived Column Transformation"
                       exclusionGroup="1"
                       name="Derived Column Output"
-                      synchronousInputId="Package\Loop Through Excel Files\Data Flow Task\Derived Column.Inputs[Derived Column Input]">
+                      synchronousInputId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Derived Column.Inputs[Derived Column Input]">
                       <outputColumns>
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Derived Column.Outputs[Derived Column Output].Columns[ConsultantName]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Derived Column.Outputs[Derived Column Output].Columns[ConsultantName]"
                           dataType="wstr"
                           errorOrTruncationOperation="Computation"
                           errorRowDisposition="FailComponent"
                           length="50"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Derived Column.Outputs[Derived Column Output].Columns[ConsultantName]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Derived Column.Outputs[Derived Column Output].Columns[ConsultantName]"
                           name="ConsultantName"
                           truncationRowDisposition="FailComponent">
                           <properties>
@@ -403,23 +403,23 @@
                       <externalMetadataColumns />
                     </output>
                     <output
-                      refId="Package\Loop Through Excel Files\Data Flow Task\Derived Column.Outputs[Derived Column Error Output]"
+                      refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Derived Column.Outputs[Derived Column Error Output]"
                       description="Error Output of the Derived Column Transformation"
                       exclusionGroup="1"
                       isErrorOut="true"
                       name="Derived Column Error Output"
-                      synchronousInputId="Package\Loop Through Excel Files\Data Flow Task\Derived Column.Inputs[Derived Column Input]">
+                      synchronousInputId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Derived Column.Inputs[Derived Column Input]">
                       <outputColumns>
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Derived Column.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Derived Column.Outputs[Derived Column Error Output].Columns[ErrorCode]"
                           dataType="i4"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Derived Column.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Derived Column.Outputs[Derived Column Error Output].Columns[ErrorCode]"
                           name="ErrorCode"
                           specialFlags="1" />
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Derived Column.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Derived Column.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
                           dataType="i4"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Derived Column.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Derived Column.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
                           name="ErrorColumn"
                           specialFlags="2" />
                       </outputColumns>
@@ -428,7 +428,7 @@
                   </outputs>
                 </component>
                 <component
-                  refId="Package\Loop Through Excel Files\Data Flow Task\Excel Source"
+                  refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source"
                   componentClassID="Microsoft.ExcelSource"
                   contactInfo="Excel Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;1"
                   description="Excel Source"
@@ -469,7 +469,7 @@
                   </properties>
                   <connections>
                     <connection
-                      refId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Connections[OleDbConnection]"
+                      refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Connections[OleDbConnection]"
                       connectionManagerID="Package.ConnectionManagers[Excel Connection Manager 2]"
                       connectionManagerRefId="Package.ConnectionManagers[Excel Connection Manager 2]"
                       description="The OLE DB runtime connection used to access the database."
@@ -477,146 +477,146 @@
                   </connections>
                   <outputs>
                     <output
-                      refId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output]"
+                      refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output]"
                       name="Excel Source Output">
                       <outputColumns>
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].Columns[Type of Leave]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].Columns[Type of Leave]"
                           dataType="wstr"
                           errorOrTruncationOperation="Conversion"
                           errorRowDisposition="FailComponent"
-                          externalMetadataColumnId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].ExternalColumns[Type of Leave]"
+                          externalMetadataColumnId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].ExternalColumns[Type of Leave]"
                           length="255"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].Columns[Type of Leave]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].Columns[Type of Leave]"
                           name="Type of Leave"
                           truncationRowDisposition="FailComponent" />
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].Columns[Start Date]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].Columns[Start Date]"
                           dataType="date"
                           errorOrTruncationOperation="Conversion"
                           errorRowDisposition="FailComponent"
-                          externalMetadataColumnId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].ExternalColumns[Start Date]"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].Columns[Start Date]"
+                          externalMetadataColumnId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].ExternalColumns[Start Date]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].Columns[Start Date]"
                           name="Start Date"
                           truncationRowDisposition="FailComponent" />
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].Columns[End Date]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].Columns[End Date]"
                           dataType="date"
                           errorOrTruncationOperation="Conversion"
                           errorRowDisposition="FailComponent"
-                          externalMetadataColumnId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].ExternalColumns[End Date]"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].Columns[End Date]"
+                          externalMetadataColumnId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].ExternalColumns[End Date]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].Columns[End Date]"
                           name="End Date"
                           truncationRowDisposition="FailComponent" />
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].Columns[Number of days ]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].Columns[Number of days ]"
                           dataType="r8"
                           errorOrTruncationOperation="Conversion"
                           errorRowDisposition="FailComponent"
-                          externalMetadataColumnId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].ExternalColumns[Number of days ]"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].Columns[Number of days ]"
+                          externalMetadataColumnId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].ExternalColumns[Number of days ]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].Columns[Number of days ]"
                           name="Number of days "
                           truncationRowDisposition="FailComponent" />
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].Columns[Approval Obtained]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].Columns[Approval Obtained]"
                           dataType="wstr"
                           errorOrTruncationOperation="Conversion"
                           errorRowDisposition="FailComponent"
-                          externalMetadataColumnId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].ExternalColumns[Approval Obtained]"
+                          externalMetadataColumnId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].ExternalColumns[Approval Obtained]"
                           length="255"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].Columns[Approval Obtained]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].Columns[Approval Obtained]"
                           name="Approval Obtained"
                           truncationRowDisposition="FailComponent" />
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].Columns[Sick Note]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].Columns[Sick Note]"
                           dataType="wstr"
                           errorOrTruncationOperation="Conversion"
                           errorRowDisposition="FailComponent"
-                          externalMetadataColumnId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].ExternalColumns[Sick Note]"
+                          externalMetadataColumnId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].ExternalColumns[Sick Note]"
                           length="255"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].Columns[Sick Note]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].Columns[Sick Note]"
                           name="Sick Note"
                           truncationRowDisposition="FailComponent" />
                       </outputColumns>
                       <externalMetadataColumns
                         isUsed="True">
                         <externalMetadataColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].ExternalColumns[Type of Leave]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].ExternalColumns[Type of Leave]"
                           dataType="wstr"
                           length="255"
                           name="Type of Leave" />
                         <externalMetadataColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].ExternalColumns[Start Date]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].ExternalColumns[Start Date]"
                           dataType="date"
                           name="Start Date" />
                         <externalMetadataColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].ExternalColumns[End Date]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].ExternalColumns[End Date]"
                           dataType="date"
                           name="End Date" />
                         <externalMetadataColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].ExternalColumns[Number of days ]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].ExternalColumns[Number of days ]"
                           dataType="r8"
                           name="Number of days " />
                         <externalMetadataColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].ExternalColumns[Approval Obtained]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].ExternalColumns[Approval Obtained]"
                           dataType="wstr"
                           length="255"
                           name="Approval Obtained" />
                         <externalMetadataColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].ExternalColumns[Sick Note]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].ExternalColumns[Sick Note]"
                           dataType="wstr"
                           length="255"
                           name="Sick Note" />
                       </externalMetadataColumns>
                     </output>
                     <output
-                      refId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Error Output]"
+                      refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Error Output]"
                       isErrorOut="true"
                       name="Excel Source Error Output">
                       <outputColumns>
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Error Output].Columns[Type of Leave]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Error Output].Columns[Type of Leave]"
                           dataType="wstr"
                           length="255"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Error Output].Columns[Type of Leave]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Error Output].Columns[Type of Leave]"
                           name="Type of Leave" />
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Error Output].Columns[Start Date]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Error Output].Columns[Start Date]"
                           dataType="date"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Error Output].Columns[Start Date]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Error Output].Columns[Start Date]"
                           name="Start Date" />
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Error Output].Columns[End Date]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Error Output].Columns[End Date]"
                           dataType="date"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Error Output].Columns[End Date]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Error Output].Columns[End Date]"
                           name="End Date" />
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Error Output].Columns[Number of days ]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Error Output].Columns[Number of days ]"
                           dataType="r8"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Error Output].Columns[Number of days ]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Error Output].Columns[Number of days ]"
                           name="Number of days " />
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Error Output].Columns[Approval Obtained]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Error Output].Columns[Approval Obtained]"
                           dataType="wstr"
                           length="255"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Error Output].Columns[Approval Obtained]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Error Output].Columns[Approval Obtained]"
                           name="Approval Obtained" />
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Error Output].Columns[Sick Note]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Error Output].Columns[Sick Note]"
                           dataType="wstr"
                           length="255"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Error Output].Columns[Sick Note]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Error Output].Columns[Sick Note]"
                           name="Sick Note" />
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Error Output].Columns[ErrorCode]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Error Output].Columns[ErrorCode]"
                           dataType="i4"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Error Output].Columns[ErrorCode]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Error Output].Columns[ErrorCode]"
                           name="ErrorCode"
                           specialFlags="1" />
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Error Output].Columns[ErrorColumn]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Error Output].Columns[ErrorColumn]"
                           dataType="i4"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Error Output].Columns[ErrorColumn]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Error Output].Columns[ErrorColumn]"
                           name="ErrorColumn"
                           specialFlags="2" />
                       </outputColumns>
@@ -625,7 +625,7 @@
                   </outputs>
                 </component>
                 <component
-                  refId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant"
+                  refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant"
                   componentClassID="Microsoft.FuzzyLookup"
                   contactInfo="Fuzzy Lookup;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;5"
                   description="Performs data cleaning tasks such as standardizing data, correcting data, and providing missing values.  Uses fuzzy matching to return one or more close matches from a reference table. For example, lookup customer data by address, even if your input address data does not exactly match your reference address data."
@@ -689,7 +689,7 @@
                   </properties>
                   <connections>
                     <connection
-                      refId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Connections[OleDbConnection]"
+                      refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Connections[OleDbConnection]"
                       connectionManagerID="Package.ConnectionManagers[LocalHost.TimesheetDB 4]"
                       connectionManagerRefId="Package.ConnectionManagers[LocalHost.TimesheetDB 4]"
                       description="Microsoft SQL Server connection and database in which the fuzzy lookup reference table is located and where the fuzzy match index table will be stored and accessed."
@@ -697,15 +697,15 @@
                   </connections>
                   <inputs>
                     <input
-                      refId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Inputs[Fuzzy Lookup Input]"
+                      refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Inputs[Fuzzy Lookup Input]"
                       name="Fuzzy Lookup Input">
                       <inputColumns>
                         <inputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Inputs[Fuzzy Lookup Input].Columns[Type of Leave]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Inputs[Fuzzy Lookup Input].Columns[Type of Leave]"
                           cachedDataType="wstr"
                           cachedLength="255"
                           cachedName="Type of Leave"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].Columns[Type of Leave]">
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].Columns[Type of Leave]">
                           <properties>
                             <property
                               dataType="System.Null"
@@ -734,10 +734,10 @@
                           </properties>
                         </inputColumn>
                         <inputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Inputs[Fuzzy Lookup Input].Columns[Start Date]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Inputs[Fuzzy Lookup Input].Columns[Start Date]"
                           cachedDataType="date"
                           cachedName="Start Date"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].Columns[Start Date]">
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].Columns[Start Date]">
                           <properties>
                             <property
                               dataType="System.Null"
@@ -766,10 +766,10 @@
                           </properties>
                         </inputColumn>
                         <inputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Inputs[Fuzzy Lookup Input].Columns[End Date]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Inputs[Fuzzy Lookup Input].Columns[End Date]"
                           cachedDataType="date"
                           cachedName="End Date"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].Columns[End Date]">
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].Columns[End Date]">
                           <properties>
                             <property
                               dataType="System.Null"
@@ -798,10 +798,10 @@
                           </properties>
                         </inputColumn>
                         <inputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Inputs[Fuzzy Lookup Input].Columns[Number of days ]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Inputs[Fuzzy Lookup Input].Columns[Number of days ]"
                           cachedDataType="r8"
                           cachedName="Number of days "
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].Columns[Number of days ]">
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].Columns[Number of days ]">
                           <properties>
                             <property
                               dataType="System.Null"
@@ -830,11 +830,11 @@
                           </properties>
                         </inputColumn>
                         <inputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Inputs[Fuzzy Lookup Input].Columns[Approval Obtained]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Inputs[Fuzzy Lookup Input].Columns[Approval Obtained]"
                           cachedDataType="wstr"
                           cachedLength="255"
                           cachedName="Approval Obtained"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].Columns[Approval Obtained]">
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].Columns[Approval Obtained]">
                           <properties>
                             <property
                               dataType="System.Null"
@@ -863,11 +863,11 @@
                           </properties>
                         </inputColumn>
                         <inputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Inputs[Fuzzy Lookup Input].Columns[Sick Note]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Inputs[Fuzzy Lookup Input].Columns[Sick Note]"
                           cachedDataType="wstr"
                           cachedLength="255"
                           cachedName="Sick Note"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].Columns[Sick Note]">
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].Columns[Sick Note]">
                           <properties>
                             <property
                               dataType="System.Null"
@@ -896,11 +896,11 @@
                           </properties>
                         </inputColumn>
                         <inputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Inputs[Fuzzy Lookup Input].Columns[ConsultantName]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Inputs[Fuzzy Lookup Input].Columns[ConsultantName]"
                           cachedDataType="wstr"
                           cachedLength="50"
                           cachedName="ConsultantName"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Derived Column.Outputs[Derived Column Output].Columns[ConsultantName]">
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Derived Column.Outputs[Derived Column Output].Columns[ConsultantName]">
                           <properties>
                             <property
                               dataType="System.String"
@@ -934,14 +934,14 @@
                   </inputs>
                   <outputs>
                     <output
-                      refId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output]"
+                      refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output]"
                       name="Fuzzy Lookup Output">
                       <outputColumns>
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Type of Leave]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Type of Leave]"
                           dataType="wstr"
                           length="255"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Type of Leave]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Type of Leave]"
                           name="Type of Leave">
                           <properties>
                             <property
@@ -953,7 +953,7 @@
                               containsID="true"
                               dataType="System.Int32"
                               description="Specifies the lineage identifier of the input column from which to copy to this output column for each match."
-                              name="SourceInputColumnLineageID">#{Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].Columns[Type of Leave]}</property>
+                              name="SourceInputColumnLineageID">#{Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].Columns[Type of Leave]}</property>
                             <property
                               dataType="System.Int32"
                               description="Specifies whether the column is used to indicate confidence or similarity."
@@ -962,9 +962,9 @@
                           </properties>
                         </outputColumn>
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Start Date]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Start Date]"
                           dataType="date"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Start Date]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Start Date]"
                           name="Start Date">
                           <properties>
                             <property
@@ -976,7 +976,7 @@
                               containsID="true"
                               dataType="System.Int32"
                               description="Specifies the lineage identifier of the input column from which to copy to this output column for each match."
-                              name="SourceInputColumnLineageID">#{Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].Columns[Start Date]}</property>
+                              name="SourceInputColumnLineageID">#{Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].Columns[Start Date]}</property>
                             <property
                               dataType="System.Int32"
                               description="Specifies whether the column is used to indicate confidence or similarity."
@@ -985,9 +985,9 @@
                           </properties>
                         </outputColumn>
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[End Date]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[End Date]"
                           dataType="date"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[End Date]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[End Date]"
                           name="End Date">
                           <properties>
                             <property
@@ -999,7 +999,7 @@
                               containsID="true"
                               dataType="System.Int32"
                               description="Specifies the lineage identifier of the input column from which to copy to this output column for each match."
-                              name="SourceInputColumnLineageID">#{Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].Columns[End Date]}</property>
+                              name="SourceInputColumnLineageID">#{Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].Columns[End Date]}</property>
                             <property
                               dataType="System.Int32"
                               description="Specifies whether the column is used to indicate confidence or similarity."
@@ -1008,9 +1008,9 @@
                           </properties>
                         </outputColumn>
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Number of days]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Number of days]"
                           dataType="r8"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Number of days]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Number of days]"
                           name="Number of days">
                           <properties>
                             <property
@@ -1022,7 +1022,7 @@
                               containsID="true"
                               dataType="System.Int32"
                               description="Specifies the lineage identifier of the input column from which to copy to this output column for each match."
-                              name="SourceInputColumnLineageID">#{Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].Columns[Number of days ]}</property>
+                              name="SourceInputColumnLineageID">#{Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].Columns[Number of days ]}</property>
                             <property
                               dataType="System.Int32"
                               description="Specifies whether the column is used to indicate confidence or similarity."
@@ -1031,10 +1031,10 @@
                           </properties>
                         </outputColumn>
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Approval Obtained]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Approval Obtained]"
                           dataType="wstr"
                           length="255"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Approval Obtained]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Approval Obtained]"
                           name="Approval Obtained">
                           <properties>
                             <property
@@ -1046,7 +1046,7 @@
                               containsID="true"
                               dataType="System.Int32"
                               description="Specifies the lineage identifier of the input column from which to copy to this output column for each match."
-                              name="SourceInputColumnLineageID">#{Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].Columns[Approval Obtained]}</property>
+                              name="SourceInputColumnLineageID">#{Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].Columns[Approval Obtained]}</property>
                             <property
                               dataType="System.Int32"
                               description="Specifies whether the column is used to indicate confidence or similarity."
@@ -1055,10 +1055,10 @@
                           </properties>
                         </outputColumn>
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Sick Note]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Sick Note]"
                           dataType="wstr"
                           length="255"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Sick Note]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Sick Note]"
                           name="Sick Note">
                           <properties>
                             <property
@@ -1070,7 +1070,7 @@
                               containsID="true"
                               dataType="System.Int32"
                               description="Specifies the lineage identifier of the input column from which to copy to this output column for each match."
-                              name="SourceInputColumnLineageID">#{Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output].Columns[Sick Note]}</property>
+                              name="SourceInputColumnLineageID">#{Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output].Columns[Sick Note]}</property>
                             <property
                               dataType="System.Int32"
                               description="Specifies whether the column is used to indicate confidence or similarity."
@@ -1079,10 +1079,10 @@
                           </properties>
                         </outputColumn>
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[ConsultantName]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[ConsultantName]"
                           dataType="wstr"
                           length="50"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[ConsultantName]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[ConsultantName]"
                           name="ConsultantName">
                           <properties>
                             <property
@@ -1094,7 +1094,7 @@
                               containsID="true"
                               dataType="System.Int32"
                               description="Specifies the lineage identifier of the input column from which to copy to this output column for each match."
-                              name="SourceInputColumnLineageID">#{Package\Loop Through Excel Files\Data Flow Task\Derived Column.Outputs[Derived Column Output].Columns[ConsultantName]}</property>
+                              name="SourceInputColumnLineageID">#{Package\Loop Through Excel Files\Data Flow Task Leave TBL\Derived Column.Outputs[Derived Column Output].Columns[ConsultantName]}</property>
                             <property
                               dataType="System.Int32"
                               description="Specifies whether the column is used to indicate confidence or similarity."
@@ -1103,9 +1103,9 @@
                           </properties>
                         </outputColumn>
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[ConsultantID]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[ConsultantID]"
                           dataType="i4"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[ConsultantID]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[ConsultantID]"
                           name="ConsultantID">
                           <properties>
                             <property
@@ -1126,9 +1126,9 @@
                           </properties>
                         </outputColumn>
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[_Similarity]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[_Similarity]"
                           dataType="r4"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[_Similarity]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[_Similarity]"
                           name="_Similarity">
                           <properties>
                             <property
@@ -1139,9 +1139,9 @@
                           </properties>
                         </outputColumn>
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[_Confidence]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[_Confidence]"
                           dataType="r4"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[_Confidence]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[_Confidence]"
                           name="_Confidence">
                           <properties>
                             <property
@@ -1152,10 +1152,10 @@
                           </properties>
                         </outputColumn>
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[_Similarity_ConsultantName]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[_Similarity_ConsultantName]"
                           dataType="r4"
                           description="Column-level similarity score for fuzzy join on column &quot;ConsultantName&quot;."
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[_Similarity_ConsultantName]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[_Similarity_ConsultantName]"
                           name="_Similarity_ConsultantName">
                           <properties>
                             <property
@@ -1167,7 +1167,7 @@
                               containsID="true"
                               dataType="System.Int32"
                               description="Specifies the lineage identifier of the input column from which to copy to this output column for each match."
-                              name="SourceInputColumnLineageID">#{Package\Loop Through Excel Files\Data Flow Task\Derived Column.Outputs[Derived Column Output].Columns[ConsultantName]}</property>
+                              name="SourceInputColumnLineageID">#{Package\Loop Through Excel Files\Data Flow Task Leave TBL\Derived Column.Outputs[Derived Column Output].Columns[ConsultantName]}</property>
                             <property
                               dataType="System.Int32"
                               description="Specifies whether the column is used to indicate confidence or similarity."
@@ -1181,7 +1181,7 @@
                   </outputs>
                 </component>
                 <component
-                  refId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination"
+                  refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination"
                   componentClassID="Microsoft.OLEDBDestination"
                   contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
                   description="OLE DB Destination"
@@ -1238,7 +1238,7 @@
                   </properties>
                   <connections>
                     <connection
-                      refId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Connections[OleDbConnection]"
+                      refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Connections[OleDbConnection]"
                       connectionManagerID="Package.ConnectionManagers[LocalHost.TimesheetDB 4]"
                       connectionManagerRefId="Package.ConnectionManagers[LocalHost.TimesheetDB 4]"
                       description="The OLE DB runtime connection used to access the database."
@@ -1246,92 +1246,92 @@
                   </connections>
                   <inputs>
                     <input
-                      refId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Inputs[OLE DB Destination Input]"
+                      refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Inputs[OLE DB Destination Input]"
                       errorOrTruncationOperation="Insert"
                       errorRowDisposition="FailComponent"
                       hasSideEffects="true"
                       name="OLE DB Destination Input">
                       <inputColumns>
                         <inputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[ConsultantID]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[ConsultantID]"
                           cachedDataType="i4"
                           cachedName="ConsultantID"
-                          externalMetadataColumnId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ConsultantID]"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[ConsultantID]" />
+                          externalMetadataColumnId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ConsultantID]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[ConsultantID]" />
                         <inputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Type of Leave]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Type of Leave]"
                           cachedDataType="wstr"
                           cachedLength="255"
                           cachedName="Type of Leave"
-                          externalMetadataColumnId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[TypeOfLeave]"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Type of Leave]" />
+                          externalMetadataColumnId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[TypeOfLeave]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Type of Leave]" />
                         <inputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Start Date]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Start Date]"
                           cachedDataType="date"
                           cachedName="Start Date"
-                          externalMetadataColumnId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[StartDate]"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Start Date]" />
+                          externalMetadataColumnId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[StartDate]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Start Date]" />
                         <inputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[End Date]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[End Date]"
                           cachedDataType="date"
                           cachedName="End Date"
-                          externalMetadataColumnId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[EndDate]"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[End Date]" />
+                          externalMetadataColumnId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[EndDate]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[End Date]" />
                         <inputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Number of days]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Number of days]"
                           cachedDataType="r8"
                           cachedName="Number of days"
-                          externalMetadataColumnId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[NumberOfDays]"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Number of days]" />
+                          externalMetadataColumnId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[NumberOfDays]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Number of days]" />
                         <inputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Approval Obtained]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Approval Obtained]"
                           cachedDataType="wstr"
                           cachedLength="255"
                           cachedName="Approval Obtained"
-                          externalMetadataColumnId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ApprovalObtained]"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Approval Obtained]" />
+                          externalMetadataColumnId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ApprovalObtained]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Approval Obtained]" />
                       </inputColumns>
                       <externalMetadataColumns
                         isUsed="True">
                         <externalMetadataColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[LeaveID]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[LeaveID]"
                           dataType="i4"
                           name="LeaveID" />
                         <externalMetadataColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ConsultantID]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ConsultantID]"
                           dataType="i4"
                           name="ConsultantID" />
                         <externalMetadataColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[TypeOfLeave]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[TypeOfLeave]"
                           dataType="wstr"
                           length="50"
                           name="TypeOfLeave" />
                         <externalMetadataColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[StartDate]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[StartDate]"
                           dataType="dbDate"
                           name="StartDate" />
                         <externalMetadataColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[EndDate]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[EndDate]"
                           dataType="dbDate"
                           name="EndDate" />
                         <externalMetadataColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[NumberOfDays]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[NumberOfDays]"
                           dataType="numeric"
                           name="NumberOfDays"
                           precision="5"
                           scale="2" />
                         <externalMetadataColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ApprovalObtained]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ApprovalObtained]"
                           dataType="wstr"
                           length="50"
                           name="ApprovalObtained" />
                         <externalMetadataColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[SickNote]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[SickNote]"
                           dataType="wstr"
                           length="20"
                           name="SickNote" />
                         <externalMetadataColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Comments]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Comments]"
                           dataType="wstr"
                           length="1000"
                           name="Comments" />
@@ -1340,22 +1340,22 @@
                   </inputs>
                   <outputs>
                     <output
-                      refId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Outputs[OLE DB Destination Error Output]"
+                      refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Outputs[OLE DB Destination Error Output]"
                       exclusionGroup="1"
                       isErrorOut="true"
                       name="OLE DB Destination Error Output"
-                      synchronousInputId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Inputs[OLE DB Destination Input]">
+                      synchronousInputId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Inputs[OLE DB Destination Input]">
                       <outputColumns>
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
                           dataType="i4"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
                           name="ErrorCode"
                           specialFlags="1" />
                         <outputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
                           dataType="i4"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
                           name="ErrorColumn"
                           specialFlags="2" />
                       </outputColumns>
@@ -1366,25 +1366,25 @@
               </components>
               <paths>
                 <path
-                  refId="Package\Loop Through Excel Files\Data Flow Task.Paths[Case 1]"
-                  endId="Package\Loop Through Excel Files\Data Flow Task\Derived Column.Inputs[Derived Column Input]"
+                  refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL.Paths[Case 1]"
+                  endId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Derived Column.Inputs[Derived Column Input]"
                   name="Case 1"
-                  startId="Package\Loop Through Excel Files\Data Flow Task\Conditional Split.Outputs[Case 1]" />
+                  startId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Conditional Split.Outputs[Case 1]" />
                 <path
-                  refId="Package\Loop Through Excel Files\Data Flow Task.Paths[Derived Column Output]"
-                  endId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Inputs[Fuzzy Lookup Input]"
+                  refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL.Paths[Derived Column Output]"
+                  endId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Inputs[Fuzzy Lookup Input]"
                   name="Derived Column Output"
-                  startId="Package\Loop Through Excel Files\Data Flow Task\Derived Column.Outputs[Derived Column Output]" />
+                  startId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Derived Column.Outputs[Derived Column Output]" />
                 <path
-                  refId="Package\Loop Through Excel Files\Data Flow Task.Paths[Excel Source Output]"
-                  endId="Package\Loop Through Excel Files\Data Flow Task\Conditional Split.Inputs[Conditional Split Input]"
+                  refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL.Paths[Excel Source Output]"
+                  endId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Conditional Split.Inputs[Conditional Split Input]"
                   name="Excel Source Output"
-                  startId="Package\Loop Through Excel Files\Data Flow Task\Excel Source.Outputs[Excel Source Output]" />
+                  startId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source.Outputs[Excel Source Output]" />
                 <path
-                  refId="Package\Loop Through Excel Files\Data Flow Task.Paths[Fuzzy Lookup Output]"
-                  endId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Inputs[OLE DB Destination Input]"
+                  refId="Package\Loop Through Excel Files\Data Flow Task Leave TBL.Paths[Fuzzy Lookup Output]"
+                  endId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination.Inputs[OLE DB Destination Input]"
                   name="Fuzzy Lookup Output"
-                  startId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output]" />
+                  startId="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output]" />
               </paths>
             </pipeline>
           </DTS:ObjectData>
@@ -3165,14 +3165,35 @@ where [refTable].[ClientName] = ?</property>
               Language="CSharp"
               ReadOnlyVariables="User::FilePath,User::FolderPath">
               <ProjectItem
-                Name="Properties\Settings.settings"
-                Encoding="UTF8"><![CDATA[<?xml version='1.0' encoding='iso-8859-1'?>
-<SettingsFile xmlns="uri:settings" CurrentProfile="(Default)">
-  <Profiles>
-    <Profile Name="(Default)" />
-  </Profiles>
-  <Settings />
-</SettingsFile>]]></ProjectItem>
+                Name="Properties\AssemblyInfo.cs"
+                Encoding="UTF8"><![CDATA[using System.Reflection;
+using System.Runtime.CompilerServices;
+
+//
+// General Information about an assembly is controlled through the following 
+// set of attributes. Change these attribute values to modify the information
+// associated with an assembly.
+//
+[assembly: AssemblyTitle("ST_dd37cea298374cf5883bc431ca752e8c")]
+[assembly: AssemblyDescription("")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("ST_dd37cea298374cf5883bc431ca752e8c")]
+[assembly: AssemblyCopyright("Copyright @  2025")]
+[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCulture("")]
+//
+// Version information for an assembly consists of the following four values:
+//
+//      Major Version
+//      Minor Version 
+//      Build Number
+//      Revision
+//
+// You can specify all the values or you can default the Revision and Build Numbers 
+// by using the '*' as shown below:
+
+[assembly: AssemblyVersion("1.0.*")]]]></ProjectItem>
               <ProjectItem
                 Name="Properties\Resources.resx"
                 Encoding="UTF8"><![CDATA[<?xml version="1.0" encoding="utf-8"?>
@@ -3293,105 +3314,6 @@ where [refTable].[ClientName] = ?</property>
   </resheader>
 </root>]]></ProjectItem>
               <ProjectItem
-                Name="ST_dd37cea298374cf5883bc431ca752e8c.csproj"
-                Encoding="UTF8"><![CDATA[<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup>
-    <ProjectTypeGuids>{30D016F9-3734-4E33-A861-5E7D899E18F3};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{05460dfd-ea54-4abd-8ce9-f210b4686585}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ST_dd37cea298374cf5883bc431ca752e8c</RootNamespace>
-    <AssemblyName>ST_dd37cea298374cf5883bc431ca752e8c</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <ResolveAssemblyReferenceIgnoreTargetFrameworkAttributeVersionMismatch>true</ResolveAssemblyReferenceIgnoreTargetFrameworkAttributeVersionMismatch>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>.\bin\Debug\</OutputPath>
-    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <DebugSymbols>false</DebugSymbols>
-    <Optimize>true</Optimize>
-    <OutputPath>.\bin\Release\</OutputPath>
-    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
-    <Reference Include="Microsoft.SqlServer.ManagedDTS, Version=16.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91" />
-    <Reference Include="Microsoft.SqlServer.ScriptTask, Version=16.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <AppDesigner Include="Properties\" />
-    <Compile Include="Properties\AssemblyInfo.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <EmbeddedResource Include="Properties\Resources.resx">
-         <Generator>ResXFileCodeGenerator</Generator>
-         <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-             <AutoGen>True</AutoGen>
-         <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <None Include="Properties\Settings.settings">
-         <Generator>SettingsSingleFileGenerator</Generator>
-         <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <Compile Include="Properties\Settings.Designer.cs">
-         <AutoGen>True</AutoGen>
-         <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-    <Compile Include="ScriptMain.cs">
-         <SubType>Code</SubType>
-    </Compile>
-  </ItemGroup>
-
-  <!-- Include the build rules for a C# project.-->
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-
-  <ProjectExtensions>
-    <VisualStudio>
-      <FlavorProperties GUID="{30D016F9-3734-4E33-A861-5E7D899E18F3}">
-        <ProjectProperties HostName="ScriptTask"
-                           HostPackage="{B3A685AA-7EAF-4BC6-9940-57959FA5AC07}"
-                           ApplicationType="usd"
-                           Language="cs"
-                           TemplatesPath=""
-                           DebugInfoCommandLine=""
-                           DebugInfoWorkingDir=""
-                           IconImageList=""/>
-        <Host Name="ScriptTask" GeneratedNamespace="$safeprojectname" IconIndex="">
-        </Host>
-        <ProjectClient>
-            <HostIdentifier>SSIS_ST160</HostIdentifier>
-        </ProjectClient>
-      </FlavorProperties>
-    </VisualStudio>
-  </ProjectExtensions>
-</Project>]]></ProjectItem>
-              <ProjectItem
                 Name="ScriptMain.cs"
                 Encoding="UTF8"><![CDATA[#region Help:  Introduction to the script task
 /* The Script Task allows you to perform virtually any operation that can be accomplished in
@@ -3510,85 +3432,6 @@ namespace ST_dd37cea298374cf5883bc431ca752e8c
 	}
 }]]></ProjectItem>
               <ProjectItem
-                Name="Project"
-                Encoding="UTF16LE"><![CDATA[<?xml version="1.0" encoding="UTF-16" standalone="yes"?>
-<c:Project xmlns:c="http://schemas.microsoft.com/codeprojectml/2010/08/main" xmlns:msb="http://schemas.microsoft.com/developer/msbuild/2003" runtimeVersion="3.0" schemaVersion="1.0">
-  <msb:PropertyGroup>
-    <msb:Language>msBuild</msb:Language>
-    <msb:CodeName>ST_dd37cea298374cf5883bc431ca752e8c</msb:CodeName>
-    <msb:DisplayName>ST_dd37cea298374cf5883bc431ca752e8c</msb:DisplayName>
-    <msb:ProjectId>{149B482E-3B17-487F-8E13-92F27FB08E64}</msb:ProjectId>
-  </msb:PropertyGroup>
-  <msb:ItemGroup>
-    <msb:Project Include="ST_dd37cea298374cf5883bc431ca752e8c.csproj" />
-    <msb:File Include="Properties\Resources.resx" />
-    <msb:File Include="Properties\Settings.settings" />
-    <msb:File Include="Properties\AssemblyInfo.cs" />
-    <msb:File Include="Properties\Resources.Designer.cs" />
-    <msb:File Include="Properties\Settings.Designer.cs" />
-    <msb:File Include="ScriptMain.cs" />
-  </msb:ItemGroup>
-</c:Project>]]></ProjectItem>
-              <ProjectItem
-                Name="Properties\Settings.Designer.cs"
-                Encoding="UTF8"><![CDATA[//------------------------------------------------------------------------------
-// <auto-generated>
-//     This code was generated by a tool.
-//
-//     Changes to this file may cause incorrect behavior and will be lost if
-//     the code is regenerated.
-// </auto-generated>
-//------------------------------------------------------------------------------
-
-[assembly: global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Scope="member", Target="ST_dd37cea298374cf5883bc431ca752e8c.Properties.Settings.get_Default():ST_dd37cea298374cf5883bc431ca752e8c.Properties.Sett" +
-    "ings")]
-
-namespace ST_dd37cea298374cf5883bc431ca752e8c.Properties {
-    
-    
-    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
-        
-        [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-        private static Settings defaultInstance = new Settings();
-        
-        public static Settings Default {
-            get {
-                return defaultInstance;
-            }
-        }
-    }
-}]]></ProjectItem>
-              <ProjectItem
-                Name="Properties\AssemblyInfo.cs"
-                Encoding="UTF8"><![CDATA[using System.Reflection;
-using System.Runtime.CompilerServices;
-
-//
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-//
-[assembly: AssemblyTitle("ST_dd37cea298374cf5883bc431ca752e8c")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ST_dd37cea298374cf5883bc431ca752e8c")]
-[assembly: AssemblyCopyright("Copyright @  2025")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-//
-// Version information for an assembly consists of the following four values:
-//
-//      Major Version
-//      Minor Version 
-//      Build Number
-//      Revision
-//
-// You can specify all the values or you can default the Revision and Build Numbers 
-// by using the '*' as shown below:
-
-[assembly: AssemblyVersion("1.0.*")]]]></ProjectItem>
-              <ProjectItem
                 Name="Properties\Resources.Designer.cs"
                 Encoding="UTF8"><![CDATA[//------------------------------------------------------------------------------
 // <auto-generated>
@@ -3656,6 +3499,163 @@ namespace ST_dd37cea298374cf5883bc431ca752e8c.Properties {
         }
     }
 }]]></ProjectItem>
+              <ProjectItem
+                Name="Project"
+                Encoding="UTF16LE"><![CDATA[<?xml version="1.0" encoding="UTF-16" standalone="yes"?>
+<c:Project xmlns:c="http://schemas.microsoft.com/codeprojectml/2010/08/main" xmlns:msb="http://schemas.microsoft.com/developer/msbuild/2003" runtimeVersion="3.0" schemaVersion="1.0">
+  <msb:PropertyGroup>
+    <msb:Language>msBuild</msb:Language>
+    <msb:CodeName>ST_dd37cea298374cf5883bc431ca752e8c</msb:CodeName>
+    <msb:DisplayName>ST_dd37cea298374cf5883bc431ca752e8c</msb:DisplayName>
+    <msb:ProjectId>{149B482E-3B17-487F-8E13-92F27FB08E64}</msb:ProjectId>
+  </msb:PropertyGroup>
+  <msb:ItemGroup>
+    <msb:Project Include="ST_dd37cea298374cf5883bc431ca752e8c.csproj" />
+    <msb:File Include="Properties\Resources.resx" />
+    <msb:File Include="Properties\Settings.settings" />
+    <msb:File Include="Properties\AssemblyInfo.cs" />
+    <msb:File Include="Properties\Resources.Designer.cs" />
+    <msb:File Include="Properties\Settings.Designer.cs" />
+    <msb:File Include="ScriptMain.cs" />
+  </msb:ItemGroup>
+</c:Project>]]></ProjectItem>
+              <ProjectItem
+                Name="Properties\Settings.Designer.cs"
+                Encoding="UTF8"><![CDATA[//------------------------------------------------------------------------------
+// <auto-generated>
+//     This code was generated by a tool.
+//
+//     Changes to this file may cause incorrect behavior and will be lost if
+//     the code is regenerated.
+// </auto-generated>
+//------------------------------------------------------------------------------
+
+[assembly: global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Scope="member", Target="ST_dd37cea298374cf5883bc431ca752e8c.Properties.Settings.get_Default():ST_dd37cea298374cf5883bc431ca752e8c.Properties.Sett" +
+    "ings")]
+
+namespace ST_dd37cea298374cf5883bc431ca752e8c.Properties {
+    
+    
+    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
+        
+        [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
+        private static Settings defaultInstance = new Settings();
+        
+        public static Settings Default {
+            get {
+                return defaultInstance;
+            }
+        }
+    }
+}]]></ProjectItem>
+              <ProjectItem
+                Name="Properties\Settings.settings"
+                Encoding="UTF8"><![CDATA[<?xml version='1.0' encoding='iso-8859-1'?>
+<SettingsFile xmlns="uri:settings" CurrentProfile="(Default)">
+  <Profiles>
+    <Profile Name="(Default)" />
+  </Profiles>
+  <Settings />
+</SettingsFile>]]></ProjectItem>
+              <ProjectItem
+                Name="ST_dd37cea298374cf5883bc431ca752e8c.csproj"
+                Encoding="UTF8"><![CDATA[<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectTypeGuids>{30D016F9-3734-4E33-A861-5E7D899E18F3};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{05460dfd-ea54-4abd-8ce9-f210b4686585}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ST_dd37cea298374cf5883bc431ca752e8c</RootNamespace>
+    <AssemblyName>ST_dd37cea298374cf5883bc431ca752e8c</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ResolveAssemblyReferenceIgnoreTargetFrameworkAttributeVersionMismatch>true</ResolveAssemblyReferenceIgnoreTargetFrameworkAttributeVersionMismatch>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>.\bin\Debug\</OutputPath>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>false</DebugSymbols>
+    <Optimize>true</Optimize>
+    <OutputPath>.\bin\Release\</OutputPath>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.SqlServer.ManagedDTS, Version=16.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91" />
+    <Reference Include="Microsoft.SqlServer.ScriptTask, Version=16.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AppDesigner Include="Properties\" />
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+         <Generator>ResXFileCodeGenerator</Generator>
+         <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+             <AutoGen>True</AutoGen>
+         <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <None Include="Properties\Settings.settings">
+         <Generator>SettingsSingleFileGenerator</Generator>
+         <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+         <AutoGen>True</AutoGen>
+         <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="ScriptMain.cs">
+         <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <!-- Include the build rules for a C# project.-->
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{30D016F9-3734-4E33-A861-5E7D899E18F3}">
+        <ProjectProperties HostName="ScriptTask"
+                           HostPackage="{B3A685AA-7EAF-4BC6-9940-57959FA5AC07}"
+                           ApplicationType="usd"
+                           Language="cs"
+                           TemplatesPath=""
+                           DebugInfoCommandLine=""
+                           DebugInfoWorkingDir=""
+                           IconImageList=""/>
+        <Host Name="ScriptTask" GeneratedNamespace="$safeprojectname" IconIndex="">
+        </Host>
+        <ProjectClient>
+            <HostIdentifier>SSIS_ST160</HostIdentifier>
+        </ProjectClient>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>]]></ProjectItem>
               <BinaryItem
                 Name="ST_dd37cea298374cf5883bc431ca752e8c.dll">TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAgAAAAA4fug4AtAnNIbgBTM0hVGhpcyBwcm9ncmFtIGNhbm5vdCBiZSBydW4gaW4gRE9TIG1v
@@ -3786,7 +3786,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</BinaryItem>
           DTS:From="Package\Loop Through Excel Files\MigratingTimeSheet"
           DTS:LogicalAnd="True"
           DTS:ObjectName="Constraint"
-          DTS:To="Package\Loop Through Excel Files\Data Flow Task" />
+          DTS:To="Package\Loop Through Excel Files\Data Flow Task Leave TBL" />
       </DTS:PrecedenceConstraints>
       <DTS:ForEachVariableMappings>
         <DTS:ForEachVariableMapping
@@ -3807,6 +3807,21 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</BinaryItem>
       DTS:ObjectName="Sequence Container">
       <DTS:Variables />
       <DTS:Executables>
+        <DTS:Executable
+          DTS:refId="Package\Sequence Container\Data Flow Task"
+          DTS:CreationName="Microsoft.Pipeline"
+          DTS:Description="Data Flow Task"
+          DTS:DTSID="{FA2A9534-314E-42F6-9CAB-4C8F8D4FF846}"
+          DTS:ExecutableType="Microsoft.Pipeline"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="Data Flow Task"
+          DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <pipeline
+              version="1" />
+          </DTS:ObjectData>
+        </DTS:Executable>
         <DTS:Executable
           DTS:refId="Package\Sequence Container\Data Flow Task Extracting Client"
           DTS:CreationName="Microsoft.Pipeline"
@@ -4333,6 +4348,10 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</BinaryItem>
       <GraphLayout
         Capacity="16" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
         <NodeLayout
+          Size="203.2,41.6"
+          Id="Package\Loop Through Excel Files\Data Flow Task Leave TBL"
+          TopLeft="17.3666615216271,155.066667040321" />
+        <NodeLayout
           Size="172,41.6"
           Id="Package\Loop Through Excel Files\MigratingTimeSheet"
           TopLeft="58.9333249555694,80.7333316759929" />
@@ -4340,24 +4359,32 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</BinaryItem>
           Size="130.4,41.6"
           Id="Package\Loop Through Excel Files\Script Task"
           TopLeft="64.9666566042442,5.79999911407627" />
-        <NodeLayout
-          Size="150.4,41.6"
-          Id="Package\Loop Through Excel Files\Data Flow Task"
-          TopLeft="64.8666589263417,147.266667094562" />
         <EdgeLayout
           Id="Package\Loop Through Excel Files.PrecedenceConstraints[Constraint]"
-          TopLeft="142.499991940956,122.333331675993">
+          TopLeft="144.933324955569,122.333331675993">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="0,24.9333354185688"
+              EndConnector="-25.9666634339422,32.7333353643285"
               Start="0,0"
-              End="0,17.4333354185688">
+              End="-25.9666634339422,25.2333353643285">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,17.4333354185688" />
+                    End="0,12.3666676821643" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,12.3666676821643"
+                    Point2="0,16.3666676821643"
+                    Point3="-4,16.3666676821643" />
+                  <mssgle:LineSegment
+                    End="-21.9666634339422,16.3666676821643" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-21.9666634339422,16.3666676821643"
+                    Point2="-25.9666634339422,16.3666676821643"
+                    Point3="-25.9666634339422,20.3666676821643" />
+                  <mssgle:LineSegment
+                    End="-25.9666634339422,25.2333353643285" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -4415,22 +4442,26 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</BinaryItem>
             <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
+        <NodeLayout
+          Size="150.4,41.6"
+          Id="Package\Sequence Container\Data Flow Task"
+          TopLeft="80.9999691297623,146.733331639833" />
         <ContainerLayout
           HeaderHeight="43"
           IsExpanded="True"
-          PanelSize="297.6,193.6"
-          Size="297.6,236.8"
+          PanelSize="297.6,243.2"
+          Size="297.6,286.4"
           Id="Package\Sequence Container"
           TopLeft="484.166640212967,53.7333329596785" />
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint]"
-          TopLeft="484.166640212967,172.133332959679">
+          TopLeft="484.166640212967,196.933332959678">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="-130.466644720568,54.0666684686478"
+              EndConnector="-130.466644720568,29.2666684686478"
               Start="0,0"
-              End="-122.966644720568,54.0666684686478">
+              End="-122.966644720568,29.2666684686478">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
@@ -4441,13 +4472,13 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</BinaryItem>
                     Point2="-65.2333223602839,0"
                     Point3="-65.2333223602839,4" />
                   <mssgle:LineSegment
-                    End="-65.2333223602839,50.0666684686478" />
+                    End="-65.2333223602839,25.2666684686478" />
                   <mssgle:CubicBezierSegment
-                    Point1="-65.2333223602839,50.0666684686478"
-                    Point2="-65.2333223602839,54.0666684686478"
-                    Point3="-69.2333223602839,54.0666684686478" />
+                    Point1="-65.2333223602839,25.2666684686478"
+                    Point2="-65.2333223602839,29.2666684686478"
+                    Point3="-69.2333223602839,29.2666684686478" />
                   <mssgle:LineSegment
-                    End="-122.966644720568,54.0666684686478" />
+                    End="-122.966644720568,29.2666684686478" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -4460,66 +4491,32 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</BinaryItem>
     </LayoutInfo>
   </Package>
   <TaskHost
-    design-time-name="Package\Loop Through Excel Files\Data Flow Task">
+    design-time-name="Package\Loop Through Excel Files\Data Flow Task Leave TBL">
     <LayoutInfo>
       <GraphLayout
         Capacity="16" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
         <NodeLayout
           Size="152.8,41.6"
-          Id="Package\Loop Through Excel Files\Data Flow Task\Derived Column"
-          TopLeft="262.999996080995,126.999998107553" />
+          Id="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Derived Column"
+          TopLeft="217.999998539687,217.99999747475" />
         <NodeLayout
           Size="140,41.6"
-          Id="Package\Loop Through Excel Files\Data Flow Task\Excel Source"
+          Id="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source"
           TopLeft="24.9999986340598,34.666666425599" />
         <NodeLayout
           Size="195.2,41.6"
-          Id="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant"
-          TopLeft="71.6666563931447,209.599998860359" />
+          Id="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant"
+          TopLeft="34.9999917298563,283.266665014757" />
         <NodeLayout
           Size="153.6,41.6"
-          Id="Package\Loop Through Excel Files\Data Flow Task\Conditional Split"
+          Id="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Conditional Split"
           TopLeft="259.999987763663,33.700000344316" />
         <NodeLayout
           Size="171.2,41.6"
-          Id="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination"
-          TopLeft="373.333317306307,218.799999487797" />
+          Id="Package\Loop Through Excel Files\Data Flow Task Leave TBL\OLE DB Destination"
+          TopLeft="248.333324136006,384.333331670032" />
         <EdgeLayout
-          Id="Package\Loop Through Excel Files\Data Flow Task.Paths[Fuzzy Lookup Output]"
-          TopLeft="266.866656393145,230.399998860359">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="106.466660913163,9.20000062743804"
-              Start="0,0"
-              End="98.9666609131625,9.20000062743804">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="49.2333304565813,0" />
-                  <mssgle:CubicBezierSegment
-                    Point1="49.2333304565813,0"
-                    Point2="53.2333304565813,0"
-                    Point3="53.2333304565813,4" />
-                  <mssgle:LineSegment
-                    End="53.2333304565813,5.20000062743804" />
-                  <mssgle:CubicBezierSegment
-                    Point1="53.2333304565813,5.20000062743804"
-                    Point2="53.2333304565813,9.20000062743804"
-                    Point3="57.2333304565813,9.20000062743804" />
-                  <mssgle:LineSegment
-                    End="98.9666609131625,9.20000062743804" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
-        <EdgeLayout
-          Id="Package\Loop Through Excel Files\Data Flow Task.Paths[Excel Source Output]"
+          Id="Package\Loop Through Excel Files\Data Flow Task Leave TBL.Paths[Excel Source Output]"
           TopLeft="164.99999863406,54.9833333849575">
           <EdgeLayout.Curve>
             <mssgle:Curve
@@ -4541,31 +4538,31 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</BinaryItem>
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
-          Id="Package\Loop Through Excel Files\Data Flow Task.Paths[Derived Column Output]"
-          TopLeft="339.399996080995,168.599998107553">
+          Id="Package\Loop Through Excel Files\Data Flow Task Leave TBL.Paths[Derived Column Output]"
+          TopLeft="294.399998539687,259.59999747475">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="-170.13333968785,41.0000007528068"
+              EndConnector="-161.80000680983,23.6666675400065"
               Start="0,0"
-              End="-170.13333968785,33.5000007528068">
+              End="-161.80000680983,16.1666675400065">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,16.5000003764034" />
+                    End="0,7.83333377000324" />
                   <mssgle:CubicBezierSegment
-                    Point1="0,16.5000003764034"
-                    Point2="0,20.5000003764034"
-                    Point3="-4,20.5000003764034" />
+                    Point1="0,7.83333377000324"
+                    Point2="0,11.8333337700032"
+                    Point3="-4,11.8333337700032" />
                   <mssgle:LineSegment
-                    End="-166.13333968785,20.5000003764034" />
+                    End="-157.80000680983,11.8333337700032" />
                   <mssgle:CubicBezierSegment
-                    Point1="-166.13333968785,20.5000003764034"
-                    Point2="-170.13333968785,20.5000003764034"
-                    Point3="-170.13333968785,24.5000003764034" />
+                    Point1="-157.80000680983,11.8333337700032"
+                    Point2="-161.80000680983,11.8333337700032"
+                    Point3="-161.80000680983,15.8333337700032" />
                   <mssgle:LineSegment
-                    End="-170.13333968785,33.5000007528068" />
+                    End="-161.80000680983,16.1666675400065" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -4575,26 +4572,72 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</BinaryItem>
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
-          Id="Package\Loop Through Excel Files\Data Flow Task.Paths[Case 1]"
-          TopLeft="338.099991922329,75.3000003443159">
+          Id="Package\Loop Through Excel Files\Data Flow Task Leave TBL.Paths[Fuzzy Lookup Output]"
+          TopLeft="132.599991729856,324.866665014757">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="0,51.6999977632367"
+              EndConnector="201.333332406149,59.4666666552753"
               Start="0,0"
-              End="0,44.1999977632367">
+              End="201.333332406149,51.9666666552753">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,44.1999977632367" />
+                    End="0,25.7333333276377" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,25.7333333276377"
+                    Point2="0,29.7333333276377"
+                    Point3="4,29.7333333276377" />
+                  <mssgle:LineSegment
+                    End="197.333332406149,29.7333333276377" />
+                  <mssgle:CubicBezierSegment
+                    Point1="197.333332406149,29.7333333276377"
+                    Point2="201.333332406149,29.7333333276377"
+                    Point3="201.333332406149,33.7333333276377" />
+                  <mssgle:LineSegment
+                    End="201.333332406149,51.9666666552753" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Loop Through Excel Files\Data Flow Task Leave TBL.Paths[Case 1]"
+          TopLeft="336.799987763663,75.300000344316">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-42.3999892239764,142.699997130434"
+              Start="0,0"
+              End="-42.3999892239764,135.199997130434">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,67.3499985652172" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,67.3499985652172"
+                    Point2="0,71.3499985652172"
+                    Point3="-4,71.3499985652172" />
+                  <mssgle:LineSegment
+                    End="-38.3999892239764,71.3499985652172" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-38.3999892239764,71.3499985652172"
+                    Point2="-42.3999892239764,71.3499985652172"
+                    Point3="-42.3999892239764,75.3499985652172" />
+                  <mssgle:LineSegment
+                    End="-42.3999892239764,135.199997130434" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
             <mssgm:EdgeLabel
-              BoundingBox="-15.2180859375,17.3231434128683,30.436171875,9.5537109375"
+              BoundingBox="-36.4180805494882,76.3499985652172,30.436171875,9.5537109375"
               RelativePosition="Any" />
           </EdgeLayout.Labels>
         </EdgeLayout>
@@ -4602,7 +4645,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</BinaryItem>
     </LayoutInfo>
   </TaskHost>
   <PipelineComponentMetadata
-    design-time-name="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant">
+    design-time-name="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Fuzzy Lookup Consultant">
     <Properties>
       <Property>
         <Name>DataSourceViewID</Name>
@@ -4615,7 +4658,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</BinaryItem>
     </Properties>
   </PipelineComponentMetadata>
   <PipelineComponentMetadata
-    design-time-name="Package\Loop Through Excel Files\Data Flow Task\Excel Source">
+    design-time-name="Package\Loop Through Excel Files\Data Flow Task Leave TBL\Excel Source">
     <Properties>
       <Property>
         <Name>DataSourceViewID</Name>
@@ -4630,15 +4673,15 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</BinaryItem>
         <NodeLayout
           Size="141.6,41.6"
           Id="Package\Loop Through Excel Files\MigratingTimeSheet\Lookup Client"
-          TopLeft="182.49999002864,240.066664997273" />
+          TopLeft="422.499986452361,242.066664967471" />
         <NodeLayout
           Size="195.2,41.6"
           Id="Package\Loop Through Excel Files\MigratingTimeSheet\Fuzzy Lookup Consultant"
-          TopLeft="139.999992350738,147.333332308796" />
+          TopLeft="436.999987925093,137.333332457808" />
         <NodeLayout
           Size="171.2,41.6"
           Id="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination"
-          TopLeft="166.333334380554,323.299999041756" />
+          TopLeft="57.3333360047805,404.299997834762" />
         <NodeLayout
           Size="140,41.6"
           Id="Package\Loop Through Excel Files\MigratingTimeSheet\Excel Source"
@@ -4652,91 +4695,31 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</BinaryItem>
           Id="Package\Loop Through Excel Files\MigratingTimeSheet\Conditional Split"
           TopLeft="448.333306254613,45.7999986563129" />
         <EdgeLayout
-          Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[ValidRows]"
-          TopLeft="525.133306254613,87.3999986563129">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="-287.533313903875,59.9333336524828"
-              Start="0,0"
-              End="-287.533313903875,52.4333336524828">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,25.9666668262414" />
-                  <mssgle:CubicBezierSegment
-                    Point1="0,25.9666668262414"
-                    Point2="0,29.9666668262414"
-                    Point3="-4,29.9666668262414" />
-                  <mssgle:LineSegment
-                    End="-283.533313903875,29.9666668262414" />
-                  <mssgle:CubicBezierSegment
-                    Point1="-283.533313903875,29.9666668262414"
-                    Point2="-287.533313903875,29.9666668262414"
-                    Point3="-287.533313903875,33.9666668262414" />
-                  <mssgle:LineSegment
-                    End="-287.533313903875,52.4333336524828" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="-167.117418670687,34.9666668262414,46.7015234375,9.7490234375"
-              RelativePosition="Any" />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
-        <EdgeLayout
-          Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Lookup Match Output]"
-          TopLeft="252.616662204597,281.666664997273">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="0,41.633334044483"
-              Start="0,0"
-              End="0,34.133334044483">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,34.133334044483" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="-48.19138671875,11.2619795222415,96.3827734375,11.609375"
-              RelativePosition="Any" />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
-        <EdgeLayout
           Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Fuzzy Lookup Output]"
-          TopLeft="237.599992350738,188.933332308796">
+          TopLeft="534.599987925093,178.933332457808">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="15.699997677902,51.133332688477"
+              EndConnector="-41.3000014727318,63.1333325096631"
               Start="0,0"
-              End="15.699997677902,43.633332688477">
+              End="-41.3000014727318,55.6333325096631">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,21.5666663442385" />
+                    End="0,27.5666662548315" />
                   <mssgle:CubicBezierSegment
-                    Point1="0,21.5666663442385"
-                    Point2="0,25.5666663442385"
-                    Point3="4,25.5666663442385" />
+                    Point1="0,27.5666662548315"
+                    Point2="0,31.5666662548315"
+                    Point3="-4,31.5666662548315" />
                   <mssgle:LineSegment
-                    End="11.699997677902,25.5666663442385" />
+                    End="-37.3000014727318,31.5666662548315" />
                   <mssgle:CubicBezierSegment
-                    Point1="11.699997677902,25.5666663442385"
-                    Point2="15.699997677902,25.5666663442385"
-                    Point3="15.699997677902,29.5666663442385" />
+                    Point1="-37.3000014727318,31.5666662548315"
+                    Point2="-41.3000014727318,31.5666662548315"
+                    Point3="-41.3000014727318,35.5666662548315" />
                   <mssgle:LineSegment
-                    End="15.699997677902,43.633332688477" />
+                    End="-41.3000014727318,55.6333325096631" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -4811,6 +4794,78 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</BinaryItem>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
             <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Lookup Match Output]"
+          TopLeft="493.299986452361,283.666664967471">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-350.366650447581,120.633332867291"
+              Start="0,0"
+              End="-350.366650447581,113.133332867291">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,56.3166664336456" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,56.3166664336456"
+                    Point2="0,60.3166664336456"
+                    Point3="-4,60.3166664336456" />
+                  <mssgle:LineSegment
+                    End="-346.366650447581,60.3166664336456" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-346.366650447581,60.3166664336456"
+                    Point2="-350.366650447581,60.3166664336456"
+                    Point3="-350.366650447581,64.3166664336456" />
+                  <mssgle:LineSegment
+                    End="-350.366650447581,113.133332867291" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-223.37471194254,65.3166664336456,96.3827734375,11.609375"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[ValidRows]"
+          TopLeft="525.133306254613,87.3999986563129">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="9.46668167048017,49.9333338014947"
+              Start="0,0"
+              End="9.46668167048017,42.4333338014947">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,20.9666669007473" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,20.9666669007473"
+                    Point2="0,24.9666669007473"
+                    Point3="4,24.9666669007473" />
+                  <mssgle:LineSegment
+                    End="5.46668167048017,24.9666669007473" />
+                  <mssgle:CubicBezierSegment
+                    Point1="5.46668167048017,24.9666669007473"
+                    Point2="9.46668167048017,24.9666669007473"
+                    Point3="9.46668167048017,28.9666669007473" />
+                  <mssgle:LineSegment
+                    End="9.46668167048017,42.4333338014947" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-147.117418968711,60.4666664462619,46.7015234375,9.7490234375"
+              RelativePosition="Any" />
           </EdgeLayout.Labels>
         </EdgeLayout>
       </GraphLayout>
