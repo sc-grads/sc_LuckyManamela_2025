@@ -86,22 +86,29 @@ BEGIN
 END
 GO
 
--- Create AuditLog table
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'AuditLog')
+-- Drop the existing AuditLog if it exists (backup data if needed)
+IF OBJECT_ID('AuditLog', 'U') IS NOT NULL
 BEGIN
-    CREATE TABLE AuditLog (
-        AuditID INT IDENTITY(1,1) PRIMARY KEY,
-        TableName NVARCHAR(50) NOT NULL,
-		FileName NVARCHAR(1000),
-		EmployeeID INT,
-		UserName NVARCHAR(50) NULL,
-		Details NVARCHAR(MAX),
-		Timestamp DATETIME NULL DEFAULT GETDATE()
-      
-    );
+    DROP TABLE AuditLog;
 END
 GO
-
+CREATE TABLE AuditLog (
+    AuditID INT IDENTITY(1,1) PRIMARY KEY,
+    ConsultantID INT NOT NULL,
+    ConsultantName NVARCHAR(100) NOT NULL,
+    SubmissionMonth NVARCHAR(10) NOT NULL,
+    SubmissionDate DATE NOT NULL,
+    SubmissionTime TIME(0) NOT NULL,
+    SubmissionType NVARCHAR(20) NOT NULL,
+    ChangeType NVARCHAR(20) NULL,
+    AffectedTable NVARCHAR(20) NULL,
+    RecordCount INT NULL,
+    AuditTimestamp DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (ConsultantID) REFERENCES Consultant(ConsultantID),
+    CONSTRAINT CHK_SubmissionType CHECK (SubmissionType IN ('Timesheet', 'Leave')),
+    CONSTRAINT CHK_ChangeType CHECK (ChangeType IN ('Insert', 'Delete', 'Truncate', 'Drop') OR ChangeType IS NULL)
+);
+GO
 -- Create ErrorLog table
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'ErrorLog')
 BEGIN
@@ -139,138 +146,105 @@ BEGIN
 END
 GO
 
--- Create Audit Trigger for Timesheet
-IF NOT EXISTS (SELECT * FROM sys.triggers WHERE name = 'tr_Timesheet_Audit')
+
+CREATE TRIGGER tr_Timesheet_Audit
+ON Timesheet
+AFTER INSERT, DELETE
+AS
 BEGIN
-    EXEC sp_executesql N'
-    CREATE TRIGGER tr_Timesheet_Audit
-    ON Timesheet
-    AFTER INSERT, UPDATE, DELETE
-    AS
+    SET NOCOUNT ON;
+    IF EXISTS (SELECT 1 FROM inserted)
     BEGIN
-        SET NOCOUNT ON;
-
-        INSERT INTO AuditLog (TableName, FileName, EmployeeID, Details, Timestamp, UserName)
-        SELECT
-            ''Timesheet'',
-            NULL, -- FileName will populated via SSIS parameter
-            COALESCE(i.ConsultantID, d.ConsultantID), -- Map to ConsultantID
-            (
-                SELECT 
-                    ''Old'' AS Action,
-                    d.TimesheetID, d.ConsultantID, d.ClientID, d.EntryDate, d.DayOfWeek, d.Description, 
-                    d.BillableStatus, d.Comments, d.TotalHours, d.StartTime, d.EndTime
-                FOR JSON PATH, INCLUDE_NULL_VALUES
-            ) + CASE 
-                    WHEN EXISTS (SELECT 1 FROM inserted) THEN
-                        '', '' + (
-                            SELECT 
-                                ''New'' AS Action,
-                                i.TimesheetID, i.ConsultantID, i.ClientID, i.EntryDate, i.DayOfWeek, i.Description, 
-                                i.BillableStatus, i.Comments, i.TotalHours, i.StartTime, i.EndTime
-                            FOR JSON PATH, INCLUDE_NULL_VALUES
-                        )
-                    ELSE ''''
-                END AS Details,
-            GETDATE(),
-            SYSTEM_USER
-        FROM inserted i
-        FULL OUTER JOIN deleted d ON i.TimesheetID = d.TimesheetID
-        WHERE i.TimesheetID IS NOT NULL OR d.TimesheetID IS NOT NULL;
-    END';
-END
-GO
-
--- Create Audit Trigger for Leave
-IF NOT EXISTS (SELECT * FROM sys.triggers WHERE name = 'tr_Leave_Audit')
-BEGIN
-    EXEC sp_executesql N'
-    CREATE TRIGGER tr_Leave_Audit
-    ON Leave
-    AFTER INSERT, UPDATE, DELETE
-    AS
-    BEGIN
-        SET NOCOUNT ON;
-
-        INSERT INTO AuditLog (TableName, FileName, EmployeeID, Details, Timestamp, UserName)
-        SELECT
-            ''Leave'',
-            NULL, -- FileName will be populated via SSIS parameter
-            COALESCE(i.ConsultantID, d.ConsultantID), -- Map to ConsultantID
-            (
-                SELECT 
-                    ''Old'' AS Action,
-                    d.LeaveID, d.ConsultantID, d.TypeOfLeave, d.StartDate, d.EndDate, d.NumberOfDays, 
-                    d.ApprovalObtained, d.SickNote, d.Comments
-                FOR JSON PATH, INCLUDE_NULL_VALUES
-            ) + CASE 
-                    WHEN EXISTS (SELECT 1 FROM inserted) THEN
-                        '', '' + (
-                            SELECT 
-                                ''New'' AS Action,
-                                i.LeaveID, i.ConsultantID, i.TypeOfLeave, i.StartDate, i.EndDate, i.NumberOfDays, 
-                                i.ApprovalObtained, i.SickNote, i.Comments
-                            FOR JSON PATH, INCLUDE_NULL_VALUES
-                        )
-                    ELSE ''''
-                END AS Details,
-            GETDATE(),
-            SYSTEM_USER
-        FROM inserted i
-        FULL OUTER JOIN deleted d ON i.LeaveID = d.LeaveID
-        WHERE i.LeaveID IS NOT NULL OR d.LeaveID IS NOT NULL;
-    END';
-END
-GO
-
-/*
--- Add triggers or computed columns to enforce HH:MM format (optional)
--- Note: DATETIME cannot be natively limited to HH:MM, so we use a trigger to validate
-IF NOT EXISTS (SELECT * FROM sys.triggers WHERE name = 'tr_Timesheet_TimeFormat')
-BEGIN
-    EXEC sp_executesql N'
-    CREATE TRIGGER tr_Timesheet_TimeFormat
-    ON Timesheet
-    INSTEAD OF INSERT, UPDATE
-    AS
-    BEGIN
-        SET NOCOUNT ON;
-        INSERT INTO Timesheet (ConsultantID, ClientID, EntryDate, DayOfWeek, Description, BillableStatus, Comments, TotalHours, StartTime, EndTime)
+        INSERT INTO AuditLog (ConsultantID, ConsultantName, SubmissionMonth, SubmissionDate, SubmissionTime, SubmissionType, ChangeType, AffectedTable, RecordCount)
         SELECT 
             i.ConsultantID,
-            i.ClientID,
-            i.EntryDate,
-            i.DayOfWeek,
-            i.Description,
-            i.BillableStatus,
-            i.Comments,
-            i.TotalHours,
-            CASE 
-                WHEN i.StartTime IS NOT NULL 
-                THEN DATEADD(ms, -DATEPART(ms, i.StartTime), DATEADD(ss, -DATEPART(ss, i.StartTime), i.StartTime))
-                ELSE NULL 
-            END,
-            CASE 
-                WHEN i.EndTime IS NOT NULL 
-                THEN DATEADD(ms, -DATEPART(ms, i.EndTime), DATEADD(ss, -DATEPART(ss, i.EndTime), i.EndTime))
-                ELSE NULL 
-            END
-        FROM inserted i
-        -- Validate that StartTime and EndTime, if provided, are on the default date (1900-01-01) with HH:MM
-        WHERE (i.StartTime IS NULL OR CAST(i.StartTime AS TIME) = i.StartTime)
-          AND (i.EndTime IS NULL OR CAST(i.EndTime AS TIME) = i.EndTime)
-          AND NOT EXISTS (
-              SELECT 1 
-              FROM Timesheet t 
-              WHERE t.ConsultantID = i.ConsultantID 
-                AND t.EntryDate = i.EntryDate 
-                AND t.StartTime = i.StartTime 
-                AND t.EndTime = i.EndTime
-                AND t.TimesheetID != COALESCE((SELECT MAX(TimesheetID) FROM inserted), 0)
-          );
-        IF @@ROWCOUNT = 0
-            INSERT INTO ErrorLog (FilePath, ErrorMessage, Timestamp)
-            VALUES ('Trigger Validation', 'Invalid time format or duplicate entry for StartTime and EndTime', GETDATE());
-    END';
+            (SELECT ConsultantName FROM Consultant c WHERE c.ConsultantID = i.ConsultantID),
+            DATENAME(month, i.EntryDate),
+            CAST(GETDATE() AS DATE),
+            CAST(GETDATE() AS TIME(0)),
+            'Timesheet',
+            'Insert',
+            'Timesheet',
+            @@ROWCOUNT
+        FROM inserted i;
+    END
+    IF EXISTS (SELECT 1 FROM deleted)
+    BEGIN
+        INSERT INTO AuditLog (ConsultantID, ConsultantName, SubmissionMonth, SubmissionDate, SubmissionTime, SubmissionType, ChangeType, AffectedTable, RecordCount)
+        SELECT 
+            d.ConsultantID,
+            (SELECT ConsultantName FROM Consultant c WHERE c.ConsultantID = d.ConsultantID),
+            DATENAME(month, d.EntryDate),
+            CAST(GETDATE() AS DATE),
+            CAST(GETDATE() AS TIME(0)),
+            'Timesheet',
+            'Delete',
+            'Timesheet',
+            @@ROWCOUNT
+        FROM deleted d;
+    END
+END;
+GO
+
+-- Drop existing trigger if it exists
+IF OBJECT_ID('tr_Leave_Audit', 'TR') IS NOT NULL
+BEGIN
+    DROP TRIGGER tr_Leave_Audit;
 END
-GO*/
+GO
+
+-- Create trigger for Leave table
+CREATE TRIGGER tr_Leave_Audit
+ON Leave
+AFTER INSERT, DELETE
+AS
+BEGIN
+    SET NOCOUNT ON;
+    IF EXISTS (SELECT 1 FROM inserted)
+    BEGIN
+        INSERT INTO AuditLog (ConsultantID, ConsultantName, SubmissionMonth, SubmissionDate, SubmissionTime, SubmissionType, ChangeType, AffectedTable, RecordCount)
+        SELECT 
+            i.ConsultantID,
+            (SELECT ConsultantName FROM Consultant c WHERE c.ConsultantID = i.ConsultantID),
+            DATENAME(month, i.StartDate), -- Using StartDate as the reference month
+            CAST(GETDATE() AS DATE),
+            CAST(GETDATE() AS TIME(0)),
+            'Leave',
+            'Insert',
+            'Leave',
+            @@ROWCOUNT
+        FROM inserted i;
+    END
+    IF EXISTS (SELECT 1 FROM deleted)
+    BEGIN
+        INSERT INTO AuditLog (ConsultantID, ConsultantName, SubmissionMonth, SubmissionDate, SubmissionTime, SubmissionType, ChangeType, AffectedTable, RecordCount)
+        SELECT 
+            d.ConsultantID,
+            (SELECT ConsultantName FROM Consultant c WHERE c.ConsultantID = d.ConsultantID),
+            DATENAME(month, d.StartDate), -- Using StartDate as the reference month
+            CAST(GETDATE() AS DATE),
+            CAST(GETDATE() AS TIME(0)),
+            'Leave',
+            'Delete',
+            'Leave',
+            @@ROWCOUNT
+        FROM deleted d;
+    END
+END;
+GO
+
+--Enable Audit
+USE master;
+CREATE SERVER AUDIT Audit_SSISDB
+TO FILE (FILEPATH = 'C:\Audits\')
+WITH (QUEUE_DELAY = 1000, ON_FAILURE = CONTINUE);
+ALTER SERVER AUDIT Audit_SSISDB WITH (STATE = ON);
+GO
+
+CREATE DATABASE AUDIT SPECIFICATION Audit_Spec
+FOR SERVER AUDIT Audit_SSISDB
+ADD (SCHEMA_OBJECT_CHANGE_GROUP),
+ADD (DATABASE_OBJECT_CHANGE_GROUP)
+WITH (STATE = ON);
+GO
+
