@@ -11,8 +11,8 @@
   DTS:LocaleID="1033"
   DTS:ObjectName="TimeSheetMigration"
   DTS:PackageType="5"
-  DTS:VersionBuild="233"
-  DTS:VersionGUID="{9337F4E3-80AC-45BA-A868-28BF025DD4A8}">
+  DTS:VersionBuild="252"
+  DTS:VersionGUID="{9E6790D0-E828-4712-928E-711D3576A889}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:ConnectionManagers>
@@ -83,61 +83,13 @@
     <DTS:ConnectionManager
       DTS:refId="Package.ConnectionManagers[LocalHost.TimesheetDB]"
       DTS:CreationName="OLEDB"
-      DTS:DTSID="{9E8C02C2-BC1E-4027-BD93-6C5839ECCFFE}"
+      DTS:DTSID="{2910F300-387D-4705-BA5B-B282470E50C6}"
       DTS:ObjectName="LocalHost.TimesheetDB">
       <DTS:ObjectData>
         <DTS:ConnectionManager
           DTS:ConnectRetryCount="1"
           DTS:ConnectRetryInterval="5"
-          DTS:ConnectionString="Data Source=.;Initial Catalog=TimesheetDB;Provider=SQLNCLI11.1;Integrated Security=SSPI;Application Name=SSIS-TimeSheetMigration-{9E8C02C2-BC1E-4027-BD93-6C5839ECCFFE}LocalHost.TimesheetDB;Auto Translate=False;" />
-      </DTS:ObjectData>
-    </DTS:ConnectionManager>
-    <DTS:ConnectionManager
-      DTS:refId="Package.ConnectionManagers[LocalHost.TimesheetDB 1]"
-      DTS:CreationName="OLEDB"
-      DTS:DTSID="{73432F2D-9EA4-4DB6-8E0B-C19ED27AA0CD}"
-      DTS:ObjectName="LocalHost.TimesheetDB 1">
-      <DTS:ObjectData>
-        <DTS:ConnectionManager
-          DTS:ConnectRetryCount="1"
-          DTS:ConnectRetryInterval="5"
-          DTS:ConnectionString="Data Source=.;Initial Catalog=TimesheetDB;Provider=SQLNCLI11.1;Integrated Security=SSPI;Application Name=SSIS-TimeSheetMigration-{73432F2D-9EA4-4DB6-8E0B-C19ED27AA0CD}LocalHost.TimesheetDB 1;Auto Translate=False;" />
-      </DTS:ObjectData>
-    </DTS:ConnectionManager>
-    <DTS:ConnectionManager
-      DTS:refId="Package.ConnectionManagers[LocalHost.TimesheetDB 2]"
-      DTS:CreationName="OLEDB"
-      DTS:DTSID="{EF56D92A-7A4A-4241-9AB2-D8BEFF3D1FC0}"
-      DTS:ObjectName="LocalHost.TimesheetDB 2">
-      <DTS:ObjectData>
-        <DTS:ConnectionManager
-          DTS:ConnectRetryCount="1"
-          DTS:ConnectRetryInterval="5"
-          DTS:ConnectionString="Data Source=.;Initial Catalog=TimesheetDB;Provider=SQLNCLI11.1;Integrated Security=SSPI;Application Name=SSIS-ExtractingClientIformation-{EF56D92A-7A4A-4241-9AB2-D8BEFF3D1FC0}LocalHost.TimesheetDB;Auto Translate=False;" />
-      </DTS:ObjectData>
-    </DTS:ConnectionManager>
-    <DTS:ConnectionManager
-      DTS:refId="Package.ConnectionManagers[LocalHost.TimesheetDB 3]"
-      DTS:CreationName="OLEDB"
-      DTS:DTSID="{0E0FDE03-9295-43CB-8353-5E2E08A199A4}"
-      DTS:ObjectName="LocalHost.TimesheetDB 3">
-      <DTS:ObjectData>
-        <DTS:ConnectionManager
-          DTS:ConnectRetryCount="1"
-          DTS:ConnectRetryInterval="5"
-          DTS:ConnectionString="Data Source=.;Initial Catalog=TimesheetDB;Provider=SQLNCLI11.1;Integrated Security=SSPI;Application Name=SSIS-Package-{0E0FDE03-9295-43CB-8353-5E2E08A199A4}LocalHost.TimesheetDB;Auto Translate=False;" />
-      </DTS:ObjectData>
-    </DTS:ConnectionManager>
-    <DTS:ConnectionManager
-      DTS:refId="Package.ConnectionManagers[LocalHost.TimesheetDB 4]"
-      DTS:CreationName="OLEDB"
-      DTS:DTSID="{2C2AF919-8B82-4B85-BAE2-B45095D4349A}"
-      DTS:ObjectName="LocalHost.TimesheetDB 4">
-      <DTS:ObjectData>
-        <DTS:ConnectionManager
-          DTS:ConnectRetryCount="1"
-          DTS:ConnectRetryInterval="5"
-          DTS:ConnectionString="Data Source=.;Initial Catalog=TimesheetDB;Provider=SQLNCLI11.1;Integrated Security=SSPI;Application Name=SSIS-ImportLeave-{2C2AF919-8B82-4B85-BAE2-B45095D4349A}LocalHost.TimesheetDB;Auto Translate=False;" />
+          DTS:ConnectionString="Data Source=.;Initial Catalog=TimesheetDB;Provider=SQLNCLI11.1;Integrated Security=SSPI;Application Name=SSIS-TimeSheetMigration-{2910F300-387D-4705-BA5B-B282470E50C6}LocalHost.TimesheetDB;Auto Translate=False;" />
       </DTS:ObjectData>
     </DTS:ConnectionManager>
   </DTS:ConnectionManagers>
@@ -236,7 +188,7 @@
       DTS:Namespace="User"
       DTS:ObjectName="SubmissionDate">
       <DTS:VariableValue
-        DTS:DataType="7">6/12/2025 3:22:09 PM</DTS:VariableValue>
+        DTS:DataType="7">6/18/2025 10:11:22 AM</DTS:VariableValue>
     </DTS:Variable>
     <DTS:Variable
       DTS:CreationName=""
@@ -1570,6 +1522,7 @@
                               name="CopyFromReferenceColumn"
                               state="escaped">ConsultantID</property>
                             <property
+                              containsID="true"
                               dataType="System.Null"
                               description="Specifies the lineage identifier of the input column from which to copy to this output column for each match."
                               name="SourceInputColumnLineageID" />
@@ -1701,8 +1654,8 @@
                   <connections>
                     <connection
                       refId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Connections[OleDbConnection]"
-                      connectionManagerID="Package.ConnectionManagers[LocalHost.TimesheetDB 4]"
-                      connectionManagerRefId="Package.ConnectionManagers[LocalHost.TimesheetDB 4]"
+                      connectionManagerID="Package.ConnectionManagers[LocalHost.TimesheetDB]"
+                      connectionManagerRefId="Package.ConnectionManagers[LocalHost.TimesheetDB]"
                       description="Microsoft SQL Server connection and database in which the fuzzy lookup reference table is located and where the fuzzy match index table will be stored and accessed."
                       name="OleDbConnection" />
                   </connections>
@@ -2205,14 +2158,14 @@
                       description="Specifies the SQL statement that generates the lookup table."
                       expressionType="Notify"
                       name="SqlCommand"
-                      UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">select * from [dbo].[Leave]</property>
+                      UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">select * from [dbo].[Consultant]</property>
                     <property
                       dataType="System.String"
                       description="Specifies a SQL statement that uses parameters to generate the lookup table."
                       expressionType="Notify"
                       name="SqlCommandParam"
-                      UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">select * from (select * from [dbo].[Leave]) [refTable]
-where [refTable].[TypeOfLeave] = ? and [refTable].[StartDate] = ? and [refTable].[EndDate] = ? and [refTable].[ConsultantID] = ?</property>
+                      UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">select * from (select * from [dbo].[Consultant]) [refTable]
+where [refTable].[ConsultantName] = ? and [refTable].[ConsultantID] = ?</property>
                     <property
                       dataType="System.Int32"
                       description="Specifies the type of connection used to access the reference dataset."
@@ -2243,12 +2196,12 @@ where [refTable].[TypeOfLeave] = ? and [refTable].[StartDate] = ? and [refTable]
                     <property
                       dataType="System.String"
                       description="Indicates whether to reference metadata in an XML format."
-                      name="ReferenceMetadataXml">&lt;referenceMetadata&gt;&lt;referenceColumns&gt;&lt;referenceColumn name="LeaveID" dataType="DT_I4" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;referenceColumn name="ConsultantID" dataType="DT_I4" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;referenceColumn name="TypeOfLeave" dataType="DT_WSTR" length="50" precision="0" scale="0" codePage="0"/&gt;&lt;referenceColumn name="StartDate" dataType="DT_DBDATE" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;referenceColumn name="EndDate" dataType="DT_DBDATE" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;referenceColumn name="NumberOfDays" dataType="DT_NUMERIC" length="0" precision="5" scale="2" codePage="0"/&gt;&lt;referenceColumn name="ApprovalObtained" dataType="DT_WSTR" length="50" precision="0" scale="0" codePage="0"/&gt;&lt;referenceColumn name="SickNote" dataType="DT_WSTR" length="20" precision="0" scale="0" codePage="0"/&gt;&lt;referenceColumn name="Comments" dataType="DT_WSTR" length="1000" precision="0" scale="0" codePage="0"/&gt;&lt;/referenceColumns&gt;&lt;/referenceMetadata&gt;</property>
+                      name="ReferenceMetadataXml">&lt;referenceMetadata&gt;&lt;referenceColumns&gt;&lt;referenceColumn name="ConsultantID" dataType="DT_I4" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;referenceColumn name="ConsultantName" dataType="DT_WSTR" length="100" precision="0" scale="0" codePage="0"/&gt;&lt;/referenceColumns&gt;&lt;/referenceMetadata&gt;</property>
                     <property
                       containsID="true"
                       dataType="System.String"
                       description="Specifies the list of lineage identifiers that map to the parameters that the SQL statement in the SQLCommand property uses. Entries in the list are separated by semicolons."
-                      name="ParameterMap">#{Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Type of Leave]};#{Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Start Date]};#{Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[End Date]};#{Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[ConsultantID]};</property>
+                      name="ParameterMap">#{Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[ConsultantName]};#{Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[ConsultantID]};</property>
                     <property
                       dataType="System.Int32"
                       description="Specifies the column code page to use when code page information is unavailable from the data source."
@@ -2272,48 +2225,16 @@ where [refTable].[TypeOfLeave] = ? and [refTable].[StartDate] = ? and [refTable]
                       name="Lookup Input">
                       <inputColumns>
                         <inputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Lookup.Inputs[Lookup Input].Columns[Start Date]"
-                          cachedDataType="dbDate"
-                          cachedName="Start Date"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Start Date]">
-                          <properties>
-                            <property
-                              dataType="System.String"
-                              description="Specifies the column in the reference table that a column joins."
-                              name="JoinToReferenceColumn">StartDate</property>
-                            <property
-                              dataType="System.Null"
-                              description="Specifies the column in the reference table from which a column is copied."
-                              name="CopyFromReferenceColumn" />
-                          </properties>
-                        </inputColumn>
-                        <inputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Lookup.Inputs[Lookup Input].Columns[End Date]"
-                          cachedDataType="dbDate"
-                          cachedName="End Date"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[End Date]">
-                          <properties>
-                            <property
-                              dataType="System.String"
-                              description="Specifies the column in the reference table that a column joins."
-                              name="JoinToReferenceColumn">EndDate</property>
-                            <property
-                              dataType="System.Null"
-                              description="Specifies the column in the reference table from which a column is copied."
-                              name="CopyFromReferenceColumn" />
-                          </properties>
-                        </inputColumn>
-                        <inputColumn
-                          refId="Package\Loop Through Excel Files\Data Flow Task\Lookup.Inputs[Lookup Input].Columns[Type of Leave]"
+                          refId="Package\Loop Through Excel Files\Data Flow Task\Lookup.Inputs[Lookup Input].Columns[ConsultantName]"
                           cachedDataType="wstr"
-                          cachedLength="255"
-                          cachedName="Type of Leave"
-                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[Type of Leave]">
+                          cachedLength="50"
+                          cachedName="ConsultantName"
+                          lineageId="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant.Outputs[Fuzzy Lookup Output].Columns[ConsultantName]">
                           <properties>
                             <property
                               dataType="System.String"
                               description="Specifies the column in the reference table that a column joins."
-                              name="JoinToReferenceColumn">TypeOfLeave</property>
+                              name="JoinToReferenceColumn">ConsultantName</property>
                             <property
                               dataType="System.Null"
                               description="Specifies the column in the reference table from which a column is copied."
@@ -2478,8 +2399,8 @@ where [refTable].[TypeOfLeave] = ? and [refTable].[StartDate] = ? and [refTable]
                   <connections>
                     <connection
                       refId="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination.Connections[OleDbConnection]"
-                      connectionManagerID="Package.ConnectionManagers[LocalHost.TimesheetDB 4]"
-                      connectionManagerRefId="Package.ConnectionManagers[LocalHost.TimesheetDB 4]"
+                      connectionManagerID="Package.ConnectionManagers[LocalHost.TimesheetDB]"
+                      connectionManagerRefId="Package.ConnectionManagers[LocalHost.TimesheetDB]"
                       description="The OLE DB runtime connection used to access the database."
                       name="OleDbConnection" />
                   </connections>
@@ -4074,7 +3995,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
                           dataType="wstr"
                           errorOrTruncationOperation="Computation"
                           errorRowDisposition="FailComponent"
-                          length="56"
+                          length="100"
                           lineageId="Package\Loop Through Excel Files\MigratingTimeSheet\Derived Column 1.Outputs[Derived Column Output].Columns[FilePath]"
                           name="FilePath"
                           truncationRowDisposition="FailComponent">
@@ -4083,13 +4004,13 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
                               containsID="true"
                               dataType="System.String"
                               description="Derived Column Expression"
-                              name="Expression">@[User::FilePath]</property>
+                              name="Expression">(DT_WSTR,100)@[User::FilePath]</property>
                             <property
                               containsID="true"
                               dataType="System.String"
                               description="Derived Column Friendly Expression"
                               expressionType="Notify"
-                              name="FriendlyExpression">@[User::FilePath]</property>
+                              name="FriendlyExpression">(DT_WSTR,100)@[User::FilePath]</property>
                           </properties>
                         </outputColumn>
                       </outputColumns>
@@ -5517,16 +5438,16 @@ where [refTable].[ClientName] = ?</property>
                   </inputs>
                   <outputs>
                     <output
-                      refId="Package\Loop Through Excel Files\MigratingTimeSheet\Multicast.Outputs[Multicast Output 1]"
+                      refId="Package\Loop Through Excel Files\MigratingTimeSheet\Multicast.Outputs[Multicast Output 2]"
                       deleteOutputOnPathDetached="true"
-                      name="Multicast Output 1"
+                      name="Multicast Output 2"
                       synchronousInputId="Package\Loop Through Excel Files\MigratingTimeSheet\Multicast.Inputs[Multicast Input 1]">
                       <externalMetadataColumns />
                     </output>
                     <output
-                      refId="Package\Loop Through Excel Files\MigratingTimeSheet\Multicast.Outputs[Multicast Output 2]"
+                      refId="Package\Loop Through Excel Files\MigratingTimeSheet\Multicast.Outputs[Multicast Output 1]"
                       deleteOutputOnPathDetached="true"
-                      name="Multicast Output 2"
+                      name="Multicast Output 1"
                       synchronousInputId="Package\Loop Through Excel Files\MigratingTimeSheet\Multicast.Inputs[Multicast Input 1]">
                       <externalMetadataColumns />
                     </output>
@@ -5718,18 +5639,15 @@ where [refTable].[ClientName] = ?</property>
                         <externalMetadataColumn
                           refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[TotalHours]"
                           dataType="dbTime2"
-                          name="TotalHours"
-                          scale="7" />
+                          name="TotalHours" />
                         <externalMetadataColumn
                           refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[StartTime]"
                           dataType="dbTime2"
-                          name="StartTime"
-                          scale="7" />
+                          name="StartTime" />
                         <externalMetadataColumn
                           refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[EndTime]"
                           dataType="dbTime2"
-                          name="EndTime"
-                          scale="7" />
+                          name="EndTime" />
                       </externalMetadataColumns>
                     </input>
                   </inputs>
@@ -5751,6 +5669,288 @@ where [refTable].[ClientName] = ?</property>
                           refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
                           dataType="i4"
                           lineageId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                          name="ErrorColumn"
+                          specialFlags="2" />
+                      </outputColumns>
+                      <externalMetadataColumns />
+                    </output>
+                  </outputs>
+                </component>
+                <component
+                  refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 1"
+                  componentClassID="Microsoft.OLEDBDestination"
+                  contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+                  description="OLE DB Destination"
+                  name="OLE DB Destination 1"
+                  usesDispositions="true"
+                  version="4">
+                  <properties>
+                    <property
+                      dataType="System.Int32"
+                      description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                      name="CommandTimeout">0</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the name of the database object used to open a rowset."
+                      name="OpenRowset">[dbo].[ErrorLog]</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the variable that contains the name of the database object used to open a rowset."
+                      name="OpenRowsetVariable"></property>
+                    <property
+                      dataType="System.String"
+                      description="The SQL command to be executed."
+                      name="SqlCommand"
+                      UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the column code page to use when code page information is unavailable from the data source."
+                      name="DefaultCodePage">1252</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Forces the use of the DefaultCodePage property value when describing character data."
+                      name="AlwaysUseDefaultCodePage">false</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the mode used to access the database."
+                      name="AccessMode"
+                      typeConverter="AccessMode">3</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                      name="FastLoadKeepIdentity">false</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                      name="FastLoadKeepNulls">false</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                      name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                      name="FastLoadMaxInsertCommitSize">2147483647</property>
+                  </properties>
+                  <connections>
+                    <connection
+                      refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 1.Connections[OleDbConnection]"
+                      connectionManagerID="Package.ConnectionManagers[LocalHost.TimesheetDB]"
+                      connectionManagerRefId="Package.ConnectionManagers[LocalHost.TimesheetDB]"
+                      description="The OLE DB runtime connection used to access the database."
+                      name="OleDbConnection" />
+                  </connections>
+                  <inputs>
+                    <input
+                      refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 1.Inputs[OLE DB Destination Input]"
+                      errorOrTruncationOperation="Insert"
+                      errorRowDisposition="FailComponent"
+                      hasSideEffects="true"
+                      name="OLE DB Destination Input">
+                      <inputColumns>
+                        <inputColumn
+                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 1.Inputs[OLE DB Destination Input].Columns[ErrorCode]"
+                          cachedDataType="i4"
+                          cachedName="ErrorCode"
+                          externalMetadataColumnId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 1.Inputs[OLE DB Destination Input].ExternalColumns[ErrorCode]"
+                          lineageId="Package\Loop Through Excel Files\MigratingTimeSheet\Union All.Outputs[Union All Output 1].Columns[ErrorCode]" />
+                        <inputColumn
+                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 1.Inputs[OLE DB Destination Input].Columns[FilePath]"
+                          cachedDataType="wstr"
+                          cachedLength="100"
+                          cachedName="FilePath"
+                          externalMetadataColumnId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 1.Inputs[OLE DB Destination Input].ExternalColumns[FilePath]"
+                          lineageId="Package\Loop Through Excel Files\MigratingTimeSheet\Derived Column 1.Outputs[Derived Column Output].Columns[FilePath]" />
+                        <inputColumn
+                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 1.Inputs[OLE DB Destination Input].Columns[ErrorDescription]"
+                          cachedDataType="wstr"
+                          cachedLength="500"
+                          cachedName="ErrorDescription"
+                          externalMetadataColumnId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 1.Inputs[OLE DB Destination Input].ExternalColumns[ErrorMessage]"
+                          lineageId="Package\Loop Through Excel Files\MigratingTimeSheet\Script Component 1.Outputs[Output 0].Columns[ErrorDescription]" />
+                      </inputColumns>
+                      <externalMetadataColumns
+                        isUsed="True">
+                        <externalMetadataColumn
+                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 1.Inputs[OLE DB Destination Input].ExternalColumns[ErrorID]"
+                          dataType="i4"
+                          name="ErrorID" />
+                        <externalMetadataColumn
+                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 1.Inputs[OLE DB Destination Input].ExternalColumns[FilePath]"
+                          dataType="wstr"
+                          length="1000"
+                          name="FilePath" />
+                        <externalMetadataColumn
+                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 1.Inputs[OLE DB Destination Input].ExternalColumns[ErrorCode]"
+                          dataType="nText"
+                          name="ErrorCode" />
+                        <externalMetadataColumn
+                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 1.Inputs[OLE DB Destination Input].ExternalColumns[ErrorMessage]"
+                          dataType="wstr"
+                          length="1000"
+                          name="ErrorMessage" />
+                        <externalMetadataColumn
+                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 1.Inputs[OLE DB Destination Input].ExternalColumns[Timestamp]"
+                          dataType="dbTimeStamp"
+                          name="Timestamp" />
+                      </externalMetadataColumns>
+                    </input>
+                  </inputs>
+                  <outputs>
+                    <output
+                      refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 1.Outputs[OLE DB Destination Error Output]"
+                      exclusionGroup="1"
+                      isErrorOut="true"
+                      name="OLE DB Destination Error Output"
+                      synchronousInputId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 1.Inputs[OLE DB Destination Input]">
+                      <outputColumns>
+                        <outputColumn
+                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 1.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                          dataType="i4"
+                          lineageId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 1.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                          name="ErrorCode"
+                          specialFlags="1" />
+                        <outputColumn
+                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 1.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                          dataType="i4"
+                          lineageId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 1.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                          name="ErrorColumn"
+                          specialFlags="2" />
+                      </outputColumns>
+                      <externalMetadataColumns />
+                    </output>
+                  </outputs>
+                </component>
+                <component
+                  refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 2"
+                  componentClassID="Microsoft.OLEDBDestination"
+                  contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+                  description="OLE DB Destination"
+                  name="OLE DB Destination 2"
+                  usesDispositions="true"
+                  version="4">
+                  <properties>
+                    <property
+                      dataType="System.Int32"
+                      description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                      name="CommandTimeout">0</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the name of the database object used to open a rowset."
+                      name="OpenRowset">[dbo].[ErrorLog]</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the variable that contains the name of the database object used to open a rowset."
+                      name="OpenRowsetVariable"></property>
+                    <property
+                      dataType="System.String"
+                      description="The SQL command to be executed."
+                      name="SqlCommand"
+                      UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the column code page to use when code page information is unavailable from the data source."
+                      name="DefaultCodePage">1252</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Forces the use of the DefaultCodePage property value when describing character data."
+                      name="AlwaysUseDefaultCodePage">false</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the mode used to access the database."
+                      name="AccessMode"
+                      typeConverter="AccessMode">3</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                      name="FastLoadKeepIdentity">false</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                      name="FastLoadKeepNulls">false</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                      name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                      name="FastLoadMaxInsertCommitSize">2147483647</property>
+                  </properties>
+                  <connections>
+                    <connection
+                      refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 2.Connections[OleDbConnection]"
+                      connectionManagerID="Package.ConnectionManagers[LocalHost.TimesheetDB]"
+                      connectionManagerRefId="Package.ConnectionManagers[LocalHost.TimesheetDB]"
+                      description="The OLE DB runtime connection used to access the database."
+                      name="OleDbConnection" />
+                  </connections>
+                  <inputs>
+                    <input
+                      refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 2.Inputs[OLE DB Destination Input]"
+                      errorOrTruncationOperation="Insert"
+                      errorRowDisposition="FailComponent"
+                      hasSideEffects="true"
+                      name="OLE DB Destination Input">
+                      <inputColumns>
+                        <inputColumn
+                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 2.Inputs[OLE DB Destination Input].Columns[ErrorCode]"
+                          cachedDataType="i4"
+                          cachedName="ErrorCode"
+                          externalMetadataColumnId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 2.Inputs[OLE DB Destination Input].ExternalColumns[ErrorCode]"
+                          lineageId="Package\Loop Through Excel Files\MigratingTimeSheet\Derived Column 1.Outputs[Derived Column Error Output].Columns[ErrorCode]" />
+                        <inputColumn
+                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 2.Inputs[OLE DB Destination Input].Columns[ErrorColumn]"
+                          cachedDataType="i4"
+                          cachedName="ErrorColumn"
+                          externalMetadataColumnId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 2.Inputs[OLE DB Destination Input].ExternalColumns[ErrorMessage]"
+                          lineageId="Package\Loop Through Excel Files\MigratingTimeSheet\Derived Column 1.Outputs[Derived Column Error Output].Columns[ErrorColumn]" />
+                      </inputColumns>
+                      <externalMetadataColumns
+                        isUsed="True">
+                        <externalMetadataColumn
+                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 2.Inputs[OLE DB Destination Input].ExternalColumns[ErrorID]"
+                          dataType="i4"
+                          name="ErrorID" />
+                        <externalMetadataColumn
+                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 2.Inputs[OLE DB Destination Input].ExternalColumns[FilePath]"
+                          dataType="wstr"
+                          length="1000"
+                          name="FilePath" />
+                        <externalMetadataColumn
+                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 2.Inputs[OLE DB Destination Input].ExternalColumns[ErrorCode]"
+                          dataType="nText"
+                          name="ErrorCode" />
+                        <externalMetadataColumn
+                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 2.Inputs[OLE DB Destination Input].ExternalColumns[ErrorMessage]"
+                          dataType="wstr"
+                          length="1000"
+                          name="ErrorMessage" />
+                        <externalMetadataColumn
+                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 2.Inputs[OLE DB Destination Input].ExternalColumns[Timestamp]"
+                          dataType="dbTimeStamp"
+                          name="Timestamp" />
+                      </externalMetadataColumns>
+                    </input>
+                  </inputs>
+                  <outputs>
+                    <output
+                      refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 2.Outputs[OLE DB Destination Error Output]"
+                      exclusionGroup="1"
+                      isErrorOut="true"
+                      name="OLE DB Destination Error Output"
+                      synchronousInputId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 2.Inputs[OLE DB Destination Input]">
+                      <outputColumns>
+                        <outputColumn
+                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 2.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                          dataType="i4"
+                          lineageId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 2.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                          name="ErrorCode"
+                          specialFlags="1" />
+                        <outputColumn
+                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 2.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                          dataType="i4"
+                          lineageId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 2.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
                           name="ErrorColumn"
                           specialFlags="2" />
                       </outputColumns>
@@ -5957,144 +6157,6 @@ where [refTable].[ClientName] = ?</property>
                           refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination AuditLog.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
                           dataType="i4"
                           lineageId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination AuditLog.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
-                          name="ErrorColumn"
-                          specialFlags="2" />
-                      </outputColumns>
-                      <externalMetadataColumns />
-                    </output>
-                  </outputs>
-                </component>
-                <component
-                  refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination Errorlog"
-                  componentClassID="Microsoft.OLEDBDestination"
-                  contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
-                  description="OLE DB Destination"
-                  name="OLE DB Destination Errorlog"
-                  usesDispositions="true"
-                  version="4">
-                  <properties>
-                    <property
-                      dataType="System.Int32"
-                      description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
-                      name="CommandTimeout">0</property>
-                    <property
-                      dataType="System.String"
-                      description="Specifies the name of the database object used to open a rowset."
-                      name="OpenRowset">[dbo].[ErrorLog]</property>
-                    <property
-                      dataType="System.String"
-                      description="Specifies the variable that contains the name of the database object used to open a rowset."
-                      name="OpenRowsetVariable"></property>
-                    <property
-                      dataType="System.String"
-                      description="The SQL command to be executed."
-                      name="SqlCommand"
-                      UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
-                    <property
-                      dataType="System.Int32"
-                      description="Specifies the column code page to use when code page information is unavailable from the data source."
-                      name="DefaultCodePage">1252</property>
-                    <property
-                      dataType="System.Boolean"
-                      description="Forces the use of the DefaultCodePage property value when describing character data."
-                      name="AlwaysUseDefaultCodePage">false</property>
-                    <property
-                      dataType="System.Int32"
-                      description="Specifies the mode used to access the database."
-                      name="AccessMode"
-                      typeConverter="AccessMode">3</property>
-                    <property
-                      dataType="System.Boolean"
-                      description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
-                      name="FastLoadKeepIdentity">false</property>
-                    <property
-                      dataType="System.Boolean"
-                      description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
-                      name="FastLoadKeepNulls">false</property>
-                    <property
-                      dataType="System.String"
-                      description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
-                      name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
-                    <property
-                      dataType="System.Int32"
-                      description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
-                      name="FastLoadMaxInsertCommitSize">2147483647</property>
-                  </properties>
-                  <connections>
-                    <connection
-                      refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination Errorlog.Connections[OleDbConnection]"
-                      connectionManagerID="Package.ConnectionManagers[LocalHost.TimesheetDB]"
-                      connectionManagerRefId="Package.ConnectionManagers[LocalHost.TimesheetDB]"
-                      description="The OLE DB runtime connection used to access the database."
-                      name="OleDbConnection" />
-                  </connections>
-                  <inputs>
-                    <input
-                      refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination Errorlog.Inputs[OLE DB Destination Input]"
-                      errorOrTruncationOperation="Insert"
-                      errorRowDisposition="FailComponent"
-                      hasSideEffects="true"
-                      name="OLE DB Destination Input">
-                      <inputColumns>
-                        <inputColumn
-                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination Errorlog.Inputs[OLE DB Destination Input].Columns[ErrorCode]"
-                          cachedDataType="i4"
-                          cachedName="ErrorCode"
-                          externalMetadataColumnId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination Errorlog.Inputs[OLE DB Destination Input].ExternalColumns[ErrorCode]"
-                          lineageId="Package\Loop Through Excel Files\MigratingTimeSheet\Union All.Outputs[Union All Output 1].Columns[ErrorCode]" />
-                        <inputColumn
-                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination Errorlog.Inputs[OLE DB Destination Input].Columns[FilePath]"
-                          cachedDataType="wstr"
-                          cachedLength="56"
-                          cachedName="FilePath"
-                          externalMetadataColumnId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination Errorlog.Inputs[OLE DB Destination Input].ExternalColumns[FilePath]"
-                          lineageId="Package\Loop Through Excel Files\MigratingTimeSheet\Derived Column 1.Outputs[Derived Column Output].Columns[FilePath]" />
-                      </inputColumns>
-                      <externalMetadataColumns
-                        isUsed="True">
-                        <externalMetadataColumn
-                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination Errorlog.Inputs[OLE DB Destination Input].ExternalColumns[ErrorID]"
-                          dataType="i4"
-                          name="ErrorID" />
-                        <externalMetadataColumn
-                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination Errorlog.Inputs[OLE DB Destination Input].ExternalColumns[FilePath]"
-                          dataType="wstr"
-                          length="1000"
-                          name="FilePath" />
-                        <externalMetadataColumn
-                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination Errorlog.Inputs[OLE DB Destination Input].ExternalColumns[ErrorCode]"
-                          dataType="nText"
-                          name="ErrorCode" />
-                        <externalMetadataColumn
-                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination Errorlog.Inputs[OLE DB Destination Input].ExternalColumns[ErrorMessage]"
-                          dataType="wstr"
-                          length="1000"
-                          name="ErrorMessage" />
-                        <externalMetadataColumn
-                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination Errorlog.Inputs[OLE DB Destination Input].ExternalColumns[Timestamp]"
-                          dataType="dbTimeStamp"
-                          name="Timestamp" />
-                      </externalMetadataColumns>
-                    </input>
-                  </inputs>
-                  <outputs>
-                    <output
-                      refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination Errorlog.Outputs[OLE DB Destination Error Output]"
-                      exclusionGroup="1"
-                      isErrorOut="true"
-                      name="OLE DB Destination Error Output"
-                      synchronousInputId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination Errorlog.Inputs[OLE DB Destination Input]">
-                      <outputColumns>
-                        <outputColumn
-                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination Errorlog.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
-                          dataType="i4"
-                          lineageId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination Errorlog.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
-                          name="ErrorCode"
-                          specialFlags="1" />
-                        <outputColumn
-                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination Errorlog.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
-                          dataType="i4"
-                          lineageId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination Errorlog.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
                           name="ErrorColumn"
                           specialFlags="2" />
                       </outputColumns>
@@ -7001,6 +7063,995 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
                           length="15"
                           lineageId="Package\Loop Through Excel Files\MigratingTimeSheet\Script Component.Outputs[Output 0].Columns[SubmissionMonth]"
                           name="SubmissionMonth" />
+                      </outputColumns>
+                      <externalMetadataColumns />
+                    </output>
+                  </outputs>
+                </component>
+                <component
+                  refId="Package\Loop Through Excel Files\MigratingTimeSheet\Script Component 1"
+                  componentClassID="Microsoft.ManagedComponentHost"
+                  contactInfo="Includes and runs custom script code. For example, apply a business rule that limits the range of valid values in an &quot;income&quot; column or add values in two columns and calculate the average of the sum.;Microsoft Corporation; Microsoft SQL Server; Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;13"
+                  description="Includes and runs custom script code. For example, apply a business rule that limits the range of valid values in an &quot;income&quot; column or add values in two columns and calculate the average of the sum."
+                  name="Script Component 1"
+                  version="13">
+                  <properties>
+                    <property
+                      dataType="System.String"
+                      description="Stores the source code of the component"
+                      isArray="true"
+                      name="SourceCode"
+                      state="cdata">
+                      <arrayElements
+                        arrayElementCount="30">
+                        <arrayElement
+                          dataType="System.String"><![CDATA[SC_3bf37904dd00432a9a64904fffaebb6c.csproj]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[UTF8]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectTypeGuids>{30D016F9-3734-4E33-A861-5E7D899E18F3};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{dd2adea2-c5fb-4478-bed7-2e9c47968b97}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SC_3bf37904dd00432a9a64904fffaebb6c</RootNamespace>
+    <AssemblyName>SC_3bf37904dd00432a9a64904fffaebb6c</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ResolveAssemblyReferenceIgnoreTargetFrameworkAttributeVersionMismatch>true</ResolveAssemblyReferenceIgnoreTargetFrameworkAttributeVersionMismatch>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>.\bin\Debug\</OutputPath>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>false</DebugSymbols>
+    <Optimize>true</Optimize>
+    <OutputPath>.\bin\Release\</OutputPath>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.SqlServer.TxScript, Version=16.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91" />
+    <Reference Include="Microsoft.SqlServer.DTSRuntimeWrap, Version=16.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91" />
+    <Reference Include="Microsoft.SqlServer.DTSPipelineWrap, Version=16.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91" />
+    <Reference Include="Microsoft.SqlServer.PipelineHost, Version=16.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91" />
+    <Compile Include="main.cs" />
+    <Compile Include="BufferWrapper.cs" />
+    <Compile Include="ComponentWrapper.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <AppDesigner Include="Properties\" />
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <!-- Include the build rules for a C# project.-->
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- This section defines VSTA properties that describe the host-changable project properties. -->
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{30D016F9-3734-4E33-A861-5E7D899E18F3}">
+        <ProjectProperties HostName="ScriptComponent" HostPackage="{B3A685AA-7EAF-4BC6-9940-57959FA5AC07}" ApplicationType="usd" Language="cs" TemplatesPath="" DebugInfoExeName="" DebugInfoCommandLine="" DebugInfoWorkingDir="" IconImageList="" />
+        <Host Name="ScriptComponent" GeneratedNamespace="SC_3bf37904dd00432a9a64904fffaebb6c" IconIndex="0"></Host>
+        <ProjectClient>
+          <HostIdentifier>SSIS_SC160</HostIdentifier>
+        </ProjectClient>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[Properties\Resources.resx]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[UTF8]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+</root>]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[main.cs]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[UTF8]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[#region Help:  Introduction to the Script Component
+/* The Script Component allows you to perform virtually any operation that can be accomplished in
+ * a .Net application within the context of an Integration Services data flow.
+ *
+ * Expand the other regions which have "Help" prefixes for examples of specific ways to use
+ * Integration Services features within this script component. */
+#endregion
+
+#region Namespaces
+using System;
+using System.Data;
+using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
+using Microsoft.SqlServer.Dts.Runtime.Wrapper;
+#endregion
+
+/// <summary>
+/// This is the class to which to add your code.  Do not change the name, attributes, or parent
+/// of this class.
+/// </summary>
+[Microsoft.SqlServer.Dts.Pipeline.SSISScriptComponentEntryPointAttribute]
+public class ScriptMain : UserComponent
+{
+    #region Help:  Using Integration Services variables and parameters
+    /* To use a variable in this script, first ensure that the variable has been added to
+     * either the list contained in the ReadOnlyVariables property or the list contained in
+     * the ReadWriteVariables property of this script component, according to whether or not your
+     * code needs to write into the variable.  To do so, save this script, close this instance of
+     * Visual Studio, and update the ReadOnlyVariables and ReadWriteVariables properties in the
+     * Script Transformation Editor window.
+     * To use a parameter in this script, follow the same steps. Parameters are always read-only.
+     *
+     * Example of reading from a variable or parameter:
+     *  DateTime startTime = Variables.MyStartTime;
+     *
+     * Example of writing to a variable:
+     *  Variables.myStringVariable = "new value";
+     */
+    #endregion
+
+    #region Help:  Using Integration Services Connnection Managers
+    /* Some types of connection managers can be used in this script component.  See the help topic
+     * "Working with Connection Managers Programatically" for details.
+     *
+     * To use a connection manager in this script, first ensure that the connection manager has
+     * been added to either the list of connection managers on the Connection Managers page of the
+     * script component editor.  To add the connection manager, save this script, close this instance of
+     * Visual Studio, and add the Connection Manager to the list.
+     *
+     * If the component needs to hold a connection open while processing rows, override the
+     * AcquireConnections and ReleaseConnections methods.
+     * 
+     * Example of using an ADO.Net connection manager to acquire a SqlConnection:
+     *  object rawConnection = Connections.SalesDB.AcquireConnection(transaction);
+     *  SqlConnection salesDBConn = (SqlConnection)rawConnection;
+     *
+     * Example of using a File connection manager to acquire a file path:
+     *  object rawConnection = Connections.Prices_zip.AcquireConnection(transaction);
+     *  string filePath = (string)rawConnection;
+     *
+     * Example of releasing a connection manager:
+     *  Connections.SalesDB.ReleaseConnection(rawConnection);
+     */
+    #endregion
+
+    #region Help:  Firing Integration Services Events
+    /* This script component can fire events.
+     *
+     * Example of firing an error event:
+     *  ComponentMetaData.FireError(10, "Process Values", "Bad value", "", 0, out cancel);
+     *
+     * Example of firing an information event:
+     *  ComponentMetaData.FireInformation(10, "Process Values", "Processing has started", "", 0, fireAgain);
+     *
+     * Example of firing a warning event:
+     *  ComponentMetaData.FireWarning(10, "Process Values", "No rows were received", "", 0);
+     */
+    #endregion
+
+    /// <summary>
+    /// This method is called once, before rows begin to be processed in the data flow.
+    ///
+    /// You can remove this method if you don't need to do anything here.
+    /// </summary>
+    public override void PreExecute()
+    {
+        base.PreExecute();
+        /*
+         * Add your code here
+         */
+    }
+
+    /// <summary>
+    /// This method is called after all the rows have passed through this component.
+    ///
+    /// You can delete this method if you don't need to do anything here.
+    /// </summary>
+    public override void PostExecute()
+    {
+        base.PostExecute();
+        /*
+         * Add your code here
+         */
+    }
+
+    /// <summary>
+    /// This method is called once for every row that passes through the component from Input0.
+    ///
+    /// Example of reading a value from a column in the the row:
+    ///  string zipCode = Row.ZipCode
+    ///
+    /// Example of writing a value to a column in the row:
+    ///  Row.ZipCode = zipCode
+    /// </summary>
+    /// <param name="Row">The row that is currently passing through the component</param>
+    public override void Input0_ProcessInputRow(Input0Buffer Row)
+    {
+        Row.ErrorDate = DateTime.Now;
+        if (Row.ErrorCode != 0) // Check if an error occurred
+        {
+            // Set the ErrorDescription based on the error code and column
+            Row.ErrorDescription = this.ComponentMetaData.GetErrorDescription(Row.ErrorCode);
+        }
+        else
+        {
+            Row.ErrorDescription = "No error"; // Default value if no error
+        }
+    }
+
+}
+]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[BufferWrapper.cs]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[UTF8]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[/* THIS IS AUTO-GENERATED CODE THAT WILL BE OVERWRITTEN! DO NOT EDIT!
+*  Microsoft SQL Server Integration Services buffer wrappers
+*  This module defines classes for accessing data flow buffers
+*  THIS IS AUTO-GENERATED CODE THAT WILL BE OVERWRITTEN! DO NOT EDIT! */
+
+
+
+using System;
+using System.Data;
+using Microsoft.SqlServer.Dts.Pipeline;
+using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
+
+public class Input0Buffer: ScriptBuffer
+
+{
+    public Input0Buffer(PipelineBuffer Buffer, int[] BufferColumnIndexes, OutputNameMap OutputMap)
+        : base(Buffer, BufferColumnIndexes, OutputMap)
+    {
+    }
+
+    public Int32 ErrorCode
+    {
+        get
+        {
+            return Buffer.GetInt32(BufferColumnIndexes[0]);
+        }
+    }
+    public bool ErrorCode_IsNull
+    {
+        get
+        {
+            return IsNull(0);
+        }
+    }
+
+    public Int32 ErrorColumn
+    {
+        get
+        {
+            return Buffer.GetInt32(BufferColumnIndexes[1]);
+        }
+    }
+    public bool ErrorColumn_IsNull
+    {
+        get
+        {
+            return IsNull(1);
+        }
+    }
+
+    public String ErrorDescription
+    {
+        set
+        {
+            this[2] = value;
+        }
+    }
+    public bool ErrorDescription_IsNull
+    {
+        set
+        {
+            if (value)
+            {
+                SetNull(2);
+            }
+            else
+            {
+                throw new InvalidOperationException("IsNull property cannot be set to False. Assign a value to the column instead.");
+            }
+        }
+    }
+
+    public Int32 RowNumber
+    {
+        set
+        {
+            this[3] = value;
+        }
+    }
+    public bool RowNumber_IsNull
+    {
+        set
+        {
+            if (value)
+            {
+                SetNull(3);
+            }
+            else
+            {
+                throw new InvalidOperationException("IsNull property cannot be set to False. Assign a value to the column instead.");
+            }
+        }
+    }
+
+    public DateTime ErrorDate
+    {
+        set
+        {
+            this[4] = value;
+        }
+    }
+    public bool ErrorDate_IsNull
+    {
+        set
+        {
+            if (value)
+            {
+                SetNull(4);
+            }
+            else
+            {
+                throw new InvalidOperationException("IsNull property cannot be set to False. Assign a value to the column instead.");
+            }
+        }
+    }
+
+    new public bool NextRow()
+    {
+        return base.NextRow();
+    }
+
+    new public bool EndOfRowset()
+    {
+        return base.EndOfRowset();
+    }
+
+}
+]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[Properties\Settings.Designer.cs]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[UTF8]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[//------------------------------------------------------------------------------
+// <auto-generated>
+//     This code was generated by a tool.
+//
+//     Changes to this file may cause incorrect behavior and will be lost if
+//     the code is regenerated.
+// </auto-generated>
+//------------------------------------------------------------------------------
+
+[assembly: global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Scope="member", Target="SC_3bf37904dd00432a9a64904fffaebb6c.Properties.Settings.get_Default():SC_3bf37904dd00432a9a64904fffaebb6c.Properties.Sett" +
+    "ings")]
+
+namespace SC_3bf37904dd00432a9a64904fffaebb6c.Properties {
+    
+    
+    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
+        
+        [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
+        private static Settings defaultInstance = new Settings();
+        
+        public static Settings Default {
+            get {
+                return defaultInstance;
+            }
+        }
+    }
+}
+]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[ComponentWrapper.cs]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[UTF8]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[/* THIS IS AUTO-GENERATED CODE THAT WILL BE OVERWRITTEN! DO NOT EDIT!
+*  Microsoft SQL Server Integration Services component wrapper
+*  This module defines the base class for your component
+*  THIS IS AUTO-GENERATED CODE THAT WILL BE OVERWRITTEN! DO NOT EDIT! */
+
+using System;
+using System.Data;
+using Microsoft.SqlServer.Dts.Pipeline;
+using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
+using Microsoft.SqlServer.Dts.Runtime.Wrapper;
+
+public class UserComponent: ScriptComponent
+{
+    public Connections Connections;
+    public Variables Variables;
+    public UserComponent()
+    {
+        Connections = new Connections(this);
+        Variables = new Variables(this);
+    }
+
+    public override void ProcessInput(int InputID, string InputName, PipelineBuffer Buffer, OutputNameMap OutputMap)
+    {
+
+        if (InputName.Equals(@"Input 0", StringComparison.Ordinal))
+        {
+            Input0_ProcessInput(new Input0Buffer(Buffer, GetColumnIndexes(InputID), OutputMap));
+        }
+
+    }
+
+    public virtual void Input0_ProcessInput(Input0Buffer Buffer)
+    {
+        while (Buffer.NextRow())
+        {
+            Input0_ProcessInputRow(Buffer);
+        }
+    }
+
+    public virtual void Input0_ProcessInputRow(Input0Buffer Row)
+    {
+    }
+
+}
+
+public class Connections
+{
+    ScriptComponent ParentComponent;
+
+    public Connections(ScriptComponent Component)
+    {
+        ParentComponent = Component;
+    }
+
+}
+
+public class Variables
+{
+    ScriptComponent ParentComponent;
+
+    public Variables(ScriptComponent Component)
+    {
+        ParentComponent = Component;
+    }
+
+}
+]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[Project]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[UTF16LE]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[<?xml version="1.0" encoding="UTF-16" standalone="yes"?>
+<c:Project xmlns:c="http://schemas.microsoft.com/codeprojectml/2010/08/main" xmlns:msb="http://schemas.microsoft.com/developer/msbuild/2003" runtimeVersion="3.0" schemaVersion="1.0">
+  <msb:PropertyGroup>
+    <msb:Language>msBuild</msb:Language>
+    <msb:CodeName>SC_3bf37904dd00432a9a64904fffaebb6c</msb:CodeName>
+    <msb:DisplayName>SC_3bf37904dd00432a9a64904fffaebb6c</msb:DisplayName>
+    <msb:ProjectId>{1E606E33-E549-4431-B01E-C129809F6632}</msb:ProjectId>
+  </msb:PropertyGroup>
+  <msb:ItemGroup>
+    <msb:Project Include="SC_3bf37904dd00432a9a64904fffaebb6c.csproj" />
+    <msb:File Include="Properties\Settings.settings" />
+    <msb:File Include="Properties\AssemblyInfo.cs" />
+    <msb:File Include="Properties\Resources.resx" />
+    <msb:File Include="Properties\Resources.Designer.cs" />
+    <msb:File Include="main.cs" />
+    <msb:File Include="BufferWrapper.cs" />
+    <msb:File Include="Properties\Settings.Designer.cs" />
+    <msb:File Include="ComponentWrapper.cs" />
+  </msb:ItemGroup>
+</c:Project>]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[Properties\AssemblyInfo.cs]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[UTF8]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[using System.Reflection;
+using System.Runtime.CompilerServices;
+
+//
+// General Information about an assembly is controlled through the following 
+// set of attributes. Change these attribute values to modify the information
+// associated with an assembly.
+//
+[assembly: AssemblyTitle("SC_3bf37904dd00432a9a64904fffaebb6c")]
+[assembly: AssemblyDescription("")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("SC_3bf37904dd00432a9a64904fffaebb6c")]
+[assembly: AssemblyCopyright("Copyright @  2025")]
+[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCulture("")]
+//
+// Version information for an assembly consists of the following four values:
+//
+//      Major Version
+//      Minor Version 
+//      Build Number
+//      Revision
+//
+// You can specify all the values or you can default the Revision and Build Numbers 
+// by using the '*' as shown below:
+
+[assembly: AssemblyVersion("1.0.0.0")]
+]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[Properties\Settings.settings]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[UTF8]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[<?xml version='1.0' encoding='iso-8859-1'?>
+<SettingsFile xmlns="uri:settings" CurrentProfile="(Default)">
+  <Profiles>
+    <Profile Name="(Default)" />
+  </Profiles>
+  <Settings />
+</SettingsFile>]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[Properties\Resources.Designer.cs]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[UTF8]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[//------------------------------------------------------------------------------
+// <auto-generated>
+//     This code was generated by a tool.
+//
+//     Changes to this file may cause incorrect behavior and will be lost if
+//     the code is regenerated.
+// </auto-generated>
+//------------------------------------------------------------------------------
+
+[assembly: global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Scope="member", Target="SC_3bf37904dd00432a9a64904fffaebb6c.Properties.Resources.get_ResourceManager():System.Resources.Resou" +
+    "rceManager")]
+[assembly: global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Scope="member", Target="SC_3bf37904dd00432a9a64904fffaebb6c.Properties.Resources.get_Culture():System.Globalization.CultureIn" +
+    "fo")]
+[assembly: global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Scope="member", Target="SC_3bf37904dd00432a9a64904fffaebb6c.Properties.Resources.set_Culture(System.Globalization.CultureInfo" +
+    "):Void")]
+
+namespace SC_3bf37904dd00432a9a64904fffaebb6c.Properties {
+    
+    
+    /// <summary>
+    ///   A strongly-typed resource class, for looking up localized strings, etc.
+    /// </summary>
+    // This class was auto-generated by the StronglyTypedResourceBuilder
+    // class via a tool like ResGen or Visual Studio.
+    // To add or remove a member, edit your .ResX file then rerun ResGen
+    // with the /str option, or rebuild your VS project.
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+    internal class Resources {
+        
+        private static global::System.Resources.ResourceManager resourceMan;
+        
+        private static global::System.Globalization.CultureInfo resourceCulture;
+        
+        [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
+        internal Resources() {
+        }
+        
+        /// <summary>
+        ///   Returns the cached ResourceManager instance used by this class.
+        /// </summary>
+        [global::System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+        internal static global::System.Resources.ResourceManager ResourceManager {
+            get {
+                if ((resourceMan == null)) {
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SC_3bf37904dd00432a9a64904fffaebb6c.Properties.Resources", typeof(Resources).Assembly);
+                    resourceMan = temp;
+                }
+                return resourceMan;
+            }
+        }
+        
+        /// <summary>
+        ///   Overrides the current thread's CurrentUICulture property for all
+        ///   resource lookups using this strongly typed resource class.
+        /// </summary>
+        [global::System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+        internal static global::System.Globalization.CultureInfo Culture {
+            get {
+                return resourceCulture;
+            }
+            set {
+                resourceCulture = value;
+            }
+        }
+    }
+}
+]]></arrayElement>
+                      </arrayElements>
+                    </property>
+                    <property
+                      dataType="System.String"
+                      description="Stores the binary representation of the component"
+                      isArray="true"
+                      name="BinaryCode"
+                      state="cdata">
+                      <arrayElements
+                        arrayElementCount="2">
+                        <arrayElement
+                          dataType="System.String"><![CDATA[SC_3bf37904dd00432a9a64904fffaebb6c.dll]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAgAAAAA4fug4AtAnNIbgBTM0hVGhpcyBwcm9ncmFtIGNhbm5vdCBiZSBydW4gaW4gRE9TIG1v
+ZGUuDQ0KJAAAAAAAAABQRQAATAEDAG10UmgAAAAAAAAAAOAAIiALATAAABYAAAAIAAAAAAAAajQA
+AAAgAAAAQAAAAAAAEAAgAAAAAgAABAAAAAAAAAAGAAAAAAAAAACAAAAAAgAAAAAAAAMAYIUAABAA
+ABAAAAAAEAAAEAAAAAAAABAAAAAAAAAAAAAAABg0AABPAAAAAEAAAEgEAAAAAAAAAAAAAAAAAAAA
+AAAAAGAAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAIAAACAAAAAAAAAAAAAAACCAAAEgAAAAAAAAAAAAAAC50ZXh0AAAAcBQAAAAgAAAAFgAAAAIA
+AAAAAAAAAAAAAAAAACAAAGAucnNyYwAAAEgEAAAAQAAAAAYAAAAYAAAAAAAAAAAAAAAAAABAAABA
+LnJlbG9jAAAMAAAAAGAAAAACAAAAHgAAAAAAAAAAAAAAAAAAQAAAQgAAAAAAAAAAAAAAAAAAAABM
+NAAAAAAAAEgAAAACAAUAPCIAACQRAAABAAAAAAAAAGAzAAC4AAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAB4CKBAAAAoqHgIoEQAACireAygSAAAKbw4AAAYDbwYAAAYs
+GAMCKBMAAAoDbwYAAAZvFAAACm8KAAAGKgNyAQAAcG8KAAAGKh4CKBIAAAYqKgIDBAUoFQAACipS
+AnsWAAAKAnsXAAAKFpRvGAAACioiAhYoGQAACipSAnsWAAAKAnsXAAAKF5RvGAAACioiAhcoGQAA
+CiomAhgDKBoAAAoqWgMsCAIYKBsAAAoqchMAAHBzHAAACno6AhkDjB0AAAEoGgAACipaAywIAhko
+GwAACipyEwAAcHMcAAAKejoCGgOMEQAAASgaAAAKKloDLAgCGigbAAAKKnITAABwcxwAAAp6HgIo
+HQAACioeAigeAAAKKn4CKB8AAAoCAnMWAAAGfQEAAAQCAnMXAAAGfQIAAAQqkgRysAAAcBpvIAAA
+CiwVAgUCAyghAAAKDgRzBQAABm8UAAAGKkorBwIDbxUAAAYDbxAAAAYt8SoGKjoCKCIAAAoCA30D
+AAAEKjoCKCIAAAoCA30EAAAEKh4CKCIAAAoqrn4FAAAELR5ywAAAcNAHAAACKCMAAApvJAAACnMl
+AAAKgAUAAAR+BQAABCoafgYAAAQqHgKABgAABCoafgcAAAQqHgIoJgAACioucx0AAAaABwAABCoA
+AEJTSkIBAAEAAAAAAAwAAAB2NC4wLjMwMzE5AAAAAAUAbAAAAFAGAAAjfgAAvAYAAFwHAAAjU3Ry
+aW5ncwAAAAAYDgAANAEAACNVUwBMDwAAEAAAACNHVUlEAAAAXA8AAMgBAAAjQmxvYgAAAAAAAAAC
+AAABVxWgAQkBAAAA+gEzABYAAAEAAAAiAAAACAAAAAcAAAAeAAAAEwAAACYAAAAQAAAAAwAAAA0A
+AAAOAAAAAQAAAAUAAAABAAAAAABHAwEAAAAAAAYAQQKMBQYA1QKMBQYAjQF5BQ8AAAYAAAYAugFK
+BAYAJAJKBAYABQJKBAYAvAJKBAYAYQJKBAYAegJKBAYA0QFKBAYA7AEQAwoAlQLMAAoAIgXMAA4A
+EwXMAAoAvATMAAYAwwDyAwoAxgbMAAYAiQbyAwYAcAF5BQYAMwWsBQYAsAQ1BBIAQAExAxIAoQEx
+AxIAGgEgBAYAVQGMBRYAAQBDBQYAXATyAwYAHQDyAwYAKgPyAwYAnwTyAwYA7QDyAwYAlQDyAwYA
+UwdKBAAAAAAjAAAAAAABAAEAAQAQAAUEAAAQAAEAAQABABAABgUAADkAAQAFAAEAEACoBgAASQAB
+ABIAAQAQAH0GAABNAAMAFgABABAAPgYAAE0ABAAXAAAAEACzBQ8GTQAFABgAAAEQAG0GDwZlAAcA
+HAAGAH0GhgAGAD4GigABALYGjgABALYGjgARAPkDkgARAAoBlgARAHcAmgBQIAAAAADGAPMCBgAB
+AFggAAAAAMYA/gIGAAEAYCAAAAAAxgAwB54AAQCYIAAAAACGGGwFBgACAKAgAAAAAIYYbAUqAAIA
+qyAAAAAAhgiHAKQABQDAIAAAAACGCG8DTAAFAMkgAAAAAIYIEASkAAUA3iAAAAAAhgiZA0wABQDn
+IAAAAACGCHYEEAAFAPEgAAAAAIYIsAOoAAYACCEAAAAAhgj4BAEABwAXIQAAAACGCMwDqAAIAC4h
+AAAAAIYIMgGtAAkAPSEAAAAAhgiEA6gACgBUIQAAAACGAEcHTAALAFwhAAAAAIYAkAZMAAsAZCEA
+AAAAhhhsBQYACwCEIQAAAADGABsHswALAKkhAAAAAMYBFAeeAA8AvCEAAAAAxgEwB54AEAC+IQAA
+AACGGGwFvQARAM0hAAAAAIYYbAW9ABIA3CEAAAAAgxhsBQYAEwDkIQAAAACTCC8FwwATABAiAAAA
+AJMI8gDIABMAFyIAAAAAkwj+AM0AEwAfIgAAAACWCJwG0wAUACYiAAAAAIYYbAUGABQALiIAAAAA
+kRhyBdgAFAAAAAEASwcAAAEAKAUAAAIASAYAAAMAygQAAAEACgMAAAEACgMAAAEACgMAAAEACgMA
+AAEACgMAAAEACgMAAAEALAAAAAIAuQAAAAMAKAUAAAQAygQAAAEAKAUAAAEASwcAAAEAzAYAAAEA
+zAYAAAEACgMJAGwFAQARAGwFBgAZAGwFCgApAGwFEAAxAGwFEAA5AGwFEABBAGwFEABJAGwFEABR
+AGwFEABZAGwFEABhAGwFEABpAGwFBgChAGwFBgDBAGwFFQDRAGwFBgCRAPMCBgCRAP4CBgCJACgH
+GwCRADQAIADZAIsEJQBxAGwFKgBxACgFNABxAEgGOAB5ABoAPABxANoDQQBxAOkDRgBxAOEDAQDh
+AGwFEABxAEcHTABxAJAGTACRAGwFBgDxAHYGUACRAFwGVwCZAGwFBgABAacAXQABAU8HZgCpAGwF
+bADJAGwFBgAuAAsA/AAuABMABQEuABsAJAEuACMALQEuACsAVgEuADMAVgEuADsAVgEuAEMALQEu
+AEsAXAEuAFMAVgEuAFsAcwFDAGMAwQHhAHsAwQHjAGsAwQFpAXMAJAGJAXMAJAEDAAEABwALAAgA
+DQAAAIsA3AAAAHMD4AAAABQE3AAAAJ0D4AAAAI4E5AAAALQD4AAAAPwE3AAAANAD4AAAADYB6AAA
+AIgD4AAAADMF7QAAABIB8gAAAKAG9wACAAYAAwACAAcABQACAAgABwACAAkACQABAAoACwABAAsA
+DQABAAwADwABAA0AEQABAA4AEwABAA8AFQACABkAFwACABoAGQABABsAGQACABwAGwAEgAAAAQAA
+AAAAAAAAAAAAAABTAAAABAAAAAAAAAAAAAAAdABKAAAAAAAQAAAAAAAAAAAAAAB9ANYGAAAAABAA
+AAAAAAAAAAAAAH0A8wYAAAAABAAAAAAAAAAAAAAAdADyAwAAAAAQAAAAAAAAAAAAAAB9ANQEAAAA
+AAAAAAABAAAAvQUAAAAAAElEVFNDb21wb25lbnRNZXRhRGF0YTEwMABHZXRJbnQzMgA8TW9kdWxl
+PgBJbnB1dElEAGdldF9Db21wb25lbnRNZXRhRGF0YQBtc2NvcmxpYgBTQ18zYmYzNzkwNGRkMDA0
+MzJhOWE2NDkwNGZmZmFlYmI2YwBkZWZhdWx0SW5zdGFuY2UAZ2V0X0Vycm9yQ29kZQBSdW50aW1l
+VHlwZUhhbmRsZQBHZXRUeXBlRnJvbUhhbmRsZQBJbnB1dE5hbWUARGF0ZVRpbWUATWljcm9zb2Z0
+LlNxbFNlcnZlci5EdHMuUGlwZWxpbmUAVHlwZQBnZXRfQ3VsdHVyZQBzZXRfQ3VsdHVyZQByZXNv
+dXJjZUN1bHR1cmUAQXBwbGljYXRpb25TZXR0aW5nc0Jhc2UAc2V0X0Vycm9yRGF0ZQBFZGl0b3JC
+cm93c2FibGVTdGF0ZQBDb21waWxlckdlbmVyYXRlZEF0dHJpYnV0ZQBEZWJ1Z2dlck5vblVzZXJD
+b2RlQXR0cmlidXRlAERlYnVnZ2FibGVBdHRyaWJ1dGUARWRpdG9yQnJvd3NhYmxlQXR0cmlidXRl
+AEFzc2VtYmx5VGl0bGVBdHRyaWJ1dGUAQXNzZW1ibHlUcmFkZW1hcmtBdHRyaWJ1dGUAVGFyZ2V0
+RnJhbWV3b3JrQXR0cmlidXRlAEFzc2VtYmx5Q29uZmlndXJhdGlvbkF0dHJpYnV0ZQBBc3NlbWJs
+eURlc2NyaXB0aW9uQXR0cmlidXRlAENvbXBpbGF0aW9uUmVsYXhhdGlvbnNBdHRyaWJ1dGUAQXNz
+ZW1ibHlQcm9kdWN0QXR0cmlidXRlAEFzc2VtYmx5Q29weXJpZ2h0QXR0cmlidXRlAFNTSVNTY3Jp
+cHRDb21wb25lbnRFbnRyeVBvaW50QXR0cmlidXRlAEFzc2VtYmx5Q29tcGFueUF0dHJpYnV0ZQBS
+dW50aW1lQ29tcGF0aWJpbGl0eUF0dHJpYnV0ZQBQcmVFeGVjdXRlAFBvc3RFeGVjdXRlAHZhbHVl
+AFN5c3RlbS5SdW50aW1lLlZlcnNpb25pbmcAU3RyaW5nAFN5c3RlbS5Db21wb25lbnRNb2RlbABT
+Q18zYmYzNzkwNGRkMDA0MzJhOWE2NDkwNGZmZmFlYmI2Yy5kbGwAZ2V0X0Vycm9yQ29kZV9Jc051
+bGwAc2V0X0Vycm9yRGF0ZV9Jc051bGwAZ2V0X0Vycm9yQ29sdW1uX0lzTnVsbABzZXRfRXJyb3JE
+ZXNjcmlwdGlvbl9Jc051bGwAc2V0X1Jvd051bWJlcl9Jc051bGwAU2V0TnVsbABzZXRfSXRlbQBT
+eXN0ZW0AcmVzb3VyY2VNYW4AU2NyaXB0TWFpbgBnZXRfRXJyb3JDb2x1bW4AU3lzdGVtLkNvbmZp
+Z3VyYXRpb24AU3lzdGVtLkdsb2JhbGl6YXRpb24AU3lzdGVtLlJlZmxlY3Rpb24ASW52YWxpZE9w
+ZXJhdGlvbkV4Y2VwdGlvbgBzZXRfRXJyb3JEZXNjcmlwdGlvbgBHZXRFcnJvckRlc2NyaXB0aW9u
+AFN0cmluZ0NvbXBhcmlzb24AQ3VsdHVyZUluZm8AT3V0cHV0TmFtZU1hcABPdXRwdXRNYXAATWlj
+cm9zb2Z0LlNxbFNlcnZlci5EVFNQaXBlbGluZVdyYXAAc2V0X1Jvd051bWJlcgBJbnB1dDBCdWZm
+ZXIAUGlwZWxpbmVCdWZmZXIAU2NyaXB0QnVmZmVyAGdldF9SZXNvdXJjZU1hbmFnZXIATWljcm9z
+b2Z0LlNxbFNlcnZlci5EdHMuUGlwZWxpbmUuV3JhcHBlcgAuY3RvcgAuY2N0b3IAU3lzdGVtLkRp
+YWdub3N0aWNzAFN5c3RlbS5SdW50aW1lLkNvbXBpbGVyU2VydmljZXMAU3lzdGVtLlJlc291cmNl
+cwBTQ18zYmYzNzkwNGRkMDA0MzJhOWE2NDkwNGZmZmFlYmI2Yy5Qcm9wZXJ0aWVzLlJlc291cmNl
+cy5yZXNvdXJjZXMARGVidWdnaW5nTW9kZXMAU0NfM2JmMzc5MDRkZDAwNDMyYTlhNjQ5MDRmZmZh
+ZWJiNmMuUHJvcGVydGllcwBWYXJpYWJsZXMAQnVmZmVyQ29sdW1uSW5kZXhlcwBHZXRDb2x1bW5J
+bmRleGVzAFNldHRpbmdzAEVxdWFscwBDb25uZWN0aW9ucwBPYmplY3QARW5kT2ZSb3dzZXQAZ2V0
+X0RlZmF1bHQAVXNlckNvbXBvbmVudABQYXJlbnRDb21wb25lbnQAU2NyaXB0Q29tcG9uZW50AE1p
+Y3Jvc29mdC5TcWxTZXJ2ZXIuVHhTY3JpcHQATWljcm9zb2Z0LlNxbFNlcnZlci5QaXBlbGluZUhv
+c3QASW5wdXQwX1Byb2Nlc3NJbnB1dABnZXRfTm93AElucHV0MF9Qcm9jZXNzSW5wdXRSb3cATmV4
+dFJvdwBnZXRfQXNzZW1ibHkAABFOAG8AIABlAHIAcgBvAHIAAICbSQBzAE4AdQBsAGwAIABwAHIA
+bwBwAGUAcgB0AHkAIABjAGEAbgBuAG8AdAAgAGIAZQAgAHMAZQB0ACAAdABvACAARgBhAGwAcwBl
+AC4AIABBAHMAcwBpAGcAbgAgAGEAIAB2AGEAbAB1AGUAIAB0AG8AIAB0AGgAZQAgAGMAbwBsAHUA
+bQBuACAAaQBuAHMAdABlAGEAZAAuAAAPSQBuAHAAdQB0ACAAMAAAcVMAQwBfADMAYgBmADMANwA5
+ADAANABkAGQAMAAwADQAMwAyAGEAOQBhADYANAA5ADAANABmAGYAZgBhAGUAYgBiADYAYwAuAFAA
+cgBvAHAAZQByAHQAaQBlAHMALgBSAGUAcwBvAHUAcgBjAGUAcwAAAABsSMV1WNzXTLymXbQAcx1W
+AAQgAQEIAyAAAQUgAQEREQQgAQEOBSABARFdBAAAEUUEIAASbQQgAQ4ICSADARI9HQgSQQMGEj0D
+Bh0IBCABCAgEIAECCAUgAgEIHAMgAAIGIAICDhF9BSABHQgICAABEoCBEYCFBSAAEoCJByACAQ4S
+gIkIt3pcVhk04IkIiYRdzYCAzJEDBhIUAwYSGAMGEkkDBhJVAwYSWQMGEiAFIAEBEgwDIAAIBCAB
+AQIFIAEBEUUJIAQBCA4SPRJBBSABARJJBAAAElUEAAASWQUAAQESWQQAABIgAwAAAQMoAAgDKAAC
+AygADgQoABFFBAgAElUECAASWQQIABIgCAEACAAAAAAAHgEAAQBUAhZXcmFwTm9uRXhjZXB0aW9u
+VGhyb3dzAQgBAAIAAAAAACgBACNTQ18zYmYzNzkwNGRkMDA0MzJhOWE2NDkwNGZmZmFlYmI2YwAA
+BQEAAAAAFgEAEUNvcHlyaWdodCBAICAyMDI1AABNAQAcLk5FVEZyYW1ld29yayxWZXJzaW9uPXY0
+LjcuMgEAVA4URnJhbWV3b3JrRGlzcGxheU5hbWUULk5FVCBGcmFtZXdvcmsgNC43LjIEAQAAAAAA
+tAAAAM7K774BAAAAkQAAAGxTeXN0ZW0uUmVzb3VyY2VzLlJlc291cmNlUmVhZGVyLCBtc2Nvcmxp
+YiwgVmVyc2lvbj00LjAuMC4wLCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1
+YzU2MTkzNGUwODkjU3lzdGVtLlJlc291cmNlcy5SdW50aW1lUmVzb3VyY2VTZXQCAAAAAAAAAAAA
+AABQQURQQURQtAAAAEA0AAAAAAAAAAAAAFo0AAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAABMNAAA
+AAAAAAAAAAAAAF9Db3JEbGxNYWluAG1zY29yZWUuZGxsAAAAAAD/JQAgABAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAABABAAAAAYAACAAAAAAAAAAAAAAAAAAAABAAEAAAAwAACAAAAAAAAAAAAAAAAAAAABAAAAAABI
+AAAAWEAAAOwDAAAAAAAAAAAAAOwDNAAAAFYAUwBfAFYARQBSAFMASQBPAE4AXwBJAE4ARgBPAAAA
+AAC9BO/+AAABAAAAAQAAAAAAAAABAAAAAAA/AAAAAAAAAAQAAAACAAAAAAAAAAAAAAAAAAAARAAA
+AAEAVgBhAHIARgBpAGwAZQBJAG4AZgBvAAAAAAAkAAQAAABUAHIAYQBuAHMAbABhAHQAaQBvAG4A
+AAAAAAAAsARMAwAAAQBTAHQAcgBpAG4AZwBGAGkAbABlAEkAbgBmAG8AAAAoAwAAAQAwADAAMAAw
+ADAANABiADAAAAAaAAEAAQBDAG8AbQBtAGUAbgB0AHMAAAAAAAAAIgABAAEAQwBvAG0AcABhAG4A
+eQBOAGEAbQBlAAAAAAAAAAAAcAAkAAEARgBpAGwAZQBEAGUAcwBjAHIAaQBwAHQAaQBvAG4AAAAA
+AFMAQwBfADMAYgBmADMANwA5ADAANABkAGQAMAAwADQAMwAyAGEAOQBhADYANAA5ADAANABmAGYA
+ZgBhAGUAYgBiADYAYwAAADAACAABAEYAaQBsAGUAVgBlAHIAcwBpAG8AbgAAAAAAMQAuADAALgAw
+AC4AMAAAAHAAKAABAEkAbgB0AGUAcgBuAGEAbABOAGEAbQBlAAAAUwBDAF8AMwBiAGYAMwA3ADkA
+MAA0AGQAZAAwADAANAAzADIAYQA5AGEANgA0ADkAMAA0AGYAZgBmAGEAZQBiAGIANgBjAC4AZABs
+AGwAAABIABIAAQBMAGUAZwBhAGwAQwBvAHAAeQByAGkAZwBoAHQAAABDAG8AcAB5AHIAaQBnAGgA
+dAAgAEAAIAAgADIAMAAyADUAAAAqAAEAAQBMAGUAZwBhAGwAVAByAGEAZABlAG0AYQByAGsAcwAA
+AAAAAAAAAHgAKAABAE8AcgBpAGcAaQBuAGEAbABGAGkAbABlAG4AYQBtAGUAAABTAEMAXwAzAGIA
+ZgAzADcAOQAwADQAZABkADAAMAA0ADMAMgBhADkAYQA2ADQAOQAwADQAZgBmAGYAYQBlAGIAYgA2
+AGMALgBkAGwAbAAAAGgAJAABAFAAcgBvAGQAdQBjAHQATgBhAG0AZQAAAAAAUwBDAF8AMwBiAGYA
+MwA3ADkAMAA0AGQAZAAwADAANAAzADIAYQA5AGEANgA0ADkAMAA0AGYAZgBmAGEAZQBiAGIANgBj
+AAAANAAIAAEAUAByAG8AZAB1AGMAdABWAGUAcgBzAGkAbwBuAAAAMQAuADAALgAwAC4AMAAAADgA
+CAABAEEAcwBzAGUAbQBiAGwAeQAgAFYAZQByAHMAaQBvAG4AAAAxAC4AMAAuADAALgAwAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAwAAABsNAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
+                      </arrayElements>
+                    </property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the name of the Microsoft Visual Studio Tools for Applications project. Project names must be unique within a package."
+                      name="VSTAProjectName"
+                      typeConverter="NOTBROWSABLE">SC_3bf37904dd00432a9a64904fffaebb6c</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the programming language used by the script."
+                      name="ScriptLanguage"
+                      typeConverter="Microsoft.SqlServer.VSTAHosting.ScriptingLanguages">CSharp</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies a comma-separated list of read-only variables."
+                      name="ReadOnlyVariables"
+                      UITypeEditor="Microsoft.DataTransformationServices.Controls.ScriptUIVariablePickerDlg"></property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies a comma-separated list of read/write variables."
+                      name="ReadWriteVariables"
+                      UITypeEditor="Microsoft.DataTransformationServices.Controls.ScriptUIWriteableVariablePickerDlg"></property>
+                    <property
+                      dataType="System.String"
+                      description="List of breakpoints present on the script."
+                      isArray="true"
+                      name="BreakpointCollection"
+                      typeConverter="NOTBROWSABLE">
+                      <arrayElements
+                        arrayElementCount="0" />
+                    </property>
+                    <property
+                      dataType="System.String"
+                      description="Checksum to match component metedata against compiled codes."
+                      name="MetadataChecksum140"
+                      typeConverter="NOTBROWSABLE">58</property>
+                    <property
+                      dataType="System.String"
+                      name="UserComponentTypeName">Microsoft.ScriptComponentHost</property>
+                  </properties>
+                  <inputs>
+                    <input
+                      refId="Package\Loop Through Excel Files\MigratingTimeSheet\Script Component 1.Inputs[Input 0]"
+                      hasSideEffects="true"
+                      name="Input 0">
+                      <inputColumns>
+                        <inputColumn
+                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\Script Component 1.Inputs[Input 0].Columns[ErrorCode]"
+                          cachedDataType="i4"
+                          cachedName="ErrorCode"
+                          lineageId="Package\Loop Through Excel Files\MigratingTimeSheet\Union All.Outputs[Union All Output 1].Columns[ErrorCode]" />
+                        <inputColumn
+                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\Script Component 1.Inputs[Input 0].Columns[ErrorColumn]"
+                          cachedDataType="i4"
+                          cachedName="ErrorColumn"
+                          lineageId="Package\Loop Through Excel Files\MigratingTimeSheet\Union All.Outputs[Union All Output 1].Columns[ErrorColumn]" />
+                      </inputColumns>
+                      <externalMetadataColumns />
+                    </input>
+                  </inputs>
+                  <outputs>
+                    <output
+                      refId="Package\Loop Through Excel Files\MigratingTimeSheet\Script Component 1.Outputs[Output 0]"
+                      name="Output 0"
+                      synchronousInputId="Package\Loop Through Excel Files\MigratingTimeSheet\Script Component 1.Inputs[Input 0]">
+                      <outputColumns>
+                        <outputColumn
+                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\Script Component 1.Outputs[Output 0].Columns[ErrorDescription]"
+                          dataType="wstr"
+                          length="500"
+                          lineageId="Package\Loop Through Excel Files\MigratingTimeSheet\Script Component 1.Outputs[Output 0].Columns[ErrorDescription]"
+                          name="ErrorDescription" />
+                        <outputColumn
+                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\Script Component 1.Outputs[Output 0].Columns[RowNumber]"
+                          dataType="i4"
+                          lineageId="Package\Loop Through Excel Files\MigratingTimeSheet\Script Component 1.Outputs[Output 0].Columns[RowNumber]"
+                          name="RowNumber" />
+                        <outputColumn
+                          refId="Package\Loop Through Excel Files\MigratingTimeSheet\Script Component 1.Outputs[Output 0].Columns[ErrorDate]"
+                          dataType="dbTimeStamp"
+                          lineageId="Package\Loop Through Excel Files\MigratingTimeSheet\Script Component 1.Outputs[Output 0].Columns[ErrorDate]"
+                          name="ErrorDate" />
                       </outputColumns>
                       <externalMetadataColumns />
                     </output>
@@ -8089,6 +9140,11 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
                   name="Conditional Split Error Output"
                   startId="Package\Loop Through Excel Files\MigratingTimeSheet\Conditional Split.Outputs[Conditional Split Error Output]" />
                 <path
+                  refId="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Derived Column Error Output1]"
+                  endId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 2.Inputs[OLE DB Destination Input]"
+                  name="Derived Column Error Output"
+                  startId="Package\Loop Through Excel Files\MigratingTimeSheet\Derived Column 1.Outputs[Derived Column Error Output]" />
+                <path
                   refId="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Derived Column Error Output]"
                   endId="Package\Loop Through Excel Files\MigratingTimeSheet\Union All.Inputs[Union All Input 1]"
                   name="Derived Column Error Output"
@@ -8100,14 +9156,14 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
                   startId="Package\Loop Through Excel Files\MigratingTimeSheet\Derived Column.Outputs[Derived Column Output]" />
                 <path
                   refId="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Derived Column Output1]"
-                  endId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination Errorlog.Inputs[OLE DB Destination Input]"
-                  name="Derived Column Output"
-                  startId="Package\Loop Through Excel Files\MigratingTimeSheet\Derived Column 1.Outputs[Derived Column Output]" />
-                <path
-                  refId="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Derived Column Output2]"
                   endId="Package\Loop Through Excel Files\MigratingTimeSheet\Script Component.Inputs[Input 0]"
                   name="Derived Column Output"
                   startId="Package\Loop Through Excel Files\MigratingTimeSheet\Derived Column AuditLog.Outputs[Derived Column Output]" />
+                <path
+                  refId="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Derived Column Output2]"
+                  endId="Package\Loop Through Excel Files\MigratingTimeSheet\Script Component 1.Inputs[Input 0]"
+                  name="Derived Column Output"
+                  startId="Package\Loop Through Excel Files\MigratingTimeSheet\Derived Column 1.Outputs[Derived Column Output]" />
                 <path
                   refId="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Excel Source Error Output]"
                   endId="Package\Loop Through Excel Files\MigratingTimeSheet\Union All.Inputs[Union All Input 3]"
@@ -8149,6 +9205,11 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
                   name="OLE DB Destination Error Output"
                   startId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination.Outputs[OLE DB Destination Error Output]" />
                 <path
+                  refId="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Output 01]"
+                  endId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 1.Inputs[OLE DB Destination Input]"
+                  name="Output 0"
+                  startId="Package\Loop Through Excel Files\MigratingTimeSheet\Script Component 1.Outputs[Output 0]" />
+                <path
                   refId="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Output 0]"
                   endId="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination AuditLog.Inputs[OLE DB Destination Input]"
                   name="Output 0"
@@ -8186,14 +9247,35 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
               Language="CSharp"
               ReadOnlyVariables="User::FilePath,User::FolderPath">
               <ProjectItem
-                Name="Properties\Settings.settings"
-                Encoding="UTF8"><![CDATA[<?xml version='1.0' encoding='iso-8859-1'?>
-<SettingsFile xmlns="uri:settings" CurrentProfile="(Default)">
-  <Profiles>
-    <Profile Name="(Default)" />
-  </Profiles>
-  <Settings />
-</SettingsFile>]]></ProjectItem>
+                Name="Properties\AssemblyInfo.cs"
+                Encoding="UTF8"><![CDATA[using System.Reflection;
+using System.Runtime.CompilerServices;
+
+//
+// General Information about an assembly is controlled through the following 
+// set of attributes. Change these attribute values to modify the information
+// associated with an assembly.
+//
+[assembly: AssemblyTitle("ST_dd37cea298374cf5883bc431ca752e8c")]
+[assembly: AssemblyDescription("")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("ST_dd37cea298374cf5883bc431ca752e8c")]
+[assembly: AssemblyCopyright("Copyright @  2025")]
+[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCulture("")]
+//
+// Version information for an assembly consists of the following four values:
+//
+//      Major Version
+//      Minor Version 
+//      Build Number
+//      Revision
+//
+// You can specify all the values or you can default the Revision and Build Numbers 
+// by using the '*' as shown below:
+
+[assembly: AssemblyVersion("1.0.*")]]]></ProjectItem>
               <ProjectItem
                 Name="Properties\Resources.resx"
                 Encoding="UTF8"><![CDATA[<?xml version="1.0" encoding="utf-8"?>
@@ -8580,35 +9662,14 @@ namespace ST_dd37cea298374cf5883bc431ca752e8c.Properties {
     }
 }]]></ProjectItem>
               <ProjectItem
-                Name="Properties\AssemblyInfo.cs"
-                Encoding="UTF8"><![CDATA[using System.Reflection;
-using System.Runtime.CompilerServices;
-
-//
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-//
-[assembly: AssemblyTitle("ST_dd37cea298374cf5883bc431ca752e8c")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ST_dd37cea298374cf5883bc431ca752e8c")]
-[assembly: AssemblyCopyright("Copyright @  2025")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-//
-// Version information for an assembly consists of the following four values:
-//
-//      Major Version
-//      Minor Version 
-//      Build Number
-//      Revision
-//
-// You can specify all the values or you can default the Revision and Build Numbers 
-// by using the '*' as shown below:
-
-[assembly: AssemblyVersion("1.0.*")]]]></ProjectItem>
+                Name="Properties\Settings.settings"
+                Encoding="UTF8"><![CDATA[<?xml version='1.0' encoding='iso-8859-1'?>
+<SettingsFile xmlns="uri:settings" CurrentProfile="(Default)">
+  <Profiles>
+    <Profile Name="(Default)" />
+  </Profiles>
+  <Settings />
+</SettingsFile>]]></ProjectItem>
               <ProjectItem
                 Name="Properties\Resources.Designer.cs"
                 Encoding="UTF8"><![CDATA[//------------------------------------------------------------------------------
@@ -9000,7 +10061,7 @@ where [refTable].[ClientName] = ?</property>
                       containsID="true"
                       dataType="System.String"
                       description="Specifies the list of lineage identifiers that map to the parameters that the SQL statement in the SQLCommand property uses. Entries in the list are separated by semicolons."
-                      name="ParameterMap">#{Package\Sequence Container\Data Flow Task Extracting Client\553:invalid};</property>
+                      name="ParameterMap">#{Package\Sequence Container\Data Flow Task Extracting Client\Excel Source.Outputs[Excel Source Output].Columns[F1]};</property>
                     <property
                       dataType="System.Int32"
                       description="Specifies the column code page to use when code page information is unavailable from the data source."
@@ -9144,8 +10205,8 @@ where [refTable].[ClientName] = ?</property>
                   <connections>
                     <connection
                       refId="Package\Sequence Container\Data Flow Task Extracting Client\OLE DB Destination.Connections[OleDbConnection]"
-                      connectionManagerID="Package.ConnectionManagers[LocalHost.TimesheetDB 2]"
-                      connectionManagerRefId="Package.ConnectionManagers[LocalHost.TimesheetDB 2]"
+                      connectionManagerID="Package.ConnectionManagers[LocalHost.TimesheetDB]"
+                      connectionManagerRefId="Package.ConnectionManagers[LocalHost.TimesheetDB]"
                       description="The OLE DB runtime connection used to access the database."
                       name="OleDbConnection" />
                   </connections>
@@ -9788,13 +10849,13 @@ where [refTable].[ConsultantName] = ?</property>
           Id="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup Consultant"
           TopLeft="482.666650268767,174.5999993819" />
         <NodeLayout
-          Size="171.2,41.6"
-          Id="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination"
-          TopLeft="414.33331669536,404.799996716182" />
+          Size="153.6,41.6"
+          Id="Package\Loop Through Excel Files\Data Flow Task\Conditional Split"
+          TopLeft="259.999987763663,33.700000344316" />
         <NodeLayout
-          Size="140,41.6"
-          Id="Package\Loop Through Excel Files\Data Flow Task\Excel Source"
-          TopLeft="24.9999986340598,34.666666425599" />
+          Size="161.6,41.6"
+          Id="Package\Loop Through Excel Files\Data Flow Task\Script Component"
+          TopLeft="113.333327141073,350.13333089855" />
         <NodeLayout
           Size="212,41.6"
           Id="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination Auditlog"
@@ -9808,9 +10869,51 @@ where [refTable].[ConsultantName] = ?</property>
           Id="Package\Loop Through Excel Files\Data Flow Task\Multicast 1"
           TopLeft="87.9999986886977,185.999997228384" />
         <NodeLayout
-          Size="153.6,41.6"
-          Id="Package\Loop Through Excel Files\Data Flow Task\Conditional Split"
-          TopLeft="259.999987763663,33.700000344316" />
+          Size="140,41.6"
+          Id="Package\Loop Through Excel Files\Data Flow Task\Excel Source"
+          TopLeft="24.9999986340598,34.666666425599" />
+        <NodeLayout
+          Size="171.2,41.6"
+          Id="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination"
+          TopLeft="414.33331669536,404.799996716182" />
+        <NodeLayout
+          Size="143.2,41.6"
+          Id="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup"
+          TopLeft="124.999993170301,257.399998210073" />
+        <EdgeLayout
+          Id="Package\Loop Through Excel Files\Data Flow Task.Paths[Multicast Output 2]"
+          TopLeft="151.999998688698,227.599997228384">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="44.5999944816037,29.8000009816886"
+              Start="0,0"
+              End="44.5999944816037,22.3000009816886">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,10.9000004908443" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,10.9000004908443"
+                    Point2="0,14.9000004908443"
+                    Point3="4,14.9000004908443" />
+                  <mssgle:LineSegment
+                    End="40.5999944816037,14.9000004908443" />
+                  <mssgle:CubicBezierSegment
+                    Point1="40.5999944816037,14.9000004908443"
+                    Point2="44.5999944816037,14.9000004908443"
+                    Point3="44.5999944816037,18.9000004908443" />
+                  <mssgle:LineSegment
+                    End="44.5999944816037,22.3000009816886" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
         <EdgeLayout
           Id="Package\Loop Through Excel Files\Data Flow Task.Paths[Multicast Output 1]"
           TopLeft="215.999998688698,206.799997228384">
@@ -9879,6 +10982,28 @@ where [refTable].[ConsultantName] = ?</property>
             <mssgm:EdgeLabel
               BoundingBox="-78.5397247277362,35.100000615617,111.6127734375,11.609375"
               RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Loop Through Excel Files\Data Flow Task.Paths[Fuzzy Lookup Output1]"
+          TopLeft="195.366660155687,298.999998210073">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,51.1333326884774"
+              Start="0,0"
+              End="0,43.6333326884774">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,43.6333326884774" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -9995,70 +11120,6 @@ where [refTable].[ConsultantName] = ?</property>
               RelativePosition="Any" />
           </EdgeLayout.Labels>
         </EdgeLayout>
-        <NodeLayout
-          Size="161.6,41.6"
-          Id="Package\Loop Through Excel Files\Data Flow Task\Script Component"
-          TopLeft="113.333327141073,350.13333089855" />
-        <NodeLayout
-          Size="143.2,41.6"
-          Id="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup"
-          TopLeft="124.999993170301,257.399998210073" />
-        <EdgeLayout
-          Id="Package\Loop Through Excel Files\Data Flow Task.Paths[Multicast Output 2]"
-          TopLeft="151.999998688698,227.599997228384">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="44.5999944816037,29.8000009816886"
-              Start="0,0"
-              End="44.5999944816037,22.3000009816886">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,10.9000004908443" />
-                  <mssgle:CubicBezierSegment
-                    Point1="0,10.9000004908443"
-                    Point2="0,14.9000004908443"
-                    Point3="4,14.9000004908443" />
-                  <mssgle:LineSegment
-                    End="40.5999944816037,14.9000004908443" />
-                  <mssgle:CubicBezierSegment
-                    Point1="40.5999944816037,14.9000004908443"
-                    Point2="44.5999944816037,14.9000004908443"
-                    Point3="44.5999944816037,18.9000004908443" />
-                  <mssgle:LineSegment
-                    End="44.5999944816037,22.3000009816886" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
-        <EdgeLayout
-          Id="Package\Loop Through Excel Files\Data Flow Task.Paths[Fuzzy Lookup Output1]"
-          TopLeft="195.366660155687,298.999998210073">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="0,51.1333326884774"
-              Start="0,0"
-              End="0,43.6333326884774">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,43.6333326884774" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
         <EdgeLayout
           Id="Package\Loop Through Excel Files\Data Flow Task.Paths[Output 0]"
           TopLeft="194.133327141073,391.73333089855">
@@ -10110,14 +11171,6 @@ where [refTable].[ConsultantName] = ?</property>
     </Properties>
   </PipelineComponentMetadata>
   <PipelineComponentMetadata
-    design-time-name="Package\Loop Through Excel Files\Data Flow Task\Excel Source">
-    <Properties>
-      <Property>
-        <Name>DataSourceViewID</Name>
-      </Property>
-    </Properties>
-  </PipelineComponentMetadata>
-  <PipelineComponentMetadata
     design-time-name="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination Auditlog">
     <Properties>
       <Property>
@@ -10136,20 +11189,54 @@ where [refTable].[ConsultantName] = ?</property>
       <Property>
         <Name>OverwriteParamsSQLProp</Name>
         <Value
-          type="q2:string">false</Value>
+          type="q2:boolean">false</Value>
       </Property>
       <Property>
         <Name>UsedTableName</Name>
         <Value
-          type="q3:string">[dbo].[Leave]</Value>
+          type="q3:string">[dbo].[Consultant]</Value>
       </Property>
       <Property>
         <Name>TableInfoObjectType</Name>
         <Value
-          type="q4:string">0</Value>
+          type="q4:int">0</Value>
       </Property>
       <Property>
         <Name>DataSourceViewID</Name>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\Loop Through Excel Files\Data Flow Task\Excel Source">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\Loop Through Excel Files\Data Flow Task\OLE DB Destination">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
       </Property>
     </Properties>
   </PipelineComponentMetadata>
@@ -10157,7 +11244,15 @@ where [refTable].[ConsultantName] = ?</property>
     design-time-name="Package\Loop Through Excel Files\MigratingTimeSheet">
     <LayoutInfo>
       <GraphLayout
-        Capacity="32" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
+        Capacity="64" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
+        <NodeLayout
+          Size="161.6,41.6"
+          Id="Package\Loop Through Excel Files\MigratingTimeSheet\Script Component"
+          TopLeft="684.999989792705,375.999994397163" />
+        <NodeLayout
+          Size="215.2,41.6"
+          Id="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination AuditLog"
+          TopLeft="649.999990314245,482.999992802739" />
         <NodeLayout
           Size="140,41.6"
           Id="Package\Loop Through Excel Files\MigratingTimeSheet\Excel Source"
@@ -10167,13 +11262,9 @@ where [refTable].[ConsultantName] = ?</property>
           Id="Package\Loop Through Excel Files\MigratingTimeSheet\Lookup Client"
           TopLeft="490.833306515383,87.5333327246374" />
         <NodeLayout
-          Size="215.2,41.6"
-          Id="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination AuditLog"
-          TopLeft="649.999990314245,482.999992802739" />
-        <NodeLayout
-          Size="171.2,41.6"
-          Id="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination"
-          TopLeft="416.833315845994,336.166664593749" />
+          Size="180,41.6"
+          Id="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 1"
+          TopLeft="96.7333302057452,513.133328986234" />
         <NodeLayout
           Size="152.8,41.6"
           Id="Package\Loop Through Excel Files\MigratingTimeSheet\Derived Column"
@@ -10183,21 +11274,21 @@ where [refTable].[ConsultantName] = ?</property>
           Id="Package\Loop Through Excel Files\MigratingTimeSheet\Multicast"
           TopLeft="600.999991044402,190.999997153878" />
         <NodeLayout
-          Size="211.2,41.6"
-          Id="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination Errorlog"
-          TopLeft="99.9999903639159,378.399997543494" />
+          Size="171.2,41.6"
+          Id="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination"
+          TopLeft="416.833315845994,336.166664593749" />
         <NodeLayout
           Size="196.8,41.6"
           Id="Package\Loop Through Excel Files\MigratingTimeSheet\Derived Column AuditLog"
           TopLeft="663.999990105629,303.999995470047" />
         <NodeLayout
+          Size="180,41.6"
+          Id="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 2"
+          TopLeft="299.999984204769,445.333330037859" />
+        <NodeLayout
           Size="120,41.6"
           Id="Package\Loop Through Excel Files\MigratingTimeSheet\Union All"
           TopLeft="246.666653189395,184.599998716315" />
-        <NodeLayout
-          Size="195.2,41.6"
-          Id="Package\Loop Through Excel Files\MigratingTimeSheet\Fuzzy Lookup Consultant"
-          TopLeft="557.499969539545,22.5333331766396" />
         <NodeLayout
           Size="153.6,41.6"
           Id="Package\Loop Through Excel Files\MigratingTimeSheet\Conditional Split"
@@ -10205,57 +11296,71 @@ where [refTable].[ConsultantName] = ?</property>
         <NodeLayout
           Size="161.6,41.6"
           Id="Package\Loop Through Excel Files\MigratingTimeSheet\Derived Column 1"
-          TopLeft="133.166655377382,281.533331280218" />
-        <EdgeLayout
-          Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[ValidRows]"
-          TopLeft="533.599976654848,41.0999993462366">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="23.8999928846965,0"
-              Start="0,0"
-              End="16.3999928846965,0">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="16.3999928846965,0" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="-15.1507652764018,5,46.7015234375,9.7490234375"
-              RelativePosition="Any" />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
+          TopLeft="150.833325092164,318.933331115511" />
+        <NodeLayout
+          Size="195.2,41.6"
+          Id="Package\Loop Through Excel Files\MigratingTimeSheet\Fuzzy Lookup Consultant"
+          TopLeft="557.499969539545,22.5333331766396" />
         <EdgeLayout
           Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Union All Output 1]"
           TopLeft="287.999986522728,226.199998716315">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="-74.033331145346,55.3333325639031"
+              EndConnector="-56.3666614305647,92.7333323991958"
               Start="0,0"
-              End="-74.033331145346,47.8333325639031">
+              End="-56.3666614305647,85.2333323991958">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,18.5701751247499" />
+                    End="0,33.8254382154614" />
                   <mssgle:CubicBezierSegment
-                    Point1="0,18.5701751247499"
-                    Point2="0,22.5701751247499"
-                    Point3="-4,22.5701751247499" />
+                    Point1="0,33.8254382154614"
+                    Point2="0,37.8254382154614"
+                    Point3="-4,37.8254382154614" />
                   <mssgle:LineSegment
-                    End="-70.033331145346,22.5701751247499" />
+                    End="-52.3666614305647,37.8254382154614" />
                   <mssgle:CubicBezierSegment
-                    Point1="-70.033331145346,22.5701751247499"
-                    Point2="-74.033331145346,22.5701751247499"
-                    Point3="-74.033331145346,26.5701751247499" />
+                    Point1="-52.3666614305647,37.8254382154614"
+                    Point2="-56.3666614305647,37.8254382154614"
+                    Point3="-56.3666614305647,41.8254382154614" />
                   <mssgle:LineSegment
-                    End="-74.033331145346,47.8333325639031" />
+                    End="-56.3666614305647,85.2333323991958" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Output 0]"
+          TopLeft="765.799989792705,417.599994397163">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-8.19999947845963,65.3999984055758"
+              Start="0,0"
+              End="-8.19999947845963,57.8999984055758">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,28.6999992027879" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,28.6999992027879"
+                    Point2="0,32.6999992027879"
+                    Point3="-4,32.6999992027879" />
+                  <mssgle:LineSegment
+                    End="-4.19999947845963,32.6999992027879" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-4.19999947845963,32.6999992027879"
+                    Point2="-8.19999947845963,32.6999992027879"
+                    Point3="-8.19999947845963,36.6999992027879" />
+                  <mssgle:LineSegment
+                    End="-8.19999947845963,57.8999984055758" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -10533,6 +11638,28 @@ where [refTable].[ConsultantName] = ?</property>
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
+          Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Derived Column Output1]"
+          TopLeft="764.099989949167,345.599995470047">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,30.3999989271164"
+              Start="0,0"
+              End="0,22.8999989271164">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,22.8999989271164" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
           Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Derived Column Output]"
           TopLeft="349.966652834249,40.6333321423998">
           <EdgeLayout.Curve>
@@ -10627,57 +11754,59 @@ where [refTable].[ConsultantName] = ?</property>
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
-          Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Derived Column Output1]"
-          TopLeft="213.966655377382,323.133331280218">
+          Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[ValidRows]"
+          TopLeft="533.599976654848,41.0999993462366">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="-8.36666501346608,55.2666662632756"
+              EndConnector="23.8999928846965,0"
               Start="0,0"
-              End="-8.36666501346608,47.7666662632756">
+              End="16.3999928846965,0">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,23.6333331316378" />
-                  <mssgle:CubicBezierSegment
-                    Point1="0,23.6333331316378"
-                    Point2="0,27.6333331316378"
-                    Point3="-4,27.6333331316378" />
-                  <mssgle:LineSegment
-                    End="-4.36666501346608,27.6333331316378" />
-                  <mssgle:CubicBezierSegment
-                    Point1="-4.36666501346608,27.6333331316378"
-                    Point2="-8.36666501346608,27.6333331316378"
-                    Point3="-8.36666501346608,31.6333331316378" />
-                  <mssgle:LineSegment
-                    End="-8.36666501346608,47.7666662632756" />
+                    End="16.3999928846965,0" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <EdgeLabelCollection />
+            <mssgm:EdgeLabel
+              BoundingBox="-15.1507652764018,5,46.7015234375,9.7490234375"
+              RelativePosition="Any" />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <NodeLayout
-          Size="161.6,41.6"
-          Id="Package\Loop Through Excel Files\MigratingTimeSheet\Script Component"
-          TopLeft="684.999989792705,375.999994397163" />
+          Size="170.4,41.6"
+          Id="Package\Loop Through Excel Files\MigratingTimeSheet\Script Component 1"
+          TopLeft="43.999999344349,410.999993875623" />
         <EdgeLayout
           Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Derived Column Output2]"
-          TopLeft="764.099989949167,345.599995470047">
+          TopLeft="206.033325092164,360.533331115511">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="0,30.3999989271164"
+              EndConnector="-76.833325747815,50.4666627601117"
               Start="0,0"
-              End="0,22.8999989271164">
+              End="-76.833325747815,42.9666627601117">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,22.8999989271164" />
+                    End="0,16.483527826163" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,16.483527826163"
+                    Point2="0,20.483527826163"
+                    Point3="-4,20.483527826163" />
+                  <mssgle:LineSegment
+                    End="-72.833325747815,20.483527826163" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-72.833325747815,20.483527826163"
+                    Point2="-76.833325747815,20.483527826163"
+                    Point3="-76.833325747815,24.483527826163" />
+                  <mssgle:LineSegment
+                    End="-76.833325747815,42.9666627601117" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -10687,37 +11816,73 @@ where [refTable].[ConsultantName] = ?</property>
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
-          Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Output 0]"
-          TopLeft="765.799989792705,417.599994397163">
+          Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Output 01]"
+          TopLeft="129.199999344349,452.599993875623">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="-8.19999947845963,65.3999984055758"
+              EndConnector="57.5333308613963,60.5333351106114"
               Start="0,0"
-              End="-8.19999947845963,57.8999984055758">
+              End="57.5333308613963,53.0333351106114">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,28.6999992027879" />
+                    End="0,26.2666675553057" />
                   <mssgle:CubicBezierSegment
-                    Point1="0,28.6999992027879"
-                    Point2="0,32.6999992027879"
-                    Point3="-4,32.6999992027879" />
+                    Point1="0,26.2666675553057"
+                    Point2="0,30.2666675553057"
+                    Point3="4,30.2666675553057" />
                   <mssgle:LineSegment
-                    End="-4.19999947845963,32.6999992027879" />
+                    End="53.5333308613963,30.2666675553057" />
                   <mssgle:CubicBezierSegment
-                    Point1="-4.19999947845963,32.6999992027879"
-                    Point2="-8.19999947845963,32.6999992027879"
-                    Point3="-8.19999947845963,36.6999992027879" />
+                    Point1="53.5333308613963,30.2666675553057"
+                    Point2="57.5333308613963,30.2666675553057"
+                    Point3="57.5333308613963,34.2666675553057" />
                   <mssgle:LineSegment
-                    End="-8.19999947845963,57.8999984055758" />
+                    End="57.5333308613963,53.0333351106114" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
             <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Derived Column Error Output1]"
+          TopLeft="257.233325092164,360.533331115511">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="132.766659112606,84.7999989223479"
+              Start="0,0"
+              End="132.766659112606,77.2999989223479">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,30.4188230920118" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,30.4188230920118"
+                    Point2="0,34.4188230920118"
+                    Point3="4,34.4188230920118" />
+                  <mssgle:LineSegment
+                    End="128.766659112606,34.4188230920118" />
+                  <mssgle:CubicBezierSegment
+                    Point1="128.766659112606,34.4188230920118"
+                    Point2="132.766659112606,34.4188230920118"
+                    Point3="132.766659112606,38.4188230920118" />
+                  <mssgle:LineSegment
+                    End="132.766659112606,77.2999989223479" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="1.42194283755276,39.4188230920118,129.9227734375,11.609375"
+              RelativePosition="Any" />
           </EdgeLayout.Labels>
         </EdgeLayout>
       </GraphLayout>
@@ -10737,12 +11902,25 @@ where [refTable].[ConsultantName] = ?</property>
     </Properties>
   </PipelineComponentMetadata>
   <PipelineComponentMetadata
+    design-time-name="Package\Loop Through Excel Files\MigratingTimeSheet\Excel Source">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
     design-time-name="Package\Loop Through Excel Files\MigratingTimeSheet\Lookup Client">
     <Properties>
       <Property>
         <Name>OverwriteParamsSQLProp</Name>
         <Value
-          type="q2:string">false</Value>
+          type="q2:boolean">false</Value>
       </Property>
       <Property>
         <Name>UsedTableName</Name>
@@ -10752,7 +11930,7 @@ where [refTable].[ConsultantName] = ?</property>
       <Property>
         <Name>TableInfoObjectType</Name>
         <Value
-          type="q4:string">0</Value>
+          type="q4:int">0</Value>
       </Property>
       <Property>
         <Name>DataSourceViewID</Name>
@@ -10760,7 +11938,7 @@ where [refTable].[ConsultantName] = ?</property>
     </Properties>
   </PipelineComponentMetadata>
   <PipelineComponentMetadata
-    design-time-name="Package\Loop Through Excel Files\MigratingTimeSheet\Fuzzy Lookup Consultant">
+    design-time-name="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 1">
     <Properties>
       <Property>
         <Name>DataSourceViewID</Name>
@@ -10786,7 +11964,7 @@ where [refTable].[ConsultantName] = ?</property>
     </Properties>
   </PipelineComponentMetadata>
   <PipelineComponentMetadata
-    design-time-name="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination Errorlog">
+    design-time-name="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 2">
     <Properties>
       <Property>
         <Name>DataSourceViewID</Name>
@@ -10799,7 +11977,7 @@ where [refTable].[ConsultantName] = ?</property>
     </Properties>
   </PipelineComponentMetadata>
   <PipelineComponentMetadata
-    design-time-name="Package\Loop Through Excel Files\MigratingTimeSheet\Excel Source">
+    design-time-name="Package\Loop Through Excel Files\MigratingTimeSheet\Fuzzy Lookup Consultant">
     <Properties>
       <Property>
         <Name>DataSourceViewID</Name>
@@ -10883,9 +12061,7 @@ where [refTable].[ConsultantName] = ?</property>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
       </GraphLayout>
@@ -10910,7 +12086,7 @@ where [refTable].[ConsultantName] = ?</property>
       <Property>
         <Name>OverwriteParamsSQLProp</Name>
         <Value
-          type="q2:string">false</Value>
+          type="q2:boolean">false</Value>
       </Property>
       <Property>
         <Name>UsedTableName</Name>
@@ -10920,7 +12096,7 @@ where [refTable].[ConsultantName] = ?</property>
       <Property>
         <Name>TableInfoObjectType</Name>
         <Value
-          type="q4:string">0</Value>
+          type="q4:int">0</Value>
       </Property>
       <Property>
         <Name>DataSourceViewID</Name>
@@ -11007,9 +12183,7 @@ where [refTable].[ConsultantName] = ?</property>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
       </GraphLayout>
@@ -11034,7 +12208,7 @@ where [refTable].[ConsultantName] = ?</property>
       <Property>
         <Name>OverwriteParamsSQLProp</Name>
         <Value
-          type="q2:string">false</Value>
+          type="q2:boolean">false</Value>
       </Property>
       <Property>
         <Name>UsedTableName</Name>
@@ -11044,23 +12218,10 @@ where [refTable].[ConsultantName] = ?</property>
       <Property>
         <Name>TableInfoObjectType</Name>
         <Value
-          type="q4:string">0</Value>
+          type="q4:int">0</Value>
       </Property>
       <Property>
         <Name>DataSourceViewID</Name>
-      </Property>
-    </Properties>
-  </PipelineComponentMetadata>
-  <PipelineComponentMetadata
-    design-time-name="Package\Loop Through Excel Files\Data Flow Task\Fuzzy Lookup">
-    <Properties>
-      <Property>
-        <Name>DataSourceViewID</Name>
-      </Property>
-      <Property>
-        <Name>TableInfoObjectType</Name>
-        <Value
-          type="q2:string">Table</Value>
       </Property>
     </Properties>
   </PipelineComponentMetadata>
