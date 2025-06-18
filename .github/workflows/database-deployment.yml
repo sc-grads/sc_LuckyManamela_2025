@@ -50,7 +50,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up SQLCMD
-        uses: setup-sqlcmd@v1
+        uses: azure/setup-sqlcmd@v1
         with:
           sqlcmd-version: '17.10'
 
