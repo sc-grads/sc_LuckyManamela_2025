@@ -1,0 +1,93 @@
+name: Database, SSIS, and Job Deployment
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy-database:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'zulu'
+
+      - name: Set up Flyway
+        run: |
+          curl -L https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/9.22.3/flyway-commandline-9.22.3-linux-x64.tar.gz | tar -xz
+          mv flyway-9.22.3 flyway
+          mkdir flyway/drivers
+          curl -L https://repo1.maven.org/maven2/com/microsoft/sqlserver/mssql-jdbc/12.8.1/mssql-jdbc-12.8.1.jre11.jar -o flyway/drivers/mssql-jdbc-12.8.1.jre11.jar
+
+      - name: Configure Flyway
+        run: |
+          cat <<EOF > flyway/conf/flyway.conf
+          flyway.url=jdbc:sqlserver://localhost:1433;databaseName=TimesheetDB
+          flyway.user=${{ secrets.DB_USERNAME }}
+          flyway.password=${{ secrets.DB_PASSWORD }}
+          flyway.locations=filesystem:sql
+          EOF
+          cp -r sql flyway/sql
+
+      - name: Run Flyway Migration
+        run: |
+          ./flyway/flyway migrate
+
+  deploy-ssis-and-job:
+    runs-on: windows-latest
+    needs: deploy-database
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up SQLCMD
+        uses: setup-sqlcmd@v1
+        with:
+          sqlcmd-version: '17.10'
+
+      - name: Deploy SSIS Package
+        run: |
+          $dtsxPath = "ssis/TimesheetETL.dtsx"
+          if (-not (Test-Path $dtsxPath)) { throw "SSIS package not found at $dtsxPath" }
+          $deploySql = @"
+          USE SSISDB;
+          DECLARE @folder_name NVARCHAR(128) = 'TimesheetFolder';
+          DECLARE @project_name NVARCHAR(128) = 'TimesheetProject';
+          IF NOT EXISTS (SELECT 1 FROM catalog.folders WHERE name = @folder_name)
+          BEGIN
+              EXEC catalog.create_folder @folder_name;
+          END
+          EXEC catalog.deploy_project @folder_name, @project_name, (SELECT * FROM OPENROWSET(BULK '$dtsxPath', SINGLE_BLOB) AS BinaryData);
+          "@
+          $deploySql | Out-File -FilePath deploy_ssis.sql -Encoding UTF8
+          sqlcmd -S localhost -U ${{ secrets.DB_USERNAME }} -P ${{ secrets.DB_PASSWORD }} -i deploy_ssis.sql
+        shell: pwsh
+
+      - name: Create SQL Agent Job
+        run: |
+          $jobScript = @"
+          USE msdb;
+          IF NOT EXISTS (SELECT 1 FROM sysjobs WHERE name = 'RunTimesheetETL')
+          BEGIN
+              EXEC dbo.sp_add_job @job_name = N'RunTimesheetETL';
+              EXEC sp_add_jobstep @job_name = N'RunTimesheetETL', @step_name = N'Execute SSIS Package', 
+                  @subsystem = N'SSIS', @command = N'/ISSERVER "\SSISDB\TimesheetFolder\TimesheetProject\TimesheetETL" /SERVER "localhost" /Par "$ServerOption::LOGGING_LEVEL(Int16)";1 /Par "$ServerOption::SYNCHRONIZED(Boolean)";True /CALLERINFO SQLAGENT /REPORTING E',
+                  @database_name = N'master';
+              EXEC dbo.sp_add_jobschedule @job_name = N'RunTimesheetETL', @name = N'DailyRun', @enabled = 1, 
+                  @freq_type = 4, @freq_interval = 1, @freq_subday_type = 1, @freq_subday_interval = 0, 
+                  @active_start_date = $(Get-Date -Format yyyyMMdd), @active_start_time = $(Get-Date -Format HHmmss).Substring(0,6);
+              EXEC dbo.sp_add_jobserver @job_name = N'RunTimesheetETL';
+          END
+          "@
+          $jobScript | Out-File -FilePath setup_job.sql -Encoding UTF8
+          sqlcmd -S localhost -U ${{ secrets.DB_USERNAME }} -P ${{ secrets.DB_PASSWORD }} -i setup_job.sql
+        shell: pwsh
