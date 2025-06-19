@@ -4,9 +4,9 @@ on:
   push:
     branches:
       - main
-  paths:
-    - 'scripts/**'
-    - 'HandsOnProjects/TimesheetMigration/TimesheetMigration/**'
+    paths:
+      - 'scripts/**'
+      - 'HandsOnProjects/TimesheetMigration/TimesheetMigration/**'
   workflow_dispatch:
 
 env:

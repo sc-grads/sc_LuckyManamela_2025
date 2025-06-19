@@ -15,7 +15,7 @@ env:
 
 jobs:
   deploy-ssis:
-    runs-on: [self-hosted, windows]  # Use self-hosted Windows runner for SSIS compatibility
+    runs-on: [self-hosted, windows]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
