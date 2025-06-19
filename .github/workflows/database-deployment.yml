@@ -35,6 +35,7 @@ jobs:
           sudo apt-get install -y mssql-tools unixodbc-dev
           echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
           source ~/.bashrc
+        shell: bash
 
       - name: Execute SQL Script
         run: |
@@ -45,6 +46,7 @@ jobs:
           fi
           echo "SQL script executed successfully."
           cat output.log
+        shell: bash
 
       - name: Trigger Sub-Main Workflow
         run: |
@@ -53,47 +55,63 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             https://api.github.com/repos/${{ github.repository }}/dispatches \
             -d '{"event_type":"deploy_ssis"}'
+        shell: bash
+
+  setup-and-execute-job:
+    runs-on: [self-hosted, windows]
+    needs: deploy-database
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install SQLCMD
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/microsoft/go-sqlcmd/releases/download/v1.5.0/sqlcmd-1.5.0-windows-amd64.zip" -OutFile sqlcmd.zip
+          Expand-Archive -Path sqlcmd.zip -DestinationPath sqlcmd
+          echo "C:\sqlcmd" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        shell: pwsh
 
       - name: Setup SQL Server Agent Job
         run: |
-          cat << 'EOF' > setup_job.sql
-          USE msdb;
-          IF NOT EXISTS (SELECT 1 FROM sysjobs WHERE name = 'TimesheetProjectRun')
-          BEGIN
-              EXEC dbo.sp_add_job @job_name = N'TimesheetProjectRun';
-              EXEC sp_add_jobstep
-                  @job_name = N'TimesheetProjectRun',
-                  @step_name = N'Run SSIS Package',
-                  @subsystem = N'SSIS',
-                  @command = N'/ISSERVER "\${{ env.SSIS_FOLDER_NAME }}\${{ env.SSIS_PROJECT_NAME }}\${{ env.SSIS_PACKAGE_NAME }}" /SERVER "${{ env.SQL_SERVER_NAME }}" /Par "$ServerOption::LOGGING_LEVEL(Int16)";1 /Par "$ServerOption::SYNCHRONIZED(Boolean)";True /CALLERINFO SQLAGENT /REPORTING E',
-                  @database_name = N'master';
-              EXEC dbo.sp_add_jobschedule
-                  @job_name = N'TimesheetProjectRun',
-                  @name = N'RunNow',
-                  @enabled = 1,
-                  @freq_type = 1,
-                  @active_start_date = $(date +%Y%m%d),
-                  @active_start_time = $(date +%H%M%S);
-              EXEC dbo.sp_add_jobserver @job_name = N'TimesheetProjectRun';
-          END
-          ELSE
-          BEGIN
-              EXEC sp_update_jobstep
-                  @job_name = N'TimesheetProjectRun',
-                  @step_id = 1,
-                  @command = N'/ISSERVER "\${{ env.SSIS_FOLDER_NAME }}\${{ env.SSIS_PROJECT_NAME }}\${{ env.SSIS_PACKAGE_NAME }}" /SERVER "${{ env.SQL_SERVER_NAME }}" /Par "$ServerOption::LOGGING_LEVEL(Int16)";1 /Par "$ServerOption::SYNCHRONIZED(Boolean)";True /CALLERINFO SQLAGENT /REPORTING E';
-          END
-          EOF
-          if ! /opt/mssql-tools/bin/sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -i setup_job.sql; then
+          echo. > setup_job.sql
+          echo USE msdb; >> setup_job.sql
+          echo IF NOT EXISTS (SELECT 1 FROM sysjobs WHERE name = 'TimesheetProjectRun') >> setup_job.sql
+          echo BEGIN >> setup_job.sql
+          echo     EXEC dbo.sp_add_job @job_name = N'TimesheetProjectRun'; >> setup_job.sql
+          echo     EXEC sp_add_jobstep >> setup_job.sql
+          echo         @job_name = N'TimesheetProjectRun', >> setup_job.sql
+          echo         @step_name = N'Run SSIS Package', >> setup_job.sql
+          echo         @subsystem = N'SSIS', >> setup_job.sql
+          echo         @command = N'/ISSERVER "\${{ env.SSIS_FOLDER_NAME }}\${{ env.SSIS_PROJECT_NAME }}\${{ env.SSIS_PACKAGE_NAME }}" /SERVER "${{ env.SQL_SERVER_NAME }}" /Par "$ServerOption::LOGGING_LEVEL(Int16)";1 /Par "$ServerOption::SYNCHRONIZED(Boolean)";True /CALLERINFO SQLAGENT /REPORTING E', >> setup_job.sql
+          echo         @database_name = N'master'; >> setup_job.sql
+          echo     EXEC dbo.sp_add_jobschedule >> setup_job.sql
+          echo         @job_name = N'TimesheetProjectRun', >> setup_job.sql
+          echo         @name = N'RunNow', >> setup_job.sql
+          echo         @enabled = 1, >> setup_job.sql
+          echo         @freq_type = 1, >> setup_job.sql
+          echo         @active_start_date = %date:~10,4%%date:~4,2%%date:~7,2%, >> setup_job.sql
+          echo         @active_start_time = %time:~0,2%%time:~3,2%%time:~6,2%; >> setup_job.sql
+          echo     EXEC dbo.sp_add_jobserver @job_name = N'TimesheetProjectRun'; >> setup_job.sql
+          echo END >> setup_job.sql
+          echo ELSE >> setup_job.sql
+          echo BEGIN >> setup_job.sql
+          echo     EXEC sp_update_jobstep >> setup_job.sql
+          echo         @job_name = N'TimesheetProjectRun', >> setup_job.sql
+          echo         @step_id = 1, >> setup_job.sql
+          echo         @command = N'/ISSERVER "\${{ env.SSIS_FOLDER_NAME }}\${{ env.SSIS_PROJECT_NAME }}\${{ env.SSIS_PACKAGE_NAME }}" /SERVER "${{ env.SQL_SERVER_NAME }}" /Par "$ServerOption::LOGGING_LEVEL(Int16)";1 /Par "$ServerOption::SYNCHRONIZED(Boolean)";True /CALLERINFO SQLAGENT /REPORTING E'; >> setup_job.sql
+          echo END >> setup_job.sql
+          if ! sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -i setup_job.sql; then
             echo "Error: Job setup failed."
             exit 1
           fi
           echo "Job setup completed."
+        shell: cmd
 
       - name: Execute SQL Server Agent Job
         run: |
-          if ! /opt/mssql-tools/bin/sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -Q "EXEC msdb.dbo.sp_start_job N'TimesheetProjectRun';"; then
+          if ! sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -Q "EXEC msdb.dbo.sp_start_job N'TimesheetProjectRun';"; then
             echo "Error: Job execution failed."
             exit 1
           fi
           echo "Job executed successfully."
+        shell: cmd
