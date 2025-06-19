@@ -39,7 +39,7 @@ jobs:
 
       - name: Execute SQL Script
         run: |
-          if ! /opt/mssql-tools/bin/sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -d master -i scripts/TimesheetDB.sql -o output.log; then
+          if ! /opt/mssql-tools/bin/sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -N -d master -i scripts/TimesheetDB.sql -o output.log; then
             echo "Error: SQL script execution failed. Check output.log for details."
             cat output.log
             exit 1
@@ -82,7 +82,7 @@ jobs:
           echo         @job_name = N'TimesheetProjectRun', >> setup_job.sql
           echo         @step_name = N'Run SSIS Package', >> setup_job.sql
           echo         @subsystem = N'SSIS', >> setup_job.sql
-          echo         @command = N'/ISSERVER "\${{ env.SSIS_FOLDER_NAME }}\${{ env.SSIS_PROJECT_NAME }}\${{ env.SSIS_PACKAGE_NAME }}" /SERVER "${{ env.SQL_SERVER_NAME }}" /Par "$ServerOption::LOGGING_LEVEL(Int16)";1 /Par "$ServerOption::SYNCHRONIZED(Boolean)";True /CALLERINFO SQLAGENT /REPORTING E', >> setup_job.sql
+          echo         @command = N'/ISSERVER "\${{ env.SSIS_FOLDER_NAME }}\${{ env.SSIS_PROJECT_NAME }}\${{ env.SSIS_PACKAGE_NAME }}" /SERVER "MANAMELA" /Par "$ServerOption::LOGGING_LEVEL(Int16)";1 /Par "$ServerOption::SYNCHRONIZED(Boolean)";True /CALLERINFO SQLAGENT /REPORTING E', >> setup_job.sql
           echo         @database_name = N'master'; >> setup_job.sql
           echo     EXEC dbo.sp_add_jobschedule >> setup_job.sql
           echo         @job_name = N'TimesheetProjectRun', >> setup_job.sql
@@ -98,9 +98,9 @@ jobs:
           echo     EXEC sp_update_jobstep >> setup_job.sql
           echo         @job_name = N'TimesheetProjectRun', >> setup_job.sql
           echo         @step_id = 1, >> setup_job.sql
-          echo         @command = N'/ISSERVER "\${{ env.SSIS_FOLDER_NAME }}\${{ env.SSIS_PROJECT_NAME }}\${{ env.SSIS_PACKAGE_NAME }}" /SERVER "${{ env.SQL_SERVER_NAME }}" /Par "$ServerOption::LOGGING_LEVEL(Int16)";1 /Par "$ServerOption::SYNCHRONIZED(Boolean)";True /CALLERINFO SQLAGENT /REPORTING E'; >> setup_job.sql
+          echo         @command = N'/ISSERVER "\${{ env.SSIS_FOLDER_NAME }}\${{ env.SSIS_PROJECT_NAME }}\${{ env.SSIS_PACKAGE_NAME }}" /SERVER "MANAMELA" /Par "$ServerOption::LOGGING_LEVEL(Int16)";1 /Par "$ServerOption::SYNCHRONIZED(Boolean)";True /CALLERINFO SQLAGENT /REPORTING E'; >> setup_job.sql
           echo END >> setup_job.sql
-          if ! sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -i setup_job.sql; then
+          if ! sqlcmd -b -S "MANAMELA" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -i setup_job.sql; then
             echo "Error: Job setup failed."
             exit 1
           fi
@@ -109,7 +109,7 @@ jobs:
 
       - name: Execute SQL Server Agent Job
         run: |
-          if ! sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -Q "EXEC msdb.dbo.sp_start_job N'TimesheetProjectRun';"; then
+          if ! sqlcmd -b -S "MANAMELA" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -Q "EXEC msdb.dbo.sp_start_job N'TimesheetProjectRun';"; then
             echo "Error: Job execution failed."
             exit 1
           fi
