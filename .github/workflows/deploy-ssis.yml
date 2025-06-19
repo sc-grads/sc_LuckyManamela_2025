@@ -1,14 +1,23 @@
-name: Deploy SSIS Package
+name: Deploy SSIS Packages
 
 on:
   repository_dispatch:
     types: [deploy_ssis]
+  workflow_dispatch:
+
+env:
+  SSIS_PACKAGE_NAME: TimeSheetMigration 1.dtsx
+  SSIS_FOLDER_NAME: TimesheetDataMigration
+  SSIS_PROJECT_NAME: Projects/Timesheets/Packages
+  SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}
+  SQL_USERNAME: ${{ secrets.SQL_USERNAME }}
+  SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
 
 jobs:
   deploy-ssis:
-    runs-on: [self-hosted, windows]
+    runs-on: [self-hosted, windows]  # Use self-hosted Windows runner for SSIS compatibility
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Install SQLCMD
@@ -20,18 +29,35 @@ jobs:
 
       - name: Deploy SSIS Package
         run: |
-          $dtsxPath = "HandsOnProjects/TimesheetMigration/TimesheetMigration/${{ env.SSIS_PACKAGE_NAME }}"
-          if (-not (Test-Path $dtsxPath)) { throw "SSIS package not found at $dtsxPath" }
+          $packagePath = "${{ github.workspace }}\HandsOnProjects\TimesheetMigration\TimesheetMigration\${{ env.SSIS_PACKAGE_NAME }}"
+          if (-not (Test-Path $packagePath)) { throw "SSIS package not found at $packagePath" }
+          $server = "${{ env.SQL_SERVER_NAME }}"
+          $folderName = "${{ env.SSIS_FOLDER_NAME }}"
+          $projectName = "${{ env.SSIS_PROJECT_NAME }}"
+
+          # Create SSISDB folder if it doesn't exist
+          $sqlCreateFolder = @"
+          USE SSISDB;
+          IF NOT EXISTS (SELECT 1 FROM catalog.folders WHERE name = N'$folderName')
+          BEGIN
+              EXEC catalog.create_folder @folder_name = N'$folderName';
+          END
+          "@
+          echo "$sqlCreateFolder" | sqlcmd -S "$server" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -d SSISDB
+
+          # Deploy package as a project
           $deploySql = @"
           USE SSISDB;
-          DECLARE @folder_name NVARCHAR(128) = '${{ env.SSIS_FOLDER_NAME }}';
-          DECLARE @project_name NVARCHAR(128) = '${{ env.SSIS_PROJECT_NAME }}';
-          IF NOT EXISTS (SELECT 1 FROM catalog.folders WHERE name = @folder_name)
+          DECLARE @folder_id bigint = (SELECT folder_id FROM catalog.folders WHERE name = N'$folderName');
+          DECLARE @project_binary varbinary(max) = (SELECT * FROM OPENROWSET(BULK N'$packagePath', SINGLE_BLOB) AS BinaryData);
+          IF NOT EXISTS (SELECT 1 FROM catalog.projects WHERE name = N'$projectName' AND folder_id = @folder_id)
           BEGIN
-              EXEC catalog.create_folder @folder_name;
+              EXEC catalog.deploy_project @folder_name = N'$folderName', @project_name = N'$projectName', @project_stream = @project_binary;
           END
-          EXEC catalog.deploy_project @folder_name, @project_name, (SELECT * FROM OPENROWSET(BULK '$dtsxPath', SINGLE_BLOB) AS BinaryData);
+          ELSE
+          BEGIN
+              EXEC catalog.update_project @folder_name = N'$folderName', @project_name = N'$projectName', @project_stream = @project_binary;
+          END
           "@
-          $deploySql | Out-File -FilePath deploy_ssis.sql -Encoding utf8
-          sqlcmd -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -i deploy_ssis.sql
+          echo "$deploySql" | sqlcmd -S "$server" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -d SSISDB
         shell: pwsh
