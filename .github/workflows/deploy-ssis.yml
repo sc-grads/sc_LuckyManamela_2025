@@ -1,0 +1,37 @@
+name: Deploy SSIS Package
+
+on:
+  repository_dispatch:
+    types: [deploy_ssis]
+
+jobs:
+  deploy-ssis:
+    runs-on: [self-hosted, windows]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install SQLCMD
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/microsoft/go-sqlcmd/releases/download/v1.5.0/sqlcmd-1.5.0-windows-amd64.zip" -OutFile sqlcmd.zip
+          Expand-Archive -Path sqlcmd.zip -DestinationPath sqlcmd
+          echo "C:\sqlcmd" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        shell: pwsh
+
+      - name: Deploy SSIS Package
+        run: |
+          $dtsxPath = "HandsOnProjects/TimesheetMigration/TimesheetMigration/${{ env.SSIS_PACKAGE_NAME }}"
+          if (-not (Test-Path $dtsxPath)) { throw "SSIS package not found at $dtsxPath" }
+          $deploySql = @"
+          USE SSISDB;
+          DECLARE @folder_name NVARCHAR(128) = '${{ env.SSIS_FOLDER_NAME }}';
+          DECLARE @project_name NVARCHAR(128) = '${{ env.SSIS_PROJECT_NAME }}';
+          IF NOT EXISTS (SELECT 1 FROM catalog.folders WHERE name = @folder_name)
+          BEGIN
+              EXEC catalog.create_folder @folder_name;
+          END
+          EXEC catalog.deploy_project @folder_name, @project_name, (SELECT * FROM OPENROWSET(BULK '$dtsxPath', SINGLE_BLOB) AS BinaryData);
+          "@
+          $deploySql | Out-File -FilePath deploy_ssis.sql -Encoding utf8
+          sqlcmd -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -i deploy_ssis.sql
+        shell: pwsh
