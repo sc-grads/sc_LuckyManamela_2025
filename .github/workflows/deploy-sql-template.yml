@@ -17,55 +17,47 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      SQL_SERVER: ${{ secrets.sql_server_host }}
+      SQL_PORT: ${{ secrets.sql_server_port }}
+      SQL_USER: Auto_user
+      SQL_PASSWORD: ${{ secrets.sql_password }}
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
       - name: Install SQL Server Tools
         run: |
-          echo "Updating and installing SQL Server tools..."
+          echo "Installing SQL Server tools..."
           sudo apt-get update
           sudo apt-get install -y curl gnupg
           curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
           curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
           sudo apt-get update
           sudo apt-get install -y mssql-tools unixodbc-dev
-          echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
-          source ~/.bashrc
-
-      - name: Debug Environment Variables
-        run: |
-          echo "Environment: ${{ inputs.environment }}"
-          echo "SQL_SERVER set? $([ -n "$SQL_SERVER" ] && echo 'yes' || echo 'no')"
-          echo "SQL_PORT set? $([ -n "$SQL_PORT" ] && echo 'yes' || echo 'no')"
-          echo "SQL_USER: $SQL_USER"
-          echo "SQL_PASSWORD set? $([ -n "$SQL_PASSWORD" ] && echo 'yes' || echo 'no')"
-        env:
-          SQL_SERVER: ${{ secrets.sql_server_host }}
-          SQL_PORT: ${{ secrets.sql_server_port }}
-          SQL_USER: Auto_user
-          SQL_PASSWORD: ${{ secrets.sql_password }}
 
       - name: Execute SQL Script
-        env:
-          SQL_SERVER: ${{ secrets.sql_server_host }}
-          SQL_PORT: ${{ secrets.sql_server_port }}
-          SQL_USER: Auto_user
-          SQL_PASSWORD: ${{ secrets.sql_password }}
         run: |
           echo "Running SQL script for environment: ${{ inputs.environment }}"
-          /opt/mssql-tools/bin/sqlcmd \
-            -S "$SQL_SERVER,$SQL_PORT" \
-            -U "$SQL_USER" \
-            -P "$SQL_PASSWORD" \
-            -i "Hands on projects/DB Design/DB SQL script/create_timesheet_db.sql" \
-            -o output.log -x
+          ATTEMPT=1
+          MAX_ATTEMPTS=5
+          while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+            /opt/mssql-tools/bin/sqlcmd \
+              -S "$SQL_SERVER,$SQL_PORT" \
+              -U "$SQL_USER" \
+              -P "$SQL_PASSWORD" \
+              -i "Hands on projects/DB Design/DB SQL script/create_timesheet_db.sql" \
+              -o output.log -x && break
+            echo "sqlcmd failed. Attempt $ATTEMPT of $MAX_ATTEMPTS. Retrying in 5s..."
+            sleep 5
+            ATTEMPT=$((ATTEMPT + 1))
+          done
 
-          EXIT_CODE=$?
-          if [ $EXIT_CODE -ne 0 ]; then
-            echo "Error: sqlcmd failed with exit code $EXIT_CODE"
+          if [ $ATTEMPT -gt $MAX_ATTEMPTS ]; then
+            echo "SQL script execution failed after $MAX_ATTEMPTS attempts."
             cat output.log
-            exit $EXIT_CODE
+            exit 1
           else
             echo "SQL script executed successfully."
             cat output.log
