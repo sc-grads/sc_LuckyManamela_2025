@@ -75,11 +75,11 @@ jobs:
 
       - name: Install PowerShell Core
         run: |
-          $url = "https://github.com/PowerShell/PowerShell/releases/download/v7.4.2/PowerShell-7.4.2-win-x64.msi"
-          $output = "powershell.msi"
-          Invoke-WebRequest -Uri $url -OutFile $output
-          msiexec /package $output /quiet /norestart
-          Remove-Item $output
+          set url=https://github.com/PowerShell/PowerShell/releases/download/v7.4.2/PowerShell-7.4.2-win-x64.msi
+          set output=powershell.msi
+          powershell -Command "Invoke-WebRequest -Uri %url% -OutFile %output%"
+          msiexec /package %output% /quiet /norestart
+          del %output%
         shell: cmd
 
       - name: Install SQLCMD
