@@ -126,7 +126,7 @@ jobs:
             exit 1
           fi
           echo "Job setup completed."
-        shell: pwsh
+        shell: powershell
 
       - name: Execute SQL Server Agent Job
         run: |
