@@ -17,13 +17,13 @@ env:
   SSIS_PROJECTS_FOLDER: 'Timesheets'
   JOB_NAME: 'RunDataMigrationPackage'
   PACKAGE_NAME: 'DataMigrationFINAL'
-  SQL_SERVER: 'MANAMELA'  # Changed to retain MANAMELA as the server name
-  SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}  # Retain for compatibility
+  SQL_SERVER: 'MANAMELA'
+  SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}
   SQL_USERNAME: ${{ secrets.SQL_USERNAME }}
   SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
-  SSIS_FOLDER_NAME: TimesheetDataMigration  # From original
-  SSIS_PROJECT_NAME: Projects/Timesheets/Packages  # From original
-  SSIS_PACKAGE_NAME: TimeSheetMigration 1.dtsx  # From original
+  SSIS_FOLDER_NAME: TimesheetDataMigration
+  SSIS_PROJECT_NAME: Projects/Timesheets/Packages
+  SSIS_PACKAGE_NAME: TimeSheetMigration 1.dtsx
 
 jobs:
   deploy-database:
@@ -44,16 +44,29 @@ jobs:
           source ~/.bashrc
         shell: bash
 
+      - name: Test Network Connectivity
+        run: |
+          ping -c 4 ${{ env.SQL_SERVER }} || echo "Ping failed, server may be unreachable"
+          timeout 5 bash -c "echo > /dev/tcp/${{ env.SQL_SERVER }}/1433" && echo "Port 1433 is open" || echo "Port 1433 is closed or server is unreachable"
+        shell: bash
+
       - name: Execute SQL Script
         run: |
           if ! /opt/mssql-tools/bin/sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -N -C -d master -i scripts/TimesheetDB.sql -o output.log; then
+            sleep 5
             if ! /opt/mssql-tools/bin/sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -N -C -d master -i scripts/TimesheetDB.sql -o output.log; then
-              echo "Error: SQL script execution failed after 2 attempts. Check output.log for details."
-              cat output.log 2>/dev/null || echo "No output.log created"
-              exit 1
+              sleep 5
+              if ! /opt/mssql-tools/bin/sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -N -C -d master -i scripts/TimesheetDB.sql -o output.log; then
+                echo "Error: SQL script execution failed after 3 attempts. Check output.log for details."
+                cat output.log 2>/dev/null || echo "No output.log created"
+                exit 1
+              fi
+              echo "SQL script executed successfully on third attempt."
+              cat output.log
+            else
+              echo "SQL script executed successfully on second attempt."
+              cat output.log
             fi
-            echo "SQL script executed successfully on second attempt."
-            cat output.log
           else
             echo "SQL script executed successfully on first attempt."
             cat output.log
@@ -76,11 +89,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Check PowerShell Version
+        run: $PSVersionTable.PSVersion
+        shell: powershell
+
       - name: Set PowerShell Execution Policy
         run: Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
-        shell: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.EXE -ExecutionPolicy Bypass -Command "& {0}"
-        # Alternative: If the error persists, use inline execution
-        # shell: powershell -ExecutionPolicy Bypass -Command "Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force"
+        shell: powershell -ExecutionPolicy Bypass -Command "Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force"
+        # Removed the original shell invocation to use inline command directly
 
       - name: Debug Working Directory and File Location
         shell: powershell
@@ -193,7 +209,7 @@ jobs:
                   @delete_level=0,
                   @description=N'No description available.',
                   @category_name=N'[Uncategorized (Local)]',
-                  @owner_login_name=N'Manamela\kgali',  # Adjusted to match original script
+                  @owner_login_name=N'Manamela\kgali',
                   @job_id = @jobId OUTPUT
               IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 
