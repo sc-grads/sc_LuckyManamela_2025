@@ -75,7 +75,7 @@ jobs:
 
       - name: Set PowerShell Execution Policy
         run: Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
-        shell: powershell
+        shell: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.EXE -ExecutionPolicy Bypass -Command "& {0}"
 
       - name: Install SQLCMD
         run: |
