@@ -1,4 +1,4 @@
-name: Deploy TimesheetDB and Trigger SSIS Jobs
+name: Deploy TimesheetDB, SSIS Package, and Run Data Migration
 
 on:
   push:
@@ -6,17 +6,24 @@ on:
       - main
     paths:
       - 'scripts/**'
+      - 'HandsOnProjects/Timesheets/**'
       - 'HandsOnProjects/TimesheetMigration/TimesheetMigration/**'
   workflow_dispatch:
 
 env:
   DATABASE_NAME: TimesheetDB
-  SSIS_FOLDER_NAME: TimesheetDataMigration
-  SSIS_PROJECT_NAME: Projects/Timesheets/Packages
-  SSIS_PACKAGE_NAME: TimeSheetMigration 1.dtsx
-  SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}
+  SSIS_SOURCE_PATH: 'HandsOnProjects/Timesheets/bin/Development/Timesheets.ispac'
+  SSIS_DEST_FOLDER: 'NewDataMigration'
+  SSIS_PROJECTS_FOLDER: 'Timesheets'
+  JOB_NAME: 'RunDataMigrationPackage'
+  PACKAGE_NAME: 'DataMigrationFINAL'
+  SQL_SERVER: 'MANAMELA'  # Changed to retain MANAMELA as the server name
+  SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}  # Retain for compatibility
   SQL_USERNAME: ${{ secrets.SQL_USERNAME }}
   SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
+  SSIS_FOLDER_NAME: TimesheetDataMigration  # From original
+  SSIS_PROJECT_NAME: Projects/Timesheets/Packages  # From original
+  SSIS_PACKAGE_NAME: TimeSheetMigration 1.dtsx  # From original
 
 jobs:
   deploy-database:
@@ -66,16 +73,20 @@ jobs:
     runs-on: [self-hosted, windows]
     needs: deploy-database
     steps:
-      - name: Configure Git for long paths
-        run: git config --system core.longpaths true
-        shell: cmd
-
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set PowerShell Execution Policy
         run: Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
         shell: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.EXE -ExecutionPolicy Bypass -Command "& {0}"
+        # Alternative: If the error persists, use inline execution
+        # shell: powershell -ExecutionPolicy Bypass -Command "Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force"
+
+      - name: Debug Working Directory and File Location
+        shell: powershell
+        run: |
+          Write-Output "GITHUB_WORKSPACE: $env:GITHUB_WORKSPACE"
+          dir "$env:GITHUB_WORKSPACE\HandsOnProjects\Timesheets\bin\Development" -ErrorAction Continue
 
       - name: Install SQLCMD
         run: |
@@ -84,110 +95,166 @@ jobs:
           echo "C:\sqlcmd" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
         shell: powershell
 
-      - name: Create DeploymentJob
+      - name: Create SSIS Catalog Folder (if not exists)
+        shell: powershell
         run: |
-          $sqlScript = @"
-          USE [msdb]
-          GO
+          $sql = @"
+          USE SSISDB;
+          BEGIN TRY
+              IF NOT EXISTS (SELECT 1 FROM [catalog].[folders] WHERE name = '${{ env.SSIS_DEST_FOLDER }}')
+              BEGIN
+                  EXEC [catalog].[create_folder] @folder_name = N'${{ env.SSIS_DEST_FOLDER }}';
+                  PRINT 'Created SSIS folder: ${{ env.SSIS_DEST_FOLDER }}';
+              END
+              ELSE
+              BEGIN
+                  PRINT 'Folder already exists: ${{ env.SSIS_DEST_FOLDER }}';
+              END
+          END TRY
+          BEGIN CATCH
+              THROW;
+          END CATCH
+          "@
+          sqlcmd -S "${{ env.SQL_SERVER }}" -Q "$sql"
+
+      - name: Deploy SSIS ISPAC via T-SQL
+        shell: powershell
+        run: |
+          $ispacPath = Join-Path -Path $env:GITHUB_WORKSPACE -ChildPath "${{ env.SSIS_SOURCE_PATH }}"
+          if (-not (Test-Path $ispacPath)) {
+              Write-Error "ISPAC file not found at: $ispacPath"
+              exit 1
+          }
+
+          Write-Output "Reading ISPAC file: $ispacPath"
+          $tempSqlFile = Join-Path $env:GITHUB_WORKSPACE "deploy_project.sql"
+          $sqlContent = @"
+          DECLARE @ispac varbinary(max);
+          SELECT @ispac = BulkColumn
+          FROM OPENROWSET(BULK '$ispacPath', SINGLE_BLOB) AS ProjectBinary;
+          EXEC [SSISDB].[catalog].[deploy_project]
+              @folder_name=N'${{ env.SSIS_DEST_FOLDER }}',
+              @project_name=N'${{ env.SSIS_PROJECTS_FOLDER }}',
+              @project_stream=@ispac;
+          SELECT operation_id
+          FROM SSISDB.catalog.operations
+          WHERE created_time = (SELECT MAX(created_time) FROM SSISDB.catalog.operations);
+          "@
+
+          Write-Output "Writing SQL script to file: $tempSqlFile"
+          Set-Content -Path $tempSqlFile -Value $sqlContent -Force
+
+          Write-Output "Executing SQL script file with sqlcmd..."
+          $sqlcmdOutput = sqlcmd -S "${{ env.SQL_SERVER }}" -i $tempSqlFile -b 2>&1
+          Write-Output $sqlcmdOutput
+
+          if ($LASTEXITCODE -ne 0) {
+              Write-Error "sqlcmd failed with code $LASTEXITCODE. Output: $sqlcmdOutput"
+              exit $LASTEXITCODE
+          }
+
+          $operationId = ($sqlcmdOutput | Select-String "\d+").Matches.Value
+          if ($operationId) {
+              $sql = "SELECT message_type, message FROM SSISDB.catalog.operation_messages WHERE operation_id = $operationId"
+              Write-Output "Executing operation messages query: $sql"
+              $messages = sqlcmd -S "${{ env.SQL_SERVER }}" -Q $sql -h -1 2>&1
+              Write-Output "Operation Messages for operation_id $operationId :"
+              Write-Output $messages
+          } else {
+              Write-Output "No operation_id found, skipping operation messages query."
+          }
+
+          Write-Output "ISPAC deployed successfully to SSISDB/${{ env.SSIS_DEST_FOLDER }}/${{ env.SSIS_PROJECTS_FOLDER }}"
+
+      - name: Create SQL Agent Job
+        shell: powershell
+        run: |
+          $tempSqlFile = Join-Path $env:GITHUB_WORKSPACE "create_job.sql"
+          $sql = @"
+          USE [msdb];
           BEGIN TRANSACTION
           DECLARE @ReturnCode INT
           SELECT @ReturnCode = 0
-          IF NOT EXISTS (SELECT name FROM msdb.dbo.syscategories WHERE name=N'[Uncategorized (Local)]' AND category_class=1)
+          IF NOT EXISTS (SELECT name FROM msdb.dbo.sysjobs WHERE name = '${{ env.JOB_NAME }}')
           BEGIN
-          EXEC @ReturnCode = msdb.dbo.sp_add_category @class=N'JOB', @type=N'LOCAL', @name=N'[Uncategorized (Local)]'
-          IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-          END
-          DECLARE @jobId BINARY(16)
-          EXEC @ReturnCode = msdb.dbo.sp_add_job @job_name=N'DeploymentJob', 
-                  @enabled=1, 
-                  @notify_level_eventlog=0, 
-                  @notify_level_email=0, 
-                  @notify_level_netsend=0, 
-                  @notify_level_page=0, 
-                  @delete_level=0, 
-                  @description=N'No description available.', 
-                  @category_name=N'[Uncategorized (Local)]', 
-                  @owner_login_name=N'Manamela\kgali', @job_id = @jobId OUTPUT
-          IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-          EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RunSSISpackage', 
-                  @step_id=1, 
-                  @cmdexec_success_code=0, 
-                  @on_success_action=1, 
-                  @on_success_step_id=0, 
-                  @on_fail_action=2, 
-                  @on_fail_step_id=0, 
-                  @retry_attempts=0, 
-                  @retry_interval=0, 
-                  @os_run_priority=0, @subsystem=N'SSIS', 
-                  @command=N'/ISSERVER "\"\SSISDB\TimesheetDataMigration\TimesheetMigration\TimeSheetMigration 1.dtsx\"" /SERVER MANAMELA /Par "\"$ServerOption::LOGGING_LEVEL(Int16)\"";1 /Par "\"$ServerOption::SYNCHRONIZED(Boolean)\"";True /CALLERINFO SQLAGENT /REPORTING E', 
-                  @database_name=N'master', 
+              IF NOT EXISTS (SELECT name FROM msdb.dbo.syscategories WHERE name=N'[Uncategorized (Local)]' AND category_class=1)
+              BEGIN
+                  EXEC @ReturnCode = msdb.dbo.sp_add_category @class=N'JOB', @type=N'LOCAL', @name=N'[Uncategorized (Local)]'
+                  IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
+              END
+
+              DECLARE @jobId BINARY(16)
+              EXEC @ReturnCode = msdb.dbo.sp_add_job @job_name=N'${{ env.JOB_NAME }}',
+                  @enabled=1,
+                  @notify_level_eventlog=0,
+                  @notify_level_email=0,
+                  @notify_level_netsend=0,
+                  @notify_level_page=0,
+                  @delete_level=0,
+                  @description=N'No description available.',
+                  @category_name=N'[Uncategorized (Local)]',
+                  @owner_login_name=N'Manamela\kgali',  # Adjusted to match original script
+                  @job_id = @jobId OUTPUT
+              IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
+
+              EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'LoadTimeSheetData',
+                  @step_id=1,
+                  @cmdexec_success_code=0,
+                  @on_success_action=1,
+                  @on_success_step_id=0,
+                  @on_fail_action=2,
+                  @on_fail_step_id=0,
+                  @retry_attempts=0,
+                  @retry_interval=0,
+                  @os_run_priority=0,
+                  @subsystem=N'SSIS',
+                  @command=N'/ISSERVER "\SSISDB\${{ env.SSIS_DEST_FOLDER }}\${{ env.SSIS_PROJECTS_FOLDER }}\${{ env.PACKAGE_NAME }}" /SERVER "${{ env.SQL_SERVER }}" /Par "$ServerOption::LOGGING_LEVEL(Int16)";1 /Par "$ServerOption::SYNCHRONIZED(Boolean)";True /CALLERINFO SQLAGENT /REPORTING E',
+                  @database_name=N'master',
                   @flags=0
-          IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-          EXEC @ReturnCode = msdb.dbo.sp_update_job @job_id = @jobId, @start_step_id = 1
-          IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-          EXEC @ReturnCode = msdb.dbo.sp_add_jobserver @job_id = @jobId, @server_name = N'(local)'
-          IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-          COMMIT TRANSACTION
+              IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
+
+              EXEC @ReturnCode = msdb.dbo.sp_update_job @job_id = @jobId, @start_step_id = 1
+              IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
+
+              EXEC @ReturnCode = msdb.dbo.sp_add_jobserver @job_id = @jobId, @server_name = N'(local)'
+              IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
+
+              COMMIT TRANSACTION
+              PRINT 'Created new SQL Agent job: ${{ env.JOB_NAME }}';
+          END
+          ELSE
+          BEGIN
+              COMMIT TRANSACTION
+              PRINT 'Job already exists: ${{ env.JOB_NAME }}';
+          END
           GOTO EndSave
           QuitWithRollback:
               IF (@@TRANCOUNT > 0) ROLLBACK TRANSACTION
           EndSave:
-          GO
           "@
-          $sqlScript | Out-File -FilePath "deploy_job.sql" -Encoding UTF8
-          if (! (sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -i deploy_job.sql -o deploy_job_output.log)) {
-            echo "Error: Failed to create DeploymentJob. Check deploy_job_output.log for details."
-            type deploy_job_output.log
-            exit 1
+          Write-Output "Writing SQL script to file: $tempSqlFile"
+          Set-Content -Path $tempSqlFile -Value $sql -Force
+          Write-Output "Executing SQL script for job creation..."
+          $sqlcmdOutput = sqlcmd -S "${{ env.SQL_SERVER }}" -i $tempSqlFile -b 2>&1
+          Write-Output $sqlcmdOutput
+          if ($LASTEXITCODE -ne 0) {
+              # Check if the failure is due to the job already existing
+              if ($sqlcmdOutput -like "*The specified @name ('${{ env.JOB_NAME }}') already exists*") {
+                  Write-Output "Job '${{ env.JOB_NAME }}' already exists, continuing..."
+              } else {
+                  Write-Error "sqlcmd failed with code $LASTEXITCODE. Output: $sqlcmdOutput"
+                  exit $LASTEXITCODE
+              }
           }
-          echo "DeploymentJob created successfully."
-        shell: powershell
 
-      - name: Setup SQL Server Agent Job
-        run: |
-          $date = Get-Date -Format "yyyyMMdd"
-          $time = Get-Date -Format "HHmmss"
-          echo. > setup_job.sql
-          echo USE msdb; >> setup_job.sql
-          echo IF NOT EXISTS (SELECT 1 FROM sysjobs WHERE name = 'TimesheetProjectRun') >> setup_job.sql
-          echo BEGIN >> setup_job.sql
-          echo     EXEC dbo.sp_add_job @job_name = N'TimesheetProjectRun'; >> setup_job.sql
-          echo     EXEC sp_add_jobstep >> setup_job.sql
-          echo         @job_name = N'TimesheetProjectRun', >> setup_job.sql
-          echo         @step_name = N'Run SSIS Package', >> setup_job.sql
-          echo         @subsystem = N'SSIS', >> setup_job.sql
-          echo         @command = N'/ISSERVER "\${{ env.SSIS_FOLDER_NAME }}\${{ env.SSIS_PROJECT_NAME }}\${{ env.SSIS_PACKAGE_NAME }}" /SERVER "${{ env.SQL_SERVER_NAME }}" /Par "$ServerOption::LOGGING_LEVEL(Int16)";1 /Par "$ServerOption::SYNCHRONIZED(Boolean)";True /CALLERINFO SQLAGENT /REPORTING E', >> setup_job.sql
-          echo         @database_name = N'master'; >> setup_job.sql
-          echo     EXEC dbo.sp_add_jobschedule >> setup_job.sql
-          echo         @job_name = N'TimesheetProjectRun', >> setup_job.sql
-          echo         @name = N'RunNow', >> setup_job.sql
-          echo         @enabled = 1, >> setup_job.sql
-          echo         @freq_type = 1, >> setup_job.sql
-          echo         @active_start_date = $date, >> setup_job.sql
-          echo         @active_start_time = $time; >> setup_job.sql
-          echo     EXEC dbo.sp_add_jobserver @job_name = N'TimesheetProjectRun'; >> setup_job.sql
-          echo END >> setup_job.sql
-          echo ELSE >> setup_job.sql
-          echo BEGIN >> setup_job.sql
-          echo     EXEC sp_update_jobstep >> setup_job.sql
-          echo         @job_name = N'TimesheetProjectRun', >> setup_job.sql
-          echo         @step_id = 1, >> setup_job.sql
-          echo         @command = N'/ISSERVER "\${{ env.SSIS_FOLDER_NAME }}\${{ env.SSIS_PROJECT_NAME }}\${{ env.SSIS_PACKAGE_NAME }}" /SERVER "${{ env.SQL_SERVER_NAME }}" /Par "$ServerOption::LOGGING_LEVEL(Int16)";1 /Par "$ServerOption::SYNCHRONIZED(Boolean)";True /CALLERINFO SQLAGENT /REPORTING E'; >> setup_job.sql
-          echo END >> setup_job.sql
-          if (! (sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -i setup_job.sql -o setup_job_output.log)) {
-            echo "Error: Job setup failed. Check setup_job_output.log for details."
-            type setup_job_output.log
-            exit 1
-          }
-          echo "Job setup completed."
+      - name: Run Data Migration Job
         shell: powershell
-
-      - name: Execute SQL Server Agent Job
         run: |
-          if (! (sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -Q "EXEC msdb.dbo.sp_start_job N'TimesheetProjectRun';" -o job_execution_output.log)) {
-            echo "Error: Job execution failed. Check job_execution_output.log for details."
-            type job_execution_output.log
-            exit 1
+          $sql = "EXEC msdb.dbo.sp_start_job @job_name = N'${{ env.JOB_NAME }}'; PRINT 'Job started: ${{ env.JOB_NAME }}';"
+          Write-Output "Executing SQL to start job: $sql"
+          $sqlcmdOutput = sqlcmd -S "${{ env.SQL_SERVER }}" -Q "$sql" -b 2>&1
+          Write-Output $sqlcmdOutput
+          if ($LASTEXITCODE -ne 0) {
+              Write-Error "sqlcmd failed with code $LASTEXITCODE. Output: $sqlcmdOutput"
+              exit $LASTEXITCODE
           }
-          echo "Job executed successfully."
-        shell: cmd
