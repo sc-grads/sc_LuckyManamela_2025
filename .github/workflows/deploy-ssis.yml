@@ -1,75 +1,22 @@
-name: Deploy TimesheetDB and Trigger SSIS Jobs
+name: Deploy SSIS Packages
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'scripts/**'
-      - 'HandsOnProjects/TimesheetMigration/TimesheetMigration/**'
+  repository_dispatch:
+    types: [deploy_ssis]
   workflow_dispatch:
 
 env:
-  DATABASE_NAME: TimesheetDB
+  SSIS_PACKAGE_NAME: TimeSheetMigration 1.dtsx
   SSIS_FOLDER_NAME: TimesheetDataMigration
   SSIS_PROJECT_NAME: Projects/Timesheets/Packages
-  SSIS_PACKAGE_NAME: TimeSheetMigration 1.dtsx
   SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}
   SQL_USERNAME: ${{ secrets.SQL_USERNAME }}
   SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
 
 jobs:
-  deploy-database:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install SQL Server tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y curl gnupg
-          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-          curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
-          sudo apt-get update
-          sudo apt-get install -y mssql-tools unixodbc-dev
-          echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
-          source ~/.bashrc
-        shell: bash
-
-      - name: Execute SQL Script
-        run: |
-          if ! /opt/mssql-tools/bin/sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -N -C -d master -i scripts/TimesheetDB.sql -o output.log; then
-            if ! /opt/mssql-tools/bin/sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -N -C -d master -i scripts/TimesheetDB.sql -o output.log; then
-              echo "Error: SQL script execution failed after 2 attempts. Check output.log for details."
-              cat output.log 2>/dev/null || echo "No output.log created"
-              exit 1
-            fi
-            echo "SQL script executed successfully on second attempt."
-            cat output.log
-          else
-            echo "SQL script executed successfully on first attempt."
-            cat output.log
-          fi
-        shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
-
-      - name: Trigger Sub-Main Workflow
-        run: |
-          curl -X POST \
-            -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/repos/${{ github.repository }}/dispatches \
-            -d '{"event_type":"deploy_ssis"}'
-        shell: bash
-
-  setup-and-execute-job:
+  deploy-ssis:
     runs-on: [self-hosted, windows]
-    needs: deploy-database
     steps:
-      - name: Configure Git for long paths
-        run: git config --system core.longpaths true
-        shell: cmd
-
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -78,53 +25,43 @@ jobs:
           Invoke-WebRequest -Uri "https://github.com/microsoft/go-sqlcmd/releases/download/v1.5.0/sqlcmd-1.5.0-windows-amd64.zip" -OutFile sqlcmd.zip
           Expand-Archive -Path sqlcmd.zip -DestinationPath C:\sqlcmd
           echo "C:\sqlcmd" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-        shell: powershell
+        shell: pwsh
 
-      - name: Setup SQL Server Agent Job
+      - name: Deploy SSIS Package
         run: |
-          $date = Get-Date -Format "yyyyMMdd"
-          $time = Get-Date -Format "HHmmss"
-          echo. > setup_job.sql
-          echo USE msdb; >> setup_job.sql
-          echo IF NOT EXISTS (SELECT 1 FROM sysjobs WHERE name = 'TimesheetProjectRun') >> setup_job.sql
-          echo BEGIN >> setup_job.sql
-          echo     EXEC dbo.sp_add_job @job_name = N'TimesheetProjectRun'; >> setup_job.sql
-          echo     EXEC sp_add_jobstep >> setup_job.sql
-          echo         @job_name = N'TimesheetProjectRun', >> setup_job.sql
-          echo         @step_name = N'Run SSIS Package', >> setup_job.sql
-          echo         @subsystem = N'SSIS', >> setup_job.sql
-          echo         @command = N'/ISSERVER "\${{ env.SSIS_FOLDER_NAME }}\${{ env.SSIS_PROJECT_NAME }}\${{ env.SSIS_PACKAGE_NAME }}" /SERVER "${{ env.SQL_SERVER_NAME }}" /Par "$ServerOption::LOGGING_LEVEL(Int16)";1 /Par "$ServerOption::SYNCHRONIZED(Boolean)";True /CALLERINFO SQLAGENT /REPORTING E', >> setup_job.sql
-          echo         @database_name = N'master'; >> setup_job.sql
-          echo     EXEC dbo.sp_add_jobschedule >> setup_job.sql
-          echo         @job_name = N'TimesheetProjectRun', >> setup_job.sql
-          echo         @name = N'RunNow', >> setup_job.sql
-          echo         @enabled = 1, >> setup_job.sql
-          echo         @freq_type = 1, >> setup_job.sql
-          echo         @active_start_date = $date, >> setup_job.sql
-          echo         @active_start_time = $time; >> setup_job.sql
-          echo     EXEC dbo.sp_add_jobserver @job_name = N'TimesheetProjectRun'; >> setup_job.sql
-          echo END >> setup_job.sql
-          echo ELSE >> setup_job.sql
-          echo BEGIN >> setup_job.sql
-          echo     EXEC sp_update_jobstep >> setup_job.sql
-          echo         @job_name = N'TimesheetProjectRun', >> setup_job.sql
-          echo         @step_id = 1, >> setup_job.sql
-          echo         @command = N'/ISSERVER "\${{ env.SSIS_FOLDER_NAME }}\${{ env.SSIS_PROJECT_NAME }}\${{ env.SSIS_PACKAGE_NAME }}" /SERVER "${{ env.SQL_SERVER_NAME }}" /Par "$ServerOption::LOGGING_LEVEL(Int16)";1 /Par "$ServerOption::SYNCHRONIZED(Boolean)";True /CALLERINFO SQLAGENT /REPORTING E'; >> setup_job.sql
-          echo END >> setup_job.sql
-          if ! sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -i setup_job.sql -o setup_job_output.log; then
-            echo "Error: Job setup failed. Check setup_job_output.log for details."
-            type setup_job_output.log
-            exit 1
-          fi
-          echo "Job setup completed."
-        shell: powershell
+          $packagePath = "${{ github.workspace }}\HandsOnProjects\TimesheetMigration\TimesheetMigration\${{ env.SSIS_PACKAGE_NAME }}"
+          if (-not (Test-Path $packagePath)) { throw "SSIS package not found at $packagePath" }
+          if ((Get-Item $packagePath).Length -eq 0) { throw "SSIS package at $packagePath is empty" }
+          $server = "${{ env.SQL_SERVER_NAME }}"
+          $folderName = "${{ env.SSIS_FOLDER_NAME }}"
+          $projectName = "${{ env.SSIS_PROJECT_NAME }}"
 
-      - name: Execute SQL Server Agent Job
-        run: |
-          if ! sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -Q "EXEC msdb.dbo.sp_start_job N'TimesheetProjectRun';" -o job_execution_output.log; then
-            echo "Error: Job execution failed. Check job_execution_output.log for details."
-            type job_execution_output.log
-            exit 1
-          fi
-          echo "Job executed successfully."
-        shell: cmd
+          # Create SSISDB folder if it doesn't exist
+          $sqlCreateFolder = @"
+          USE SSISDB;
+          IF NOT EXISTS (SELECT 1 FROM catalog.folders WHERE name = N'$folderName')
+          BEGIN
+              EXEC catalog.create_folder @folder_name = N'$folderName';
+          END
+          "@
+          $createOutput = echo "$sqlCreateFolder" | sqlcmd -S "$server" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -N -C -d SSISDB
+          if ($LASTEXITCODE -ne 0) { throw "Folder creation failed. Output: $createOutput" }
+
+          # Deploy package as a project
+          $deploySql = @"
+          USE SSISDB;
+          DECLARE @folder_id bigint = (SELECT folder_id FROM catalog.folders WHERE name = N'$folderName');
+          DECLARE @project_binary varbinary(max) = (SELECT * FROM OPENROWSET(BULK N'$packagePath', SINGLE_BLOB) AS BinaryData);
+          IF NOT EXISTS (SELECT 1 FROM catalog.projects WHERE name = N'$projectName' AND folder_id = @folder_id)
+          BEGIN
+              EXEC catalog.deploy_project @folder_name = N'$folderName', @project_name = N'$projectName', @project_stream = @project_binary;
+          END
+          ELSE
+          BEGIN
+              EXEC catalog.update_project @folder_name = N'$folderName', @project_name = N'$projectName', @project_stream = @project_binary;
+          END
+          "@
+          $deployOutput = echo "$deploySql" | sqlcmd -S "$server" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -N -C -d SSISDB
+          if ($LASTEXITCODE -ne 0) { throw "Package deployment failed. Output: $deployOutput" }
+          echo "SSIS package deployed successfully."
+        shell: powershell

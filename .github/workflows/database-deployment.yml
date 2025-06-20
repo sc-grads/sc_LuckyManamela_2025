@@ -73,15 +73,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install PowerShell Core
-        run: |
-          set url=https://github.com/PowerShell/PowerShell/releases/download/v7.4.2/PowerShell-7.4.2-win-x64.msi
-          set output=powershell.msi
-          powershell -Command "Invoke-WebRequest -Uri %url% -OutFile %output%"
-          msiexec /package %output% /quiet /norestart
-          del %output%
-        shell: cmd
-
       - name: Install SQLCMD
         run: |
           Invoke-WebRequest -Uri "https://github.com/microsoft/go-sqlcmd/releases/download/v1.5.0/sqlcmd-1.5.0-windows-amd64.zip" -OutFile sqlcmd.zip
