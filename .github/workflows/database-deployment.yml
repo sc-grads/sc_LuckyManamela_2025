@@ -73,6 +73,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set PowerShell Execution Policy
+        run: Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
+        shell: powershell
+
       - name: Install SQLCMD
         run: |
           Invoke-WebRequest -Uri "https://github.com/microsoft/go-sqlcmd/releases/download/v1.5.0/sqlcmd-1.5.0-windows-amd64.zip" -OutFile sqlcmd.zip
@@ -111,20 +115,20 @@ jobs:
           echo         @step_id = 1, >> setup_job.sql
           echo         @command = N'/ISSERVER "\${{ env.SSIS_FOLDER_NAME }}\${{ env.SSIS_PROJECT_NAME }}\${{ env.SSIS_PACKAGE_NAME }}" /SERVER "${{ env.SQL_SERVER_NAME }}" /Par "$ServerOption::LOGGING_LEVEL(Int16)";1 /Par "$ServerOption::SYNCHRONIZED(Boolean)";True /CALLERINFO SQLAGENT /REPORTING E'; >> setup_job.sql
           echo END >> setup_job.sql
-          if ! sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -i setup_job.sql -o setup_job_output.log; then
+          if (! (sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -i setup_job.sql -o setup_job_output.log)) {
             echo "Error: Job setup failed. Check setup_job_output.log for details."
             type setup_job_output.log
             exit 1
-          fi
+          }
           echo "Job setup completed."
         shell: powershell
 
       - name: Execute SQL Server Agent Job
         run: |
-          if ! sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -Q "EXEC msdb.dbo.sp_start_job N'TimesheetProjectRun';" -o job_execution_output.log; then
+          if (! (sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -Q "EXEC msdb.dbo.sp_start_job N'TimesheetProjectRun';" -o job_execution_output.log)) {
             echo "Error: Job execution failed. Check job_execution_output.log for details."
             type job_execution_output.log
             exit 1
-          fi
+          }
           echo "Job executed successfully."
         shell: cmd
