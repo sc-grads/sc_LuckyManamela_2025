@@ -20,7 +20,7 @@ env:
 
 jobs:
   deploy-database:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Explicitly set to ensure Ubuntu usage
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -49,7 +49,6 @@ jobs:
             cat output.log
           fi
         shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
-              
 
       - name: Trigger Sub-Main Workflow
         run: |
@@ -76,6 +75,8 @@ jobs:
 
       - name: Setup SQL Server Agent Job
         run: |
+          $date = Get-Date -Format "yyyyMMdd"
+          $time = Get-Date -Format "HHmmss"
           echo. > setup_job.sql
           echo USE msdb; >> setup_job.sql
           echo IF NOT EXISTS (SELECT 1 FROM sysjobs WHERE name = 'TimesheetProjectRun') >> setup_job.sql
@@ -85,15 +86,15 @@ jobs:
           echo         @job_name = N'TimesheetProjectRun', >> setup_job.sql
           echo         @step_name = N'Run SSIS Package', >> setup_job.sql
           echo         @subsystem = N'SSIS', >> setup_job.sql
-          echo         @command = N'/ISSERVER "\${{ env.SSIS_FOLDER_NAME }}\${{ env.SSIS_PROJECT_NAME }}\${{ env.SSIS_PACKAGE_NAME }}" /SERVER "MANAMELA" /Par "$ServerOption::LOGGING_LEVEL(Int16)";1 /Par "$ServerOption::SYNCHRONIZED(Boolean)";True /CALLERINFO SQLAGENT /REPORTING E', >> setup_job.sql
+          echo         @command = N'/ISSERVER "\${{ env.SSIS_FOLDER_NAME }}\${{ env.SSIS_PROJECT_NAME }}\${{ env.SSIS_PACKAGE_NAME }}" /SERVER "${{ env.SQL_SERVER_NAME }}" /Par "$ServerOption::LOGGING_LEVEL(Int16)";1 /Par "$ServerOption::SYNCHRONIZED(Boolean)";True /CALLERINFO SQLAGENT /REPORTING E', >> setup_job.sql
           echo         @database_name = N'master'; >> setup_job.sql
           echo     EXEC dbo.sp_add_jobschedule >> setup_job.sql
           echo         @job_name = N'TimesheetProjectRun', >> setup_job.sql
           echo         @name = N'RunNow', >> setup_job.sql
           echo         @enabled = 1, >> setup_job.sql
           echo         @freq_type = 1, >> setup_job.sql
-          echo         @active_start_date = %date:~10,4%%date:~4,2%%date:~7,2%, >> setup_job.sql
-          echo         @active_start_time = %time:~0,2%%time:~3,2%%time:~6,2%; >> setup_job.sql
+          echo         @active_start_date = $date, >> setup_job.sql
+          echo         @active_start_time = $time; >> setup_job.sql
           echo     EXEC dbo.sp_add_jobserver @job_name = N'TimesheetProjectRun'; >> setup_job.sql
           echo END >> setup_job.sql
           echo ELSE >> setup_job.sql
@@ -101,19 +102,21 @@ jobs:
           echo     EXEC sp_update_jobstep >> setup_job.sql
           echo         @job_name = N'TimesheetProjectRun', >> setup_job.sql
           echo         @step_id = 1, >> setup_job.sql
-          echo         @command = N'/ISSERVER "\${{ env.SSIS_FOLDER_NAME }}\${{ env.SSIS_PROJECT_NAME }}\${{ env.SSIS_PACKAGE_NAME }}" /SERVER "MANAMELA" /Par "$ServerOption::LOGGING_LEVEL(Int16)";1 /Par "$ServerOption::SYNCHRONIZED(Boolean)";True /CALLERINFO SQLAGENT /REPORTING E'; >> setup_job.sql
+          echo         @command = N'/ISSERVER "\${{ env.SSIS_FOLDER_NAME }}\${{ env.SSIS_PROJECT_NAME }}\${{ env.SSIS_PACKAGE_NAME }}" /SERVER "${{ env.SQL_SERVER_NAME }}" /Par "$ServerOption::LOGGING_LEVEL(Int16)";1 /Par "$ServerOption::SYNCHRONIZED(Boolean)";True /CALLERINFO SQLAGENT /REPORTING E'; >> setup_job.sql
           echo END >> setup_job.sql
-          if ! sqlcmd -b -S "MANAMELA" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -i setup_job.sql; then
-            echo "Error: Job setup failed."
+          if ! sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -i setup_job.sql -o setup_job_output.log; then
+            echo "Error: Job setup failed. Check setup_job_output.log for details."
+            type setup_job_output.log
             exit 1
           fi
           echo "Job setup completed."
-        shell: cmd
+        shell: pwsh
 
       - name: Execute SQL Server Agent Job
         run: |
-          if ! sqlcmd -b -S "MANAMELA" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -Q "EXEC msdb.dbo.sp_start_job N'TimesheetProjectRun';"; then
-            echo "Error: Job execution failed."
+          if ! sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -Q "EXEC msdb.dbo.sp_start_job N'TimesheetProjectRun';" -o job_execution_output.log; then
+            echo "Error: Job execution failed. Check job_execution_output.log for details."
+            type job_execution_output.log
             exit 1
           fi
           echo "Job executed successfully."
