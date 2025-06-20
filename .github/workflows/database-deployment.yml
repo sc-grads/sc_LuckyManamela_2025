@@ -39,14 +39,17 @@ jobs:
 
       - name: Execute SQL Script
         run: |
-          if ! /opt/mssql-tools/bin/sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -N -d master -i scripts/TimesheetDB.sql -o output.log; then
-            echo "Error: SQL script execution failed. Check output.log for details."
+          if ! /opt/mssql-tools/bin/sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -N -C -d master -i scripts/TimesheetDB.sql -o output.log; then
+            if ! /opt/mssql-tools/bin/sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -N -C -d master -i scripts/TimesheetDB.sql -o output.log; then
+              echo "Error: SQL script execution failed. Check output.log for details."
+              cat output.log
+              exit 1
+            fi
+            echo "SQL script executed successfully."
             cat output.log
-            exit 1
           fi
-          echo "SQL script executed successfully."
-          cat output.log
-        shell: bash
+        shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+              
 
       - name: Trigger Sub-Main Workflow
         run: |
