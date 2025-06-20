@@ -20,7 +20,7 @@ env:
 
 jobs:
   deploy-database:
-    runs-on: ubuntu-latest  # Explicitly set to ensure Ubuntu usage
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -41,11 +41,14 @@ jobs:
         run: |
           if ! /opt/mssql-tools/bin/sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -N -C -d master -i scripts/TimesheetDB.sql -o output.log; then
             if ! /opt/mssql-tools/bin/sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -N -C -d master -i scripts/TimesheetDB.sql -o output.log; then
-              echo "Error: SQL script execution failed. Check output.log for details."
-              cat output.log
+              echo "Error: SQL script execution failed after 2 attempts. Check output.log for details."
+              cat output.log 2>/dev/null || echo "No output.log created"
               exit 1
             fi
-            echo "SQL script executed successfully."
+            echo "SQL script executed successfully on second attempt."
+            cat output.log
+          else
+            echo "SQL script executed successfully on first attempt."
             cat output.log
           fi
         shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
@@ -63,13 +66,17 @@ jobs:
     runs-on: [self-hosted, windows]
     needs: deploy-database
     steps:
+      - name: Configure Git for long paths
+        run: git config --system core.longpaths true
+        shell: cmd
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Install SQLCMD
         run: |
           Invoke-WebRequest -Uri "https://github.com/microsoft/go-sqlcmd/releases/download/v1.5.0/sqlcmd-1.5.0-windows-amd64.zip" -OutFile sqlcmd.zip
-          Expand-Archive -Path sqlcmd.zip -DestinationPath sqlcmd
+          Expand-Archive -Path sqlcmd.zip -DestinationPath C:\sqlcmd
           echo "C:\sqlcmd" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
         shell: pwsh
 
