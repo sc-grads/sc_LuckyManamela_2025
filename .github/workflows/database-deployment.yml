@@ -87,7 +87,7 @@ jobs:
           Invoke-WebRequest -Uri "https://github.com/microsoft/go-sqlcmd/releases/download/v1.5.0/sqlcmd-1.5.0-windows-amd64.zip" -OutFile sqlcmd.zip
           Expand-Archive -Path sqlcmd.zip -DestinationPath C:\sqlcmd
           echo "C:\sqlcmd" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-        shell: pwsh
+        shell: powershell
 
       - name: Setup SQL Server Agent Job
         run: |
