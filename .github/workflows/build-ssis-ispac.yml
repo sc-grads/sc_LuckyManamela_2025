@@ -1,0 +1,60 @@
+name: Build SSIS ISPAC
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'HandsOnProjects/TimesheetMigration/TimesheetMigration/**.dtproj'
+      - 'HandsOnProjects/TimesheetMigration/TimesheetMigration/**.dtsx'
+      - '.github/workflows/build-ssis-ispac.yml'
+
+env:
+  PROJECT_PATH: HandsOnProjects/TimesheetMigration/TimesheetMigration/TimesheetMigration.dtproj
+  CONFIGURATION: Development
+
+jobs:
+  build-ssis:
+    runs-on: [self-hosted, windows]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set PowerShell Execution Policy
+        run: Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
+        shell: powershell
+
+      - name: Locate MSBuild
+        id: find-msbuild
+        shell: powershell
+        run: |
+          $paths = @(
+            "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\MSBuild.exe",
+            "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin\MSBuild.exe",
+            "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\MSBuild.exe"
+          )
+          foreach ($path in $paths) {
+            if (Test-Path $path) {
+              echo "::set-output name=msbuild::$path"
+              break
+            }
+          }
+
+      - name: Build SSIS Project to Generate ISPAC
+        run: |
+          $msbuild = "${{ steps.find-msbuild.outputs.msbuild }}"
+          if (-not $msbuild) {
+            throw "MSBuild not found. Please ensure Visual Studio Build Tools are installed."
+          }
+          & $msbuild "${{ github.workspace }}\${{ env.PROJECT_PATH }}" /p:Configuration=${{ env.CONFIGURATION }}
+          if ($LASTEXITCODE -ne 0) {
+            throw "Build failed"
+          } else {
+            Write-Host "SSIS project built successfully."
+          }
+        shell: powershell
+
+      - name: List Output Files
+        run: |
+          Get-ChildItem -Path "${{ github.workspace }}\HandsOnProjects\TimesheetMigration\TimesheetMigration\bin\${{ env.CONFIGURATION }}" -Filter *.ispac -Recurse
+        shell: powershell

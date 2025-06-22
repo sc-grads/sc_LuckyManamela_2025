@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
 
 env:
-  SSIS_PACKAGE_NAME: TimeSheetMigration 1.dtsx
+  SSIS_ISPAC_NAME: TimesheetMigration.ispac
   SSIS_FOLDER_NAME: TimesheetDataMigration
-  SSIS_PROJECT_NAME: Projects/Timesheets/Packages
+  SSIS_PROJECT_NAME: Timesheets
   SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}
   SQL_USERNAME: ${{ secrets.SQL_USERNAME }}
   SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
@@ -20,48 +20,32 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set PowerShell Execution Policy
+        run: Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
+        shell: powershell
+
       - name: Install SQLCMD
         run: |
           Invoke-WebRequest -Uri "https://github.com/microsoft/go-sqlcmd/releases/download/v1.5.0/sqlcmd-1.5.0-windows-amd64.zip" -OutFile sqlcmd.zip
           Expand-Archive -Path sqlcmd.zip -DestinationPath C:\sqlcmd
-          echo "C:\sqlcmd" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-        shell: pwsh
+          $env:Path += ";C:\sqlcmd"
+        shell: powershell
 
-      - name: Deploy SSIS Package
+      - name: Deploy SSIS ISPAC File
         run: |
-          $packagePath = "${{ github.workspace }}\HandsOnProjects\TimesheetMigration\TimesheetMigration\${{ env.SSIS_PACKAGE_NAME }}"
-          if (-not (Test-Path $packagePath)) { throw "SSIS package not found at $packagePath" }
-          if ((Get-Item $packagePath).Length -eq 0) { throw "SSIS package at $packagePath is empty" }
-          $server = "${{ env.SQL_SERVER_NAME }}"
-          $folderName = "${{ env.SSIS_FOLDER_NAME }}"
-          $projectName = "${{ env.SSIS_PROJECT_NAME }}"
-
-          # Create SSISDB folder if it doesn't exist
-          $sqlCreateFolder = @"
+          $ispacPath = "${{ github.workspace }}\HandsOnProjects\TimesheetMigration\TimesheetMigration\${{ env.SSIS_ISPAC_NAME }}"
+          if (-not (Test-Path $ispacPath)) { throw "ISPAC file not found at $ispacPath" }
+          $sql = @"
           USE SSISDB;
-          IF NOT EXISTS (SELECT 1 FROM catalog.folders WHERE name = N'$folderName')
-          BEGIN
-              EXEC catalog.create_folder @folder_name = N'$folderName';
-          END
-          "@
-          $createOutput = echo "$sqlCreateFolder" | sqlcmd -S "$server" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -N -C -d SSISDB
-          if ($LASTEXITCODE -ne 0) { throw "Folder creation failed. Output: $createOutput" }
+          IF NOT EXISTS (SELECT 1 FROM catalog.folders WHERE name = N'${{ env.SSIS_FOLDER_NAME }}')
+              EXEC catalog.create_folder @folder_name = N'${{ env.SSIS_FOLDER_NAME }}';
 
-          # Deploy package as a project
-          $deploySql = @"
-          USE SSISDB;
-          DECLARE @folder_id bigint = (SELECT folder_id FROM catalog.folders WHERE name = N'$folderName');
-          DECLARE @project_binary varbinary(max) = (SELECT * FROM OPENROWSET(BULK N'$packagePath', SINGLE_BLOB) AS BinaryData);
-          IF NOT EXISTS (SELECT 1 FROM catalog.projects WHERE name = N'$projectName' AND folder_id = @folder_id)
-          BEGIN
-              EXEC catalog.deploy_project @folder_name = N'$folderName', @project_name = N'$projectName', @project_stream = @project_binary;
-          END
-          ELSE
-          BEGIN
-              EXEC catalog.update_project @folder_name = N'$folderName', @project_name = N'$projectName', @project_stream = @project_binary;
-          END
+          DECLARE @project varbinary(max);
+          SELECT @project = BulkColumn FROM OPENROWSET(BULK N'$ispacPath', SINGLE_BLOB) AS BinaryData;
+          EXEC catalog.deploy_project 
+              @folder_name = N'${{ env.SSIS_FOLDER_NAME }}', 
+              @project_name = N'${{ env.SSIS_PROJECT_NAME }}', 
+              @project_stream = @project;
           "@
-          $deployOutput = echo "$deploySql" | sqlcmd -S "$server" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -N -C -d SSISDB
-          if ($LASTEXITCODE -ne 0) { throw "Package deployment failed. Output: $deployOutput" }
-          echo "SSIS package deployed successfully."
+          sqlcmd -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -Q $sql
         shell: powershell

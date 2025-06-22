@@ -1,0 +1,121 @@
+name: Deploy TimesheetDB, SSIS Package, and Run Data Migration
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'scripts/**'
+      - 'HandsOnProjects/Timesheets/**'
+      - 'HandsOnProjects/TimesheetMigration/TimesheetMigration/**'
+  workflow_dispatch:
+
+env:
+  DATABASE_NAME: TimesheetDB
+  SSIS_SOURCE_PATH: 'HandsOnProjects/Timesheets/bin/Development/Timesheets.ispac'
+  SSIS_DEST_FOLDER: NewDataMigration
+  SSIS_PROJECTS_FOLDER: Timesheets
+  JOB_NAME: 'RunDataMigrationPackage'
+  PACKAGE_NAME: 'DataMigrationFINAL'
+  SQL_SERVER: MANAMELA
+  SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}
+  SQL_USERNAME: ${{ secrets.SQL_USERNAME }}
+  SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
+  SSIS_FOLDER_NAME: TimesheetDataMigration
+  SSIS_PROJECT_NAME: Projects/Timesheets/Packages
+  SSIS_PACKAGE_NAME: TimesheetMigration.ispac
+
+jobs:
+  deploy-database:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install SQL Server tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl gnupg
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+          curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
+          sudo apt-get update
+          sudo apt-get install -y mssql-tools unixodbc-dev
+          echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
+          source ~/.bashrc
+        shell: bash
+
+      - name: Test Network Connectivity
+        run: |
+          ping -c 4 ${{ env.SQL_SERVER }} || echo "Ping failed"
+          timeout 5 bash -c "echo > /dev/tcp/${{ env.SQL_SERVER }}/1433" && echo "Port 1433 is open" || echo "Port 1433 is closed"
+        shell: bash
+
+      - name: Execute SQL Script
+        run: |
+          /opt/mssql-tools/bin/sqlcmd -b -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -N -C -d master -i scripts/TimesheetDB.sql
+        shell: bash
+
+      - name: Trigger Sub-Main Workflow
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/dispatches \
+            -d '{"event_type":"deploy_ssis"}'
+        shell: bash
+
+  setup-and-execute-job:
+    runs-on: [self-hosted, windows]
+    needs: deploy-database
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set PowerShell Execution Policy
+        run: Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
+        shell: powershell
+
+      - name: Install SQLCMD
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/microsoft/go-sqlcmd/releases/download/v1.5.0/sqlcmd-1.5.0-windows-amd64.zip" -OutFile sqlcmd.zip
+          Expand-Archive -Path sqlcmd.zip -DestinationPath C:\sqlcmd
+          $env:Path += ";C:\sqlcmd"
+        shell: powershell
+
+      - name: Deploy SSIS ISPAC to Catalog
+        run: |
+          $ispacPath = "${{ github.workspace }}\${{ env.SSIS_SOURCE_PATH }}"
+          if (-not (Test-Path $ispacPath)) {
+              Write-Error "ISPAC file not found at $ispacPath"
+              exit 1
+          }
+          $sql = @"
+          DECLARE @project varbinary(max);
+          SELECT @project = BulkColumn FROM OPENROWSET(BULK N'$ispacPath', SINGLE_BLOB) AS BinaryData;
+          EXEC SSISDB.catalog.deploy_project 
+              @folder_name = N'${{ env.SSIS_DEST_FOLDER }}', 
+              @project_name = N'${{ env.SSIS_PROJECTS_FOLDER }}', 
+              @project_stream = @project;
+          "@
+          sqlcmd -S "${{ env.SQL_SERVER }}" -Q $sql
+        shell: powershell
+
+      - name: Create and Run SQL Agent Job
+        run: |
+          $sql = @"
+          IF NOT EXISTS (SELECT 1 FROM msdb.dbo.sysjobs WHERE name = '${{ env.JOB_NAME }}')
+          BEGIN
+              DECLARE @jobId UNIQUEIDENTIFIER
+              EXEC msdb.dbo.sp_add_job @job_name=N'${{ env.JOB_NAME }}', @enabled=1, @job_id=@jobId OUTPUT
+              EXEC msdb.dbo.sp_add_jobstep 
+                  @job_id=@jobId, 
+                  @step_name=N'RunSSIS', 
+                  @subsystem=N'SSIS', 
+                  @command=N'/ISSERVER "\SSISDB\${{ env.SSIS_DEST_FOLDER }}\${{ env.SSIS_PROJECTS_FOLDER }}\${{ env.PACKAGE_NAME }}" /SERVER "${{ env.SQL_SERVER }}"',
+                  @database_name=N'master'
+              EXEC msdb.dbo.sp_add_jobserver @job_id=@jobId, @server_name=N'(local)'
+          END
+          EXEC msdb.dbo.sp_start_job @job_name=N'${{ env.JOB_NAME }}'
+          "@
+          sqlcmd -S "${{ env.SQL_SERVER }}" -Q $sql
+        shell: powershell
