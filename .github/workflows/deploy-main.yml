@@ -87,15 +87,15 @@ jobs:
     runs-on: [self-hosted, windows]
     needs: deploy-database
     steps:
+      - name: Set PowerShell Execution Policy
+        run: Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
+        shell: powershell
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Check PowerShell Version
         run: $PSVersionTable.PSVersion
-        shell: powershell
-
-      - name: Set PowerShell Execution Policy
-        run: Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
         shell: powershell
 
       - name: Debug Working Directory and File Location
