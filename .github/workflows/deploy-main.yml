@@ -33,17 +33,30 @@ jobs:
 
       - name: Install SQL Server tools
         run: |
+          # Remove any existing Microsoft repository files to avoid conflicts
+          sudo rm -f /etc/apt/sources.list.d/msprod.list
+          sudo rm -f /etc/apt/sources.list.d/mssql-tools.list
+
+          # Install required dependencies
           sudo apt-get update
           sudo apt-get install -y curl gnupg
+
+          # Import Microsoft GPG key non-interactively
           curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /tmp/microsoft-prod.gpg
           sudo mv /tmp/microsoft-prod.gpg /usr/share/keyrings/microsoft-prod.gpg
           chmod 644 /usr/share/keyrings/microsoft-prod.gpg
+
+          # Add Microsoft repository for Ubuntu 24.04 (noble)
           echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft-prod.gpg] https://packages.microsoft.com/ubuntu/24.04/prod noble main" | sudo tee /etc/apt/sources.list.d/mssql-tools.list
+
+          # Update package list and install tools
           sudo apt-get update
           sudo apt-get install -y mssql-tools unixodbc-dev
+
+          # Add mssql-tools to PATH
           echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
           source ~/.bashrc
-        shell: bash
+        shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
 
       - name: Test Network Connectivity
         run: |
@@ -70,7 +83,7 @@ jobs:
           fi
         shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
 
-      # Removed Trigger Sub-Main Workflow as SSIS is handled in this job
+      # Removed Trigger Sub-Main Workflow as SSIS is handled in setup-and-execute-job
 
   setup-and-execute-job:
     runs-on: [self-hosted, windows]
@@ -203,7 +216,7 @@ jobs:
                   @delete_level=0,
                   @description=N'No description available.',
                   @category_name=N'[Uncategorized (Local)]',
-                  @owner_login_name=N'sa', -- Changed to 'sa' for simplicity; adjust as needed
+                  @owner_login_name=N'sa', -- Adjust as needed
                   @job_id = @jobId OUTPUT
               IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 
