@@ -83,12 +83,16 @@ jobs:
         shell: powershell
         run: Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 
-      - name: Install SQLCMD
+      - name: Install SQL Server tools
         run: |
-          Invoke-WebRequest -Uri "https://github.com/microsoft/go-sqlcmd/releases/download/v1.8.2/sqlcmd-windows-amd64.zip" -OutFile sqlcmd.zip
-          Expand-Archive -Path sqlcmd.zip -DestinationPath C:\sqlcmd -Force
-          echo "C:\sqlcmd" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-        shell: powershell
+          curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+          sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/20.04/prod.list)"
+          sudo apt-get update
+          sudo ACCEPT_EULA=Y apt-get install -y mssql-tools unixodbc-dev
+          echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
+          source ~/.bashrc
+        shell: bash
+
 
       - name: Create SSIS folder if not exists
         shell: powershell
