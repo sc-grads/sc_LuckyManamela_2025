@@ -33,7 +33,10 @@ jobs:
 
       - name: Install mssql-tools
         run: |
-          curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
+          # Import Microsoft GPG key non-interactively
+          curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /tmp/microsoft-prod.gpg
+          sudo mv /tmp/microsoft-prod.gpg /usr/share/keyrings/microsoft-prod.gpg
+          chmod 644 /usr/share/keyrings/microsoft-prod.gpg
           curl -fsSL https://packages.microsoft.com/config/ubuntu/24.04/prod.list | sudo tee /etc/apt/sources.list.d/mssql-tools.list
           sudo apt-get update
           sudo apt-get install -y mssql-tools unixodbc-dev
@@ -44,10 +47,19 @@ jobs:
       - name: Execute SQL script with retries
         run: |
           for i in 1 2 3; do
-            /opt/mssql-tools/bin/sqlcmd -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -d master -i scripts/TimesheetDB.sql -b && break || {
-              echo "Attempt $i failed, retrying..."
+            if /opt/mssql-tools/bin/sqlcmd -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -d master -i scripts/TimesheetDB.sql -b -o output.log; then
+              echo "SQL script executed successfully on attempt $i."
+              cat output.log
+              break
+            else
+              echo "Attempt $i failed, retrying... Check output.log"
+              cat output.log
               sleep 5
-            }
+              if [ $i -eq 3 ]; then
+                echo "All retries failed. Exiting."
+                exit 1
+              fi
+            fi
           done
         shell: bash
 
@@ -58,6 +70,7 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             https://api.github.com/repos/${{ github.repository }}/dispatches \
             -d '{"event_type":"deploy_ssis"}'
+        shell: bash
 
   deploy-ssis-and-run-job:
     runs-on: [self-hosted, windows]
@@ -75,7 +88,7 @@ jobs:
         run: |
           Invoke-WebRequest -Uri "https://github.com/microsoft/go-sqlcmd/releases/download/v1.8.2/sqlcmd-windows-amd64.zip" -OutFile "sqlcmd.zip"
           Expand-Archive -Path "sqlcmd.zip" -DestinationPath "C:\sqlcmd" -Force
-          $env:Path += ";C:\sqlcmd"
+          echo "C:\sqlcmd" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Deploy SSIS Project
         shell: powershell
@@ -93,16 +106,53 @@ jobs:
               @project_name = N'${{ env.SSIS_PROJECTS_FOLDER }}',
               @project_stream = @ispac;
           "@
-          sqlcmd -S ${{ env.SQL_SERVER_NAME }} -U ${{ env.SQL_USERNAME }} -P "${{ env.SQL_PASSWORD }}" -d SSISDB -Q $sql
+          $result = sqlcmd -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -d SSISDB -Q $sql
+          if ($LASTEXITCODE -ne 0) {
+              Write-Error "SSIS deployment failed. Output: $result"
+              exit 1
+          }
+          Write-Output "SSIS project deployed successfully."
 
       - name: Create SQL Agent Job to run package
         shell: powershell
         run: |
           $jobName = '${{ env.JOB_NAME }}'
+          $date = Get-Date -Format "yyyyMMdd"
+          $time = Get-Date -Format "HHmmss"
           $sql = @"
+          USE msdb;
           IF NOT EXISTS (SELECT * FROM msdb.dbo.sysjobs WHERE name = N'$jobName')
           BEGIN
             EXEC msdb.dbo.sp_add_job @job_name=N'$jobName';
             EXEC msdb.dbo.sp_add_jobstep @job_name=N'$jobName', @step_name=N'Run SSIS Package',
               @subsystem=N'SSIS',
-              @command=N'/ISSERVER "\SSISDB\${{ env.SSIS_DEST_FOLDER }}\${{ env.SSIS_PROJECTS_FOLDER }}\${{ env.PACKAGE_NAME }}" /SERVER "${{ env.SQL_SERVER_NAME }}" /REPORT
+              @command=N'/ISSERVER "\SSISDB\${{ env.SSIS_DEST_FOLDER }}\${{ env.SSIS_PROJECTS_FOLDER }}\${{ env.PACKAGE_NAME }}" /SERVER "${{ env.SQL_SERVER_NAME }}" /Par "$ServerOption::LOGGING_LEVEL(Int16)";1 /Par "$ServerOption::SYNCHRONIZED(Boolean)";True /CALLERINFO SQLAGENT /REPORTING E',
+              @database_name=N'master';
+            EXEC msdb.dbo.sp_add_jobschedule @job_name=N'$jobName', @name=N'RunOnce',
+              @enabled=1, @freq_type=1, @active_start_date=$date, @active_start_time=$time;
+            EXEC msdb.dbo.sp_add_jobserver @job_name=N'$jobName';
+          END
+          ELSE
+          BEGIN
+            EXEC msdb.dbo.sp_update_jobstep @job_name=N'$jobName', @step_id=1,
+              @command=N'/ISSERVER "\SSISDB\${{ env.SSIS_DEST_FOLDER }}\${{ env.SSIS_PROJECTS_FOLDER }}\${{ env.PACKAGE_NAME }}" /SERVER "${{ env.SQL_SERVER_NAME }}" /Par "$ServerOption::LOGGING_LEVEL(Int16)";1 /Par "$ServerOption::SYNCHRONIZED(Boolean)";True /CALLERINFO SQLAGENT /REPORTING E';
+          END
+          "@
+          $result = sqlcmd -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -d msdb -Q $sql -o job_setup.log
+          if ($LASTEXITCODE -ne 0) {
+              Write-Error "Job creation failed. Check job_setup.log. Output: $result"
+              Get-Content job_setup.log
+              exit 1
+          }
+          Write-Output "SQL Agent job created successfully."
+
+      - name: Execute SQL Agent Job
+        shell: powershell
+        run: |
+          $result = sqlcmd -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -d msdb -Q "EXEC dbo.sp_start_job N'${{ env.JOB_NAME }}'" -o job_execution.log
+          if ($LASTEXITCODE -ne 0) {
+              Write-Error "Job execution failed. Check job_execution.log. Output: $result"
+              Get-Content job_execution.log
+              exit 1
+          }
+          Write-Output "SQL Agent job executed successfully."
