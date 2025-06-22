@@ -33,19 +33,23 @@ jobs:
 
       - name: Install mssql-tools
         run: |
+          curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
+          curl -fsSL https://packages.microsoft.com/config/ubuntu/24.04/prod.list | sudo tee /etc/apt/sources.list.d/mssql-tools.list
           sudo apt-get update
           sudo apt-get install -y mssql-tools unixodbc-dev
           echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
           source ~/.bashrc
+        shell: bash
 
       - name: Execute SQL script with retries
         run: |
           for i in 1 2 3; do
-            /opt/mssql-tools/bin/sqlcmd -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -d master -i scripts/TimesheetDB.sql && break || {
+            /opt/mssql-tools/bin/sqlcmd -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -d master -i scripts/TimesheetDB.sql -b && break || {
               echo "Attempt $i failed, retrying..."
               sleep 5
             }
           done
+        shell: bash
 
       - name: Trigger SSIS deploy workflow
         run: |
@@ -64,6 +68,14 @@ jobs:
 
       - name: Ensure PowerShell execution policy
         run: Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+        shell: powershell
+
+      - name: Install sqlcmd
+        shell: powershell
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/microsoft/go-sqlcmd/releases/download/v1.8.2/sqlcmd-windows-amd64.zip" -OutFile "sqlcmd.zip"
+          Expand-Archive -Path "sqlcmd.zip" -DestinationPath "C:\sqlcmd" -Force
+          $env:Path += ";C:\sqlcmd"
 
       - name: Deploy SSIS Project
         shell: powershell
@@ -81,7 +93,7 @@ jobs:
               @project_name = N'${{ env.SSIS_PROJECTS_FOLDER }}',
               @project_stream = @ispac;
           "@
-          sqlcmd -S ${{ env.SQL_SERVER_NAME }} -U ${{ env.SQL_USERNAME }} -P ${{ env.SQL_PASSWORD }} -d SSISDB -Q $sql
+          sqlcmd -S ${{ env.SQL_SERVER_NAME }} -U ${{ env.SQL_USERNAME }} -P "${{ env.SQL_PASSWORD }}" -d SSISDB -Q $sql
 
       - name: Create SQL Agent Job to run package
         shell: powershell
@@ -93,15 +105,4 @@ jobs:
             EXEC msdb.dbo.sp_add_job @job_name=N'$jobName';
             EXEC msdb.dbo.sp_add_jobstep @job_name=N'$jobName', @step_name=N'Run SSIS Package',
               @subsystem=N'SSIS',
-              @command=N'/ISSERVER "\SSISDB\${{ env.SSIS_DEST_FOLDER }}\${{ env.SSIS_PROJECTS_FOLDER }}\${{ env.PACKAGE_NAME }}" /SERVER "${{ env.SQL_SERVER_NAME }}" /REPORTING E',
-              @on_success_action=1, @on_fail_action=2;
-            EXEC msdb.dbo.sp_add_jobserver @job_name=N'$jobName';
-          END
-          "@
-          sqlcmd -S ${{ env.SQL_SERVER_NAME }} -U ${{ env.SQL_USERNAME }} -P ${{ env.SQL_PASSWORD }} -d msdb -Q $sql
-
-      - name: Start SQL Agent Job
-        shell: powershell
-        run: |
-          $jobName = '${{ env.JOB_NAME }}'
-          sqlcmd -S ${{ env.SQL_SERVER_NAME }} -U ${{ env.SQL_USERNAME }} -P ${{ env.SQL_PASSWORD }} -d msdb -Q "EXEC msdb.dbo.sp_start_job @job_name=N'$jobName';"
+              @command=N'/ISSERVER "\SSISDB\${{ env.SSIS_DEST_FOLDER }}\${{ env.SSIS_PROJECTS_FOLDER }}\${{ env.PACKAGE_NAME }}" /SERVER "${{ env.SQL_SERVER_NAME }}" /REPORT
