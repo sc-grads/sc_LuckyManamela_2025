@@ -74,7 +74,7 @@ jobs:
           fi
         shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
 
-  trigger-job:
+  deploy-ssis-and-job:
     runs-on: [self-hosted, windows]
     needs: deploy-database
     steps:
