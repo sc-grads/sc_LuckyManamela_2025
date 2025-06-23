@@ -131,7 +131,8 @@ jobs:
           $tempSqlFile = Join-Path $env:GITHUB_WORKSPACE "create_ssis_folder.sql"
           Set-Content -Path $tempSqlFile -Value $sql -Encoding UTF8
 
-          $result = sqlcmd -S '${{ env.SQL_SERVER_NAME }}' -U '${{ env.SQL_USERNAME }}' -P '${{ env.SQL_PASSWORD }}' -i $tempSqlFile -b 2>&1
+          # Use Windows Authentication (-E)
+          $result = sqlcmd -S '${{ env.SQL_SERVER_NAME }}' -i $tempSqlFile -E -b 2>&1
 
           if ($LASTEXITCODE -ne 0) {
               Write-Error "Folder creation failed. Output: $result"
