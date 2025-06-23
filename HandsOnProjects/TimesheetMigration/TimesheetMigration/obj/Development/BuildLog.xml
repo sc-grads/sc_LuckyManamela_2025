@@ -2,23 +2,23 @@
 <BuildLog xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <ProjectInfo>
     <Name>TimesheetMigration</Name>
-    <LastWriteTime>2025-06-18T08:11:22.0473122Z</LastWriteTime>
+    <LastWriteTime>2025-06-18T12:23:19.6049311Z</LastWriteTime>
     <LastKnownProtectionLevel>EncryptSensitiveWithUserKey</LastKnownProtectionLevel>
   </ProjectInfo>
   <LastBuildInfos>
     <ProjectBuildItemInfo>
       <Name>TimeSheetMigration.dtsx</Name>
-      <LastWriteTime>2025-06-12T12:45:45.4230928Z</LastWriteTime>
+      <LastWriteTime>2025-06-18T12:23:19.6004053Z</LastWriteTime>
       <LastKnownProtectionLevel>EncryptSensitiveWithUserKey</LastKnownProtectionLevel>
     </ProjectBuildItemInfo>
     <ProjectBuildItemInfo>
       <Name>TimeSheetMigration 1.dtsx</Name>
-      <LastWriteTime>2025-06-18T08:11:21.885845Z</LastWriteTime>
+      <LastWriteTime>2025-06-18T12:23:19.5933796Z</LastWriteTime>
       <LastKnownProtectionLevel>EncryptSensitiveWithUserKey</LastKnownProtectionLevel>
     </ProjectBuildItemInfo>
     <ProjectBuildItemInfo>
       <Name>Package1.dtsx</Name>
-      <LastWriteTime>2025-06-13T12:09:45.0205814Z</LastWriteTime>
+      <LastWriteTime>2025-06-18T12:23:19.5762606Z</LastWriteTime>
       <LastKnownProtectionLevel>EncryptSensitiveWithUserKey</LastKnownProtectionLevel>
     </ProjectBuildItemInfo>
   </LastBuildInfos>
