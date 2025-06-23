@@ -112,7 +112,7 @@ jobs:
           $tempSqlFile = Join-Path $env:GITHUB_WORKSPACE "deploy_project.sql"
           Set-Content -Path $tempSqlFile -Value $sql -Force
 
-          sqlcmd -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -i $tempSqlFile -b
+          sqlcmd -S "${{ env.SQL_SERVER_NAME }}" -E -i $tempSqlFile -b
           if ($LASTEXITCODE -ne 0) {
               Write-Error "ISPAC deployment failed"
               exit $LASTEXITCODE
