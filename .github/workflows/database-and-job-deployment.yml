@@ -5,12 +5,12 @@ on:
     branches:
       - main
     paths:
-      - 'scripts/**'  
-  workflow_dispatch:  
+      - 'scripts/**'  # Trigger on changes to SQL scripts
+  workflow_dispatch:  # Allow manual triggering
 
 env:
   DATABASE_NAME: TimesheetDB
-  JOB_NAME: 'RunDataMigrationPackage'
+  JOB_NAME: 'DeploymentJob'  # Updated to the new job name
   SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}
   SQL_USERNAME: ${{ secrets.SQL_USERNAME }}
   SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
