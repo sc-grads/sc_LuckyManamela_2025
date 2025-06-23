@@ -104,7 +104,7 @@ jobs:
               throw "SSIS .ispac file not found at $projectPath"
           }
 
-          & sqlpackage /Action:Publish `
+          & sqlpackage /Action:Deploy `
                       /SourceFile:$projectPath `
                       /TargetServerName:"${{ env.SQL_SERVER_NAME }}" `
                       /TargetUser:"${{ env.SQL_USERNAME }}" `
