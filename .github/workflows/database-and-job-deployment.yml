@@ -1,4 +1,4 @@
-name: Deploy TimesheetDB and Trigger Job
+name: Deploy TimesheetDB, Deploy SSIS and Deploy SQL Job
 
 on:
   push:
@@ -99,7 +99,7 @@ jobs:
           Write-Output "New Execution Policy: $newPolicy"
         shell: powershell
 
-      - name: Trigger SQL Agent Job
+      - name: Deploy SSIS and Deploy SQL Job
         run: |
           $sql = "EXEC msdb.dbo.sp_start_job @job_name = N'${{ env.JOB_NAME }}'; PRINT 'Job started: ${{ env.JOB_NAME }}';"
           Write-Output "Executing SQL to start job: $sql"
