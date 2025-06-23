@@ -18,7 +18,7 @@ env:
   SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}
   SQL_USERNAME: ${{ secrets.SQL_USERNAME }}
   SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
-  SSIS_FOLDER_NAME: TimesheetDataMigration
+  SSIS_FOLDER_NAME: NewDataMigration  
   SSIS_PROJECT_NAME: Projects/Timesheets/Packages
   SSIS_PACKAGE_NAME: 'TimeSheetMigration 1.dtsx'
 
@@ -84,33 +84,31 @@ jobs:
               exit 1
           }
 
-      - name: Download and Install sqlpackage
+      - name: Install sqlpackage from Local File
         shell: powershell
         run: |
-          $maxAttempts = 3
-          $attempt = 1
-          do {
-              try {
-                  Invoke-WebRequest -Uri "https://aka.ms/sqlpackage-win-x64" -OutFile sqlpackage.zip -ErrorAction Stop
-                  break
-              } catch {
-                  if ($attempt -ge $maxAttempts) {
-                      throw "Failed to download sqlpackage after $maxAttempts attempts: $_"
-                  }
-                  Write-Host "Attempt $attempt failed, retrying in 5 seconds..."
-                  Start-Sleep -Seconds 5
-                  $attempt++
-              }
-          } while ($true)
-          if (-not (Test-Path sqlpackage.zip)) {
-              throw "Download failed. File not found."
+          $zipPath = "C:\actions-runner\sqlpackage-win-x64-en-170.0.94.3.zip"
+          if (-not (Test-Path $zipPath)) {
+              throw "Local sqlpackage.zip not found at $zipPath"
           }
-          $zipSize = (Get-Item sqlpackage.zip).Length
-          if ($zipSize -lt 1000000) {
+          $zipSize = (Get-Item $zipPath).Length
+          if ($zipSize -lt 5000000) {
               throw "Downloaded file is too small ($zipSize bytes), likely corrupted."
           }
-          Expand-Archive -Path sqlpackage.zip -DestinationPath "C:\sqlpackage" -Force
+          Expand-Archive -Path $zipPath -DestinationPath "C:\sqlpackage" -Force
           echo "C:\sqlpackage" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        env:
+          DATABASE_NAME: TimesheetDB
+          SSIS_SOURCE_PATH: HandsOnProjects/TimesheetMigration/TimesheetMigration/bin/Development/TimesheetMigration.ispac
+          SSIS_DEST_FOLDER: NewDataMigration
+          JOB_NAME: RunDataMigrationPackage
+          PACKAGE_NAME: DataMigrationFINAL
+          SQL_SERVER_NAME: ***
+          SQL_USERNAME: ***
+          SQL_PASSWORD: ***
+          SSIS_FOLDER_NAME: NewDataMigration
+          SSIS_PROJECT_NAME: Projects/Timesheets/Packages
+          SSIS_PACKAGE_NAME: TimeSheetMigration 1.dtsx
 
       - name: Test SQL Server Connectivity
         shell: powershell
@@ -146,3 +144,4 @@ jobs:
                       /p:CreateDeploymentUtility=true `
                       /p:BlockOnPossibleDataLoss=false `
                       /p:AllowIncompatiblePlatform=true
+          Write-Output "SSIS project deployed successfully."
