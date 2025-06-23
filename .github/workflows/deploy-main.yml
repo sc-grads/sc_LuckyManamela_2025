@@ -114,26 +114,29 @@ jobs:
       - name: Create SSIS Catalog Folder (if not exists)
         shell: powershell
         run: |
+          $folderName = '${{ env.SSIS_DEST_FOLDER }}'
           $sql = @"
           USE SSISDB;
           BEGIN TRY
-              IF NOT EXISTS (SELECT 1 FROM [catalog].[folders] WHERE name = '${{ env.SSIS_DEST_FOLDER }}')
+              IF NOT EXISTS (SELECT 1 FROM [catalog].[folders] WHERE name = N'$folderName')
               BEGIN
-                  EXEC [catalog].[create_folder] @folder_name = N'${{ env.SSIS_DEST_FOLDER }}';
-                  Write-Output 'Created SSIS folder: ${{ env.SSIS_DEST_FOLDER }}';
-              END
-              ELSE
-              BEGIN
-                  Write-Output 'Folder already exists: ${{ env.SSIS_DEST_FOLDER }}';
+                  EXEC [catalog].[create_folder] @folder_name = N'$folderName';
               END
           END TRY
           BEGIN CATCH
-              Write-Error "Error creating folder: $_"
-              exit 1
+              THROW;
           END CATCH
           "@
-          $result = sqlcmd -S "${{ env.SQL_SERVER_NAME }}" -Q "$sql" -b 2>&1
+
+          $tempSqlFile = Join-Path $env:GITHUB_WORKSPACE "create_ssis_folder.sql"
+          Set-Content -Path $tempSqlFile -Value $sql -Encoding UTF8
+
+          $result = sqlcmd -S '${{ env.SQL_SERVER_NAME }}' -U '${{ env.SQL_USERNAME }}' -P '${{ env.SQL_PASSWORD }}' -i $tempSqlFile -b 2>&1
+
           if ($LASTEXITCODE -ne 0) {
               Write-Error "Folder creation failed. Output: $result"
               exit 1
+          }
+          else {
+              Write-Output "SSIS folder '$folderName' created or already exists."
           }
