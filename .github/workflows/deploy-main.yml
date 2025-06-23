@@ -95,24 +95,6 @@ jobs:
           echo "C:\sqlpackage" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           Write-Output "sqlpackage extracted and added to PATH."
 
-      - name: Test SQL Server Connectivity
-        shell: powershell
-        run: |
-          if (Test-Connection -ComputerName "${{ env.SQL_SERVER_NAME }}" -Count 4 -Quiet) {
-              Write-Output "Ping to ${{ env.SQL_SERVER_NAME }} succeeded."
-          } else {
-              Write-Error "Ping failed to ${{ env.SQL_SERVER_NAME }}."
-              exit 1
-          }
-
-          $portTest = Test-NetConnection -ComputerName "${{ env.SQL_SERVER_NAME }}" -Port 1433
-          if ($portTest.TcpTestSucceeded) {
-              Write-Output "Port 1433 is open."
-          } else {
-              Write-Error "Port 1433 is closed or unreachable."
-              exit 1
-          }
-
       - name: Deploy SSIS Project to SSISDB using sqlpackage
         shell: powershell
         run: |
