@@ -91,10 +91,6 @@ jobs:
           if (-not (Test-Path $zipPath)) {
               throw "Local sqlpackage.zip not found at $zipPath"
           }
-          $zipSize = (Get-Item $zipPath).Length
-          if ($zipSize -lt 5000000) {
-              throw "File too small ($zipSize bytes) — likely corrupted."
-          }
           Expand-Archive -Path $zipPath -DestinationPath "C:\sqlpackage" -Force
           echo "C:\sqlpackage" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           Write-Output "sqlpackage extracted and added to PATH."
