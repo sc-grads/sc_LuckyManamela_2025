@@ -6,17 +6,15 @@ on:
       - main
     paths:
       - 'scripts/**'
-      - 'HandsOnProjects/Timesheets/**'
       - 'HandsOnProjects/TimesheetMigration/TimesheetMigration/**'
   workflow_dispatch:
 
 env:
   DATABASE_NAME: TimesheetDB
-  SSIS_SOURCE_PATH: 'HandsOnProjects/TimesheetMigration/TimesheetMigration/bin/Development/TimesheetMigration.ispac'
-  SSIS_DEST_FOLDER: 'NewDataMigration'
-  SSIS_PROJECTS_FOLDER: 'Timesheets'
-  JOB_NAME: 'RunDataMigrationPackage'
-  PACKAGE_NAME: 'DataMigrationFINAL'
+  SSIS_SOURCE_PATH: HandsOnProjects/TimesheetMigration/TimesheetMigration/bin/Development/TimesheetMigration.ispac
+  SSIS_DEST_FOLDER: NewDataMigration
+  JOB_NAME: RunDataMigrationPackage
+  PACKAGE_NAME: DataMigrationFINAL
   SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}
   SQL_USERNAME: ${{ secrets.SQL_USERNAME }}
   SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
@@ -33,35 +31,15 @@ jobs:
 
       - name: Install SQL Server tools
         run: |
-          # Clean up any old Microsoft sources
-          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
-          sudo rm -f /etc/apt/sources.list.d/mssql-tools.list
-
-          # Install dependencies
           sudo apt-get update
-          sudo apt-get install -y curl gnupg
-
-          # Import Microsoft GPG key
+          sudo apt-get install -y curl gnupg unixodbc-dev
           curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /tmp/microsoft-prod.gpg
           sudo mv /tmp/microsoft-prod.gpg /usr/share/keyrings/microsoft-prod.gpg
-          chmod 644 /usr/share/keyrings/microsoft-prod.gpg
-
-          # Use Ubuntu 22.04 (jammy) repo instead of 24.04 (noble)
           echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft-prod.gpg] https://packages.microsoft.com/ubuntu/22.04/prod jammy main" | sudo tee /etc/apt/sources.list.d/mssql-tools.list
-
-          # Update and install
           sudo apt-get update
-          sudo apt-get install -y mssql-tools unixodbc-dev
-
-          # Add mssql-tools to PATH
+          sudo apt-get install -y mssql-tools
           echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
           source ~/.bashrc
-        shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
-
-      - name: Test Network Connectivity
-        run: |
-          ping -c 4 "${{ env.SQL_SERVER_NAME }}" || echo "Ping failed, server may be unreachable"
-          timeout 5 bash -c "echo > /dev/tcp/${{ env.SQL_SERVER_NAME }}/1433" && echo "Port 1433 is open" || echo "Port 1433 is closed or server is unreachable"
         shell: bash
 
       - name: Execute SQL Script
@@ -72,7 +50,7 @@ jobs:
               cat output.log
               break
             else
-              echo "Attempt $attempt failed, retrying... Check output.log"
+              echo "Attempt $attempt failed. Retrying..."
               cat output.log 2>/dev/null || echo "No output.log created"
               [ $attempt -lt 3 ] && sleep 5
             fi
@@ -81,63 +59,43 @@ jobs:
             echo "All retries failed. Exiting."
             exit 1
           fi
-        shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+        shell: bash
 
-  setup-and-execute-job:
+  deploy-ssis:
     runs-on: [self-hosted, windows]
     needs: deploy-database
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Set PowerShell Execution Policy
         run: Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
         shell: powershell
 
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Check PowerShell Version
-        run: $PSVersionTable.PSVersion
-        shell: powershell
-
-      - name: Debug Working Directory and File Location
+      - name: Confirm GITHUB_WORKSPACE and .ispac file
         shell: powershell
         run: |
           Write-Output "GITHUB_WORKSPACE: $env:GITHUB_WORKSPACE"
-          dir "$env:GITHUB_WORKSPACE\HandsOnProjects\Timesheets\bin\Development" -ErrorAction Continue
+          Test-Path "$env:GITHUB_WORKSPACE\${{ env.SSIS_SOURCE_PATH }}"
 
-      - name: Install SQLCMD
-        run: |
-          Invoke-WebRequest -Uri "https://github.com/microsoft/go-sqlcmd/releases/download/v1.8.2/sqlcmd-windows-amd64.zip" -OutFile sqlcmd.zip
-          Expand-Archive -Path sqlcmd.zip -DestinationPath C:\sqlcmd -Force
-          echo "C:\sqlcmd" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-        shell: powershell
-
-      - name: Create SSIS Catalog Folder (if not exists)
+      - name: Download and Install sqlpackage
         shell: powershell
         run: |
-          $folderName = '${{ env.SSIS_DEST_FOLDER }}'
-          $sql = @"
-          USE SSISDB;
-          BEGIN TRY
-              IF NOT EXISTS (SELECT 1 FROM [catalog].[folders] WHERE name = N'$folderName')
-              BEGIN
-                  EXEC [catalog].[create_folder] @folder_name = N'$folderName';
-              END
-          END TRY
-          BEGIN CATCH
-              THROW;
-          END CATCH
-          "@
+          Invoke-WebRequest -Uri "https://aka.ms/sqlpackage-win-x64" -OutFile sqlpackage.zip
+          Expand-Archive -Path sqlpackage.zip -DestinationPath "C:\sqlpackage" -Force
+          echo "C:\sqlpackage" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
-          $tempSqlFile = Join-Path $env:GITHUB_WORKSPACE "create_ssis_folder.sql"
-          Set-Content -Path $tempSqlFile -Value $sql -Encoding UTF8
-
-          # Use SQL Authentication
-          $result = sqlcmd -S '${{ env.SQL_SERVER_NAME }}' -U '${{ env.SQL_USERNAME }}' -P '${{ env.SQL_PASSWORD }}' -i $tempSqlFile -b 2>&1
-
-          if ($LASTEXITCODE -ne 0) {
-              Write-Error "Folder creation failed. Output: $result"
-              exit 1
-          }
-          else {
-              Write-Output "SSIS folder '$folderName' created or already exists."
-          }
+      - name: Deploy SSIS Project to SSISDB using sqlpackage
+        shell: powershell
+        run: |
+          $projectPath = Join-Path $env:GITHUB_WORKSPACE "${{ env.SSIS_SOURCE_PATH }}"
+          & sqlpackage /Action:Publish `
+                      /SourceFile:$projectPath `
+                      /TargetServerName:"${{ env.SQL_SERVER_NAME }}" `
+                      /TargetDatabaseName:"SSISDB" `
+                      /TargetUser:"${{ env.SQL_USERNAME }}" `
+                      /TargetPassword:"${{ env.SQL_PASSWORD }}" `
+                      /p:SSISDeploymentFolder="${{ env.SSIS_DEST_FOLDER }}" `
+                      /p:CreateDeploymentUtility=true `
+                      /p:BlockOnPossibleDataLoss=false `
+                      /p:AllowIncompatiblePlatform=true
