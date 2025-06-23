@@ -18,8 +18,8 @@ env:
   SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}
   SQL_USERNAME: ${{ secrets.SQL_USERNAME }}
   SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
-  SSIS_FOLDER_NAME: NewDataMigration  
-  SSIS_PROJECT_NAME: Projects/Timesheets/Packages
+  SSIS_FOLDER_NAME: NewDataMigration
+  SSIS_PROJECT_NAME: TimesheetMigration
   SSIS_PACKAGE_NAME: 'TimeSheetMigration 1.dtsx'
 
 jobs:
@@ -72,7 +72,7 @@ jobs:
         run: Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
         shell: powershell
 
-      - name: Confirm GITHUB_WORKSPACE and .ispac file
+      - name: Confirm .ispac file exists
         shell: powershell
         run: |
           Write-Output "GITHUB_WORKSPACE: $env:GITHUB_WORKSPACE"
@@ -84,7 +84,7 @@ jobs:
               exit 1
           }
 
-      - name: Install sqlpackage from Local File
+      - name: Install sqlpackage from local file
         shell: powershell
         run: |
           $zipPath = "C:\actions-runner\sqlpackage-win-x64-en-170.0.94.3.zip"
@@ -93,38 +93,27 @@ jobs:
           }
           $zipSize = (Get-Item $zipPath).Length
           if ($zipSize -lt 5000000) {
-              throw "Downloaded file is too small ($zipSize bytes), likely corrupted."
+              throw "File too small ($zipSize bytes) — likely corrupted."
           }
           Expand-Archive -Path $zipPath -DestinationPath "C:\sqlpackage" -Force
           echo "C:\sqlpackage" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-        env:
-          DATABASE_NAME: TimesheetDB
-          SSIS_SOURCE_PATH: HandsOnProjects/TimesheetMigration/TimesheetMigration/bin/Development/TimesheetMigration.ispac
-          SSIS_DEST_FOLDER: NewDataMigration
-          JOB_NAME: RunDataMigrationPackage
-          PACKAGE_NAME: DataMigrationFINAL
-          SQL_SERVER_NAME: ***
-          SQL_USERNAME: ***
-          SQL_PASSWORD: ***
-          SSIS_FOLDER_NAME: NewDataMigration
-          SSIS_PROJECT_NAME: Projects/Timesheets/Packages
-          SSIS_PACKAGE_NAME: TimeSheetMigration 1.dtsx
+          Write-Output "sqlpackage extracted and added to PATH."
 
       - name: Test SQL Server Connectivity
         shell: powershell
         run: |
-          $pingResult = Test-Connection -ComputerName ${{ env.SQL_SERVER_NAME }} -Count 4 -Quiet
-          if ($pingResult) {
-              Write-Output "Ping to ${{ env.SQL_SERVER_NAME }} succeeded"
+          if (Test-Connection -ComputerName "${{ env.SQL_SERVER_NAME }}" -Count 4 -Quiet) {
+              Write-Output "Ping to ${{ env.SQL_SERVER_NAME }} succeeded."
           } else {
-              Write-Error "Ping to ${{ env.SQL_SERVER_NAME }} failed"
+              Write-Error "Ping failed to ${{ env.SQL_SERVER_NAME }}."
               exit 1
           }
-          $portTest = Test-NetConnection -ComputerName ${{ env.SQL_SERVER_NAME }} -Port 1433
+
+          $portTest = Test-NetConnection -ComputerName "${{ env.SQL_SERVER_NAME }}" -Port 1433
           if ($portTest.TcpTestSucceeded) {
-              Write-Output "Port 1433 is open"
+              Write-Output "Port 1433 is open."
           } else {
-              Write-Error "Port 1433 is closed or unreachable"
+              Write-Error "Port 1433 is closed or unreachable."
               exit 1
           }
 
@@ -133,8 +122,9 @@ jobs:
         run: |
           $projectPath = Join-Path $env:GITHUB_WORKSPACE "${{ env.SSIS_SOURCE_PATH }}"
           if (-not (Test-Path $projectPath)) {
-              throw "SSIS project file not found at $projectPath"
+              throw "SSIS .ispac file not found at $projectPath"
           }
+
           & sqlpackage /Action:DeployProject `
                       /SourceFile:$projectPath `
                       /TargetServerName:"${{ env.SQL_SERVER_NAME }}" `
@@ -144,4 +134,5 @@ jobs:
                       /p:CreateDeploymentUtility=true `
                       /p:BlockOnPossibleDataLoss=false `
                       /p:AllowIncompatiblePlatform=true
+
           Write-Output "SSIS project deployed successfully."
