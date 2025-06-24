@@ -90,11 +90,17 @@ jobs:
       - name: Download and Install sqlpackage
         shell: powershell
         run: |
-          $url = "https://aka.ms/sqlpackage-win-x64"
+          $url = "https://download.microsoft.com/download/5/4/d/54db77b2-249b-46da-8fb4-4f1e9e6e6c1d/sqlpackage-win-x64-en-US-160.8535.1.zip"
           $zipPath = "$env:RUNNER_TEMP\sqlpackage.zip"
           $installPath = "C:\sqlpackage"
 
           Invoke-WebRequest -Uri $url -OutFile $zipPath
+
+          $size = (Get-Item $zipPath).Length
+          if ($size -lt 5000000) {
+            throw "Downloaded ZIP is too small or corrupt: $size bytes"
+          }
+
           Expand-Archive -Path $zipPath -DestinationPath $installPath -Force
           echo "$installPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
