@@ -1,5 +1,5 @@
 name: Deploy TimesheetDB, SSIS Package, and Run Data Migration
-
+ 
 on:
   push:
     branches:
@@ -9,45 +9,61 @@ on:
       - 'HandsOnProjects/Timesheets/**'
       - 'HandsOnProjects/TimesheetMigration/TimesheetMigration/**'
   workflow_dispatch:
-
+ 
 env:
   DATABASE_NAME: TimesheetDB
-  SSIS_SOURCE_PATH: 'HandsOnProjects/TimesheetMigration/TimesheetMigration/bin/Development/TimesheetMigration.ispac'
-  SSIS_DEST_FOLDER: 'TimesheetDataMigration'
-  SSIS_PROJECTS_FOLDER: 'TimesheetMigration'
-  JOB_NAME: 'DeploymentJob'
-  PACKAGE_NAME: 'TimeSheetMigration 1.dtsx'
+  SSIS_SOURCE_PATH: 'HandsOnProjects/Timesheets/bin/Development/Timesheets.ispac'
+  SSIS_DEST_FOLDER: 'NewDataMigration'
+  SSIS_PROJECTS_FOLDER: 'Timesheets'
+  JOB_NAME: 'RunDataMigrationPackage'
+  PACKAGE_NAME: 'DataMigrationFINAL'
   SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}
   SQL_USERNAME: ${{ secrets.SQL_USERNAME }}
   SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
-  JOB_OWNER: 'Manamela\\kgali'
-
+  SSIS_FOLDER_NAME: TimesheetDataMigration
+  SSIS_PROJECT_NAME: Projects/Timesheets/Packages
+  SSIS_PACKAGE_NAME: 'TimeSheetMigration 1.dtsx'
+ 
 jobs:
   deploy-database:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
+ 
       - name: Install SQL Server tools
         run: |
+          # Clean up any old Microsoft sources
           sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
           sudo rm -f /etc/apt/sources.list.d/mssql-tools.list
+ 
+          # Install dependencies
           sudo apt-get update
           sudo apt-get install -y curl gnupg
+ 
+          # Import Microsoft GPG key
           curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /tmp/microsoft-prod.gpg
           sudo mv /tmp/microsoft-prod.gpg /usr/share/keyrings/microsoft-prod.gpg
+          chmod 644 /usr/share/keyrings/microsoft-prod.gpg
+ 
+          # Use Ubuntu 22.04 (jammy) repo instead of 24.04 (noble)
           echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft-prod.gpg] https://packages.microsoft.com/ubuntu/22.04/prod jammy main" | sudo tee /etc/apt/sources.list.d/mssql-tools.list
+ 
+          # Update and install
           sudo apt-get update
           sudo apt-get install -y mssql-tools unixodbc-dev
-        shell: bash
-
+ 
+          # Add mssql-tools to PATH
+          echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
+          source ~/.bashrc
+        shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+ 
       - name: Test Network Connectivity
         run: |
-          ping -c 4 "${{ env.SQL_SERVER_NAME }}" || echo "Ping failed"
-          timeout 5 bash -c "echo > /dev/tcp/${{ env.SQL_SERVER_NAME }}/1433" && echo "Port 1433 open" || echo "Port 1433 closed"
+          ping -c 4 "${{ env.SQL_SERVER_NAME }}" || echo "Ping failed, server may be unreachable"
+          timeout 5 bash -c "echo > /dev/tcp/${{ env.SQL_SERVER_NAME }}/1433" && echo "Port 1433 is open" || echo "Port 1433 is closed or server is unreachable"
         shell: bash
-
+ 
       - name: Execute SQL Script
         run: |
           for attempt in 1 2 3; do
@@ -65,105 +81,59 @@ jobs:
             echo "All retries failed. Exiting."
             exit 1
           fi
-        shell: bash
-
+        shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+ 
   setup-and-execute-job:
     runs-on: [self-hosted, windows]
     needs: deploy-database
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
+ 
+      - name: Check PowerShell Version
+        run: $PSVersionTable.PSVersion
+        shell: powershell
+ 
       - name: Set PowerShell Execution Policy
         run: Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
         shell: powershell
-
-      - name: Debug Working Directory
+ 
+      - name: Debug Working Directory and File Location
         shell: powershell
         run: |
           Write-Output "GITHUB_WORKSPACE: $env:GITHUB_WORKSPACE"
-          dir "$env:GITHUB_WORKSPACE\HandsOnProjects\TimesheetMigration\TimesheetMigration\bin\Development" -ErrorAction Continue
-
-      - name: Confirm .ispac exists
+          dir "$env:GITHUB_WORKSPACE\HandsOnProjects\Timesheets\bin\Development" -ErrorAction Continue
+ 
+      - name: Install SQLCMD
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/microsoft/go-sqlcmd/releases/download/v1.8.2/sqlcmd-windows-amd64.zip" -OutFile sqlcmd.zip
+          Expand-Archive -Path sqlcmd.zip -DestinationPath C:\sqlcmd -Force
+          echo "C:\sqlcmd" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        shell: powershell
+ 
+      - name: Create SSIS Catalog Folder (if not exists)
         shell: powershell
         run: |
-          $fullPath = Join-Path $env:GITHUB_WORKSPACE "${{ env.SSIS_SOURCE_PATH }}"
-          if (Test-Path $fullPath) {
-            Write-Output "Found .ispac at $fullPath"
-          } else {
-            Write-Error "Missing .ispac file at $fullPath"
-            exit 1
-          }
-
-      - name: Deploy SSIS ISPAC via T-SQL
-        shell: powershell
-        run: |
-          $ispacPath = Join-Path -Path $env:GITHUB_WORKSPACE -ChildPath "${{ env.SSIS_SOURCE_PATH }}"
           $sql = @"
-          DECLARE @ispac varbinary(max);
-          SELECT @ispac = BulkColumn
-          FROM OPENROWSET(BULK '$ispacPath', SINGLE_BLOB) AS ProjectBinary;
-          EXEC [SSISDB].[catalog].[deploy_project]
-              @folder_name=N'${{ env.SSIS_DEST_FOLDER }}',
-              @project_name=N'${{ env.SSIS_PROJECTS_FOLDER }}',
-              @project_stream=@ispac;
+          USE SSISDB;
+          BEGIN TRY
+              IF NOT EXISTS (SELECT 1 FROM [catalog].[folders] WHERE name = '${{ env.SSIS_DEST_FOLDER }}')
+              BEGIN
+                  EXEC [catalog].[create_folder] @folder_name = N'${{ env.SSIS_DEST_FOLDER }}';
+                  Write-Output 'Created SSIS folder: ${{ env.SSIS_DEST_FOLDER }}';
+              END
+              ELSE
+              BEGIN
+                  Write-Output 'Folder already exists: ${{ env.SSIS_DEST_FOLDER }}';
+              END
+          END TRY
+          BEGIN CATCH
+              Write-Error "Error creating folder: $_"
+              exit 1
+          END CATCH
           "@
-
-          $tempSqlFile = Join-Path $env:GITHUB_WORKSPACE "deploy_project.sql"
-          Set-Content -Path $tempSqlFile -Value $sql -Force
-
-          sqlcmd -S "${{ env.SQL_SERVER_NAME }}" -E -i $tempSqlFile -b
+          $result = sqlcmd -S "${{ env.SQL_SERVER_NAME }}" -Q "$sql" -b 2>&1
           if ($LASTEXITCODE -ne 0) {
-              Write-Error "ISPAC deployment failed"
-              exit $LASTEXITCODE
-          }
-
-      - name: Create SQL Agent Job
-        shell: powershell
-        run: |
-          $jobScript = @"
-          USE [msdb];
-          BEGIN TRANSACTION
-          DECLARE @ReturnCode INT
-          SELECT @ReturnCode = 0
-          IF NOT EXISTS (SELECT name FROM msdb.dbo.sysjobs WHERE name = '${{ env.JOB_NAME }}')
-          BEGIN
-              DECLARE @jobId BINARY(16)
-              EXEC @ReturnCode = msdb.dbo.sp_add_job @job_name=N'${{ env.JOB_NAME }}',
-                  @enabled=1,
-                  @description=N'Deployment Job',
-                  @owner_login_name=N'${{ env.JOB_OWNER }}',
-                  @job_id = @jobId OUTPUT
-
-              EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RunSSISpackage',
-                  @step_id=1,
-                  @cmdexec_success_code=0,
-                  @on_success_action=1,
-                  @on_fail_action=2,
-                  @subsystem=N'SSIS',
-                  @command=N'/ISSERVER "\"\SSISDB\${{ env.SSIS_DEST_FOLDER }}\${{ env.SSIS_PROJECTS_FOLDER }}\${{ env.PACKAGE_NAME }}"\" /SERVER "${{ env.SQL_SERVER_NAME }}" /Par "\"$ServerOption::LOGGING_LEVEL(Int16)\"";1 /Par "\"$ServerOption::SYNCHRONIZED(Boolean)\"";True /CALLERINFO SQLAGENT /REPORTING E',
-                  @database_name=N'master'
-
-              EXEC @ReturnCode = msdb.dbo.sp_add_jobserver @job_id = @jobId, @server_name = N'(local)'
-          END
-          COMMIT TRANSACTION
-          "@
-
-          $tempJobFile = Join-Path $env:GITHUB_WORKSPACE "create_job.sql"
-          Set-Content -Path $tempJobFile -Value $jobScript -Force
-
-          sqlcmd -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -i $tempJobFile -b
-          if ($LASTEXITCODE -ne 0) {
-              Write-Error "SQL Agent Job creation failed"
-              exit $LASTEXITCODE
-          }
-
-      - name: Run SQL Agent Job
-        shell: powershell
-        run: |
-          $sql = "EXEC msdb.dbo.sp_start_job @job_name = N'${{ env.JOB_NAME }}';"
-          sqlcmd -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -Q "$sql" -b
-          if ($LASTEXITCODE -ne 0) {
-              Write-Error "Failed to start job"
-              exit $LASTEXITCODE
+              Write-Error "Folder creation failed. Output: $result"
+              exit 1
           }
