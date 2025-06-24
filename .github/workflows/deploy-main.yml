@@ -107,20 +107,20 @@ jobs:
       - name: Deploy SSIS Project (.ispac)
         shell: powershell
         run: |
-          $ispacPath = Join-Path $env:GITHUB_WORKSPACE "$env:SSIS_SOURCE_PATH"
+          $ispacPath = Join-Path $env:GITHUB_WORKSPACE $env:SSIS_SOURCE_PATH
           if (-not (Test-Path $ispacPath)) {
               throw "ISPAC not found at $ispacPath"
           }
 
-          & "C:\sqlpackage\sqlpackage.exe" /Action:DeployProject `
-                       /SourceFile:$ispacPath `
-                       /TargetServerName:$env:SQL_SERVER_NAME `
-                       /TargetUser:$env:SQL_USERNAME `
-                       /TargetPassword:$env:SQL_PASSWORD `
-                       /p:TargetProjectFolder=$env:SSIS_DEST_FOLDER `
-                       /p:CreateDeploymentUtility=true `
-                       /p:BlockOnPossibleDataLoss=false `
-                       /p:AllowIncompatiblePlatform=true
+          sqlpackage /Action:DeployProject `
+                    /SourceFile:$ispacPath `
+                    /TargetServerName:$env:SQL_SERVER_NAME `
+                    /TargetUser:$env:SQL_USERNAME `
+                    /TargetPassword:$env:SQL_PASSWORD `
+                    /p:TargetProjectFolder=$env:SSIS_DEST_FOLDER `
+                    /p:CreateDeploymentUtility=true `
+                    /p:BlockOnPossibleDataLoss=false `
+                    /p:AllowIncompatiblePlatform=true
 
       - name: Grant SSIS Project Permissions
         shell: powershell
