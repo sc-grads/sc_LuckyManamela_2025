@@ -92,7 +92,7 @@ jobs:
         run: Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
       - name: Install .NET SDK (required for dotnet tool)
-        shell: pwsh
+        shell: powershell
         run: |
           choco install dotnet-7.0-sdk -y
 
