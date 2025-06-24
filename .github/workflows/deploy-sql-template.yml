@@ -1,0 +1,64 @@
+name: Deploy timesheet SQL Script
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+    secrets:
+      sql_server_host:
+        required: true
+      sql_server_port:
+        required: true
+      sql_password:
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      SQL_SERVER: ${{ secrets.sql_server_host }}
+      SQL_PORT: ${{ secrets.sql_server_port }}
+      SQL_USER: Auto_user
+      SQL_PASSWORD: ${{ secrets.sql_password }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install SQL Server Tools
+        run: |
+          echo "Installing SQL Server tools..."
+          sudo apt-get update
+          sudo apt-get install -y curl gnupg
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+          curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
+          sudo apt-get update
+          sudo apt-get install -y mssql-tools unixodbc-dev
+
+      - name: Execute SQL Script
+        run: |
+          echo "Running SQL script for environment: ${{ inputs.environment }}"
+          ATTEMPT=1
+          MAX_ATTEMPTS=5
+          while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+            /opt/mssql-tools/bin/sqlcmd \
+              -S "$SQL_SERVER,$SQL_PORT" \
+              -U "$SQL_USER" \
+              -P "$SQL_PASSWORD" \
+              -i "Hands on projects/DB Design/DB SQL script/create_timesheet_db.sql" \
+              -o output.log -x && break
+            echo "sqlcmd failed. Attempt $ATTEMPT of $MAX_ATTEMPTS. Retrying in 5s..."
+            sleep 5
+            ATTEMPT=$((ATTEMPT + 1))
+          done
+
+          if [ $ATTEMPT -gt $MAX_ATTEMPTS ]; then
+            echo "SQL script execution failed after $MAX_ATTEMPTS attempts."
+            cat output.log
+            exit 1
+          else
+            echo "SQL script executed successfully."
+            cat output.log
+          fi

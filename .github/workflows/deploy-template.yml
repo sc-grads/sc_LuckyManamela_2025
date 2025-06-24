@@ -1,0 +1,54 @@
+name: Deploy to Environment
+ 
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: 'The environment (development or production)'
+        required: true
+        type: string
+    secrets:
+      SQL_SERVER_HOST:
+        description: 'SQL Server hostname'
+        required: true
+      SQL_SERVER_PORT:
+        description: 'SQL Server port'
+        required: true
+      SQL_USER:
+        description: 'SQL Server username'
+        required: true
+      SQL_PASSWORD:
+        description: 'SQL Server password'
+        required: true
+ 
+jobs:
+  deploy:
+    name: Deploy to ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+ 
+      - name: Install SQL Server Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl gnupg
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+          curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
+          sudo apt-get update
+          sudo apt-get install -y mssql-tools unixodbc-dev
+          echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
+          source ~/.bashrc
+      - name: Execute SQL Script
+        run: |
+          # Step 1: Run the script against master to create the database
+          /opt/mssql-tools/bin/sqlcmd -S "${{ secrets.SQL_SERVER_HOST }},${{ secrets.SQL_SERVER_PORT }}" -U "${{ secrets.SQL_USER }}" -P "${{ secrets.SQL_PASSWORD }}" -d master -i scripts/setup1.sql -o output.log -x
+          if grep -q "Msg [0-9]\+, Level [0-9]\+, State [0-9]\+" output.log; then
+            echo "Error: SQL script execution failed. Check output.log for details."
+            cat output.log
+            exit 1
+          else
+            echo "SQL script executed successfully."
+            cat output.log
+          fi

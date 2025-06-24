@@ -1,0 +1,228 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report MustUnderstand="df" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2016/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns:df="http://schemas.microsoft.com/sqlserver/reporting/2016/01/reportdefinition/defaultfontfamily" xmlns:am="http://schemas.microsoft.com/sqlserver/reporting/authoringmetadata">
+	<am:AuthoringMetadata>
+		<am:CreatedBy>
+			<am:Name>SSDTRS</am:Name>
+			<am:Version>17.13.35919.96</am:Version>
+		</am:CreatedBy>
+		<am:UpdatedBy>
+			<am:Name>SSDTRS</am:Name>
+			<am:Version>17.13.35919.96</am:Version>
+		</am:UpdatedBy>
+		<am:LastModifiedTimestamp>2025-04-03T13:48:13.7470912Z</am:LastModifiedTimestamp>
+	</am:AuthoringMetadata>
+	<df:DefaultFontFamily>Segoe UI</df:DefaultFontFamily>
+	<AutoRefresh>0</AutoRefresh>
+	<DataSources>
+		<DataSource Name="AdventureWorksDataSource">
+			<DataSourceReference>AdventureWorksDataSource</DataSourceReference>
+			<rd:SecurityType>None</rd:SecurityType>
+			<rd:DataSourceID>a5f27268-c5f0-4efc-84c1-3678ee6750af</rd:DataSourceID>
+		</DataSource>
+	</DataSources>
+	<DataSets>
+		<DataSet Name="DataSet1">
+			<Query>
+				<DataSourceName>AdventureWorksDataSource</DataSourceName>
+				<CommandText>
+					SELECT Sales.SalesOrderHeader.SalesOrderID, Sales.SalesOrderHeader.OrderDate, Sales.SalesOrderHeader.TotalDue, Sales.SalesOrderDetail.LineTotal, Production.Product.Name AS ProductName
+					FROM Sales.SalesOrderHeader
+					INNER JOIN Sales.SalesOrderDetail ON Sales.SalesOrderHeader.SalesOrderID = Sales.SalesOrderDetail.SalesOrderID
+					INNER JOIN Production.Product ON Sales.SalesOrderDetail.ProductID = Production.Product.ProductID
+				</CommandText>
+			</Query>
+		</DataSet>
+		<DataSet Name="SalesData">
+			<Query>
+				<DataSourceName>AdventureWorksDataSource</DataSourceName>
+				<CommandText>
+					<![CDATA[
+          SELECT 
+              DATEPART(YEAR, OrderDate) AS OrderYear, 
+              DATEPART(MONTH, OrderDate) AS OrderMonth, 
+              SUM(TotalDue) AS TotalSales
+          FROM Sales.SalesOrderHeader
+          GROUP BY DATEPART(YEAR, OrderDate), DATEPART(MONTH, OrderDate)
+          ORDER BY OrderYear, OrderMonth
+          ]]>
+				</CommandText>
+			</Query>
+			<Fields>
+				<Field Name="OrderYear">
+					<DataField>OrderYear</DataField>
+					<rd:TypeName>System.Int32</rd:TypeName>
+				</Field>
+				<Field Name="OrderMonth">
+					<DataField>OrderMonth</DataField>
+					<rd:TypeName>System.Int32</rd:TypeName>
+				</Field>
+				<Field Name="TotalSales">
+					<DataField>TotalSales</DataField>
+					<rd:TypeName>System.Decimal</rd:TypeName>
+				</Field>
+			</Fields>
+		</DataSet>
+	</DataSets>
+	<ReportSections>
+		<ReportSection>
+			<Body>
+				<ReportItems>
+					<!-- Title Textbox -->
+					<Textbox Name="ReportTitle">
+						<CanGrow>true</CanGrow>
+						<KeepTogether>true</KeepTogether>
+						<Paragraphs>
+							<Paragraph>
+								<TextRuns>
+									<TextRun>
+										<Value>Yearly Sales Performance</Value>
+										<Style>
+											<FontSize>20pt</FontSize>
+											<FontWeight>Bold</FontWeight>
+										</Style>
+									</TextRun>
+								</TextRuns>
+								<Style />
+							</Paragraph>
+						</Paragraphs>
+						<rd:DefaultName>ReportTitle</rd:DefaultName>
+						<Top>0.25in</Top>
+						<Left>0.25in</Left>
+						<Height>0.5in</Height>
+						<Width>6in</Width>
+						<ZIndex>2</ZIndex>
+					</Textbox>
+
+					<!-- Chart to Display Sales Trend -->
+					<Chart Name="SalesChart">
+						<Left>0.25in</Left>
+						<Top>1in</Top>
+						<Width>6in</Width>
+						<Height>3in</Height>
+						<DataSetName>SalesData</DataSetName>
+						<!-- Define the Category (X) Axis Grouping -->
+						<ChartCategoryHierarchy>
+							<ChartMembers>
+								<ChartMember>
+									<Groupings>
+										<Grouping Name="MonthGrouping">
+											<!-- Display as Month/Year -->
+											<GroupingExpressions>
+												<GroupingExpression>=Fields!OrderMonth.Value &amp; "/" &amp; Fields!OrderYear.Value</GroupingExpression>
+											</GroupingExpressions>
+										</Grouping>
+									</Groupings>
+									<SortExpressions>
+										<SortExpression>
+											<!-- Sort by Year then Month -->
+											<Value>=Fields!OrderYear.Value * 100 + Fields!OrderMonth.Value</Value>
+										</SortExpression>
+									</SortExpressions>
+								</ChartMember>
+							</ChartMembers>
+						</ChartCategoryHierarchy>
+
+						<!-- Define the Value (Y) Axis -->
+						<ChartValueHierarchy>
+							<ChartMembers>
+								<ChartMember />
+							</ChartMembers>
+						</ChartValueHierarchy>
+
+						<!-- Chart Area Definition -->
+						<ChartAreas>
+							<ChartArea Name="Default" />
+						</ChartAreas>
+
+						<!-- Define the Series -->
+						<ChartSeriesCollection>
+							<ChartSeries>
+								<Name>Total Sales</Name>
+								<ChartType>Line</ChartType>
+								<DataPoints>
+									<DataPoint>
+										<DataValues>
+											<DataValue>
+												<Value>=Fields!TotalSales.Value</Value>
+											</DataValue>
+										</DataValues>
+										<Style>
+											<!-- Line styling with a light blue fill and black border -->
+											<BorderColor>Black</BorderColor>
+											<BorderStyle>Solid</BorderStyle>
+											<BorderWidth>1pt</BorderWidth>
+											<BackgroundColor>LightBlue</BackgroundColor>
+										</Style>
+									</DataPoint>
+								</DataPoints>
+							</ChartSeries>
+						</ChartSeriesCollection>
+						<Style />
+					</Chart>
+
+					<!-- Narrative Text Block -->
+					<Textbox Name="ReportStory">
+						<CanGrow>true</CanGrow>
+						<KeepTogether>true</KeepTogether>
+						<Paragraphs>
+							<Paragraph>
+								<TextRuns>
+									<TextRun>
+										<Value>
+											<![CDATA[
+This report tells the story of our company’s journey over time. The line chart above illustrates our monthly sales performance, highlighting how each period brings both challenges and opportunities. Notice the peaks and valleys which reflect seasonal trends, strategic initiatives, and market conditions. Let this story inspire you to continue driving success in every new month!
+										]]>
+										</Value>
+										<Style>
+											<FontSize>12pt</FontSize>
+										</Style>
+									</TextRun>
+								</TextRuns>
+								<Style />
+							</Paragraph>
+						</Paragraphs>
+						<rd:DefaultName>ReportStory</rd:DefaultName>
+						<Top>4.5in</Top>
+						<Left>0.25in</Left>
+						<Height>1in</Height>
+						<Width>6in</Width>
+						<ZIndex>3</ZIndex>
+					</Textbox>
+				</ReportItems>
+				<Height>6in</Height>
+				<Style />
+			</Body>
+			<Width>13.19167in</Width>
+			<Page>
+				<LeftMargin>1in</LeftMargin>
+				<RightMargin>1in</RightMargin>
+				<TopMargin>1in</TopMargin>
+				<BottomMargin>1in</BottomMargin>
+				<Style />
+			</Page>
+		</ReportSection>
+	</ReportSections>
+	<ReportParametersLayout>
+		<GridLayoutDefinition>
+			<NumberOfColumns>4</NumberOfColumns>
+			<NumberOfRows>2</NumberOfRows>
+		</GridLayoutDefinition>
+	</ReportParametersLayout>
+	<EmbeddedImages>
+		<EmbeddedImage Name="images">
+			<MIMEType>image/png</MIMEType>
+			<ImageData>
+				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
+			</ImageData>
+		</EmbeddedImage>
+	</EmbeddedImages>
+	<Language>en-US</Language>
+	<ConsumeContainerWhitespace>true</ConsumeContainerWhitespace>
+	<rd:ReportUnitType>Inch</rd:ReportUnitType>
+	<rd:ReportID>261020d4-41da-4a0d-a4e2-9803b3f2778b</rd:ReportID>
+</Report>

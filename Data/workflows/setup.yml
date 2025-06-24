@@ -1,0 +1,66 @@
+name: Setup AutoDBLuckyManamela Database
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy-dev:
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install SQL Server Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl gnupg
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+          curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
+          sudo apt-get update
+          sudo apt-get install -y mssql-tools unixodbc-dev
+          echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
+          source ~/.bashrc
+
+      - name: Execute SQL Script (Development)
+        env:
+          SQL_SERVER: ${{ secrets.DEV_SQL_SERVER_HOST }}  # rnvut-197-184-73-144.a.free.pinggy.link
+          SQL_PORT: ${{ secrets.DEV_SQL_SERVER_PORT }}    # 37893
+          SQL_USER: Auto_user
+          SQL_PASSWORD: ${{ secrets.DEV_SQL_PASSWORD }}
+        run: |
+          /opt/mssql-tools/bin/sqlcmd -S "$SQL_SERVER,$SQL_PORT" -U "$SQL_USER" -P "$SQL_PASSWORD" -i scripts/setup1.sql -o output.log -x || echo "sqlcmd failed, check output.log"
+          cat output.log
+
+  deploy-prod:
+    runs-on: ubuntu-latest
+    environment: production
+    needs: deploy-dev
+    if: success()
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install SQL Server Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl gnupg
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+          curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
+          sudo apt-get update
+          sudo apt-get install -y mssql-tools unixodbc-dev
+          echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
+          source ~/.bashrc
+
+      - name: Execute SQL Script (Production)
+        env:
+          SQL_SERVER: ${{ secrets.PROD_SQL_SERVER_HOST }}  # abc123.localexpose.com
+          SQL_PORT: ${{ secrets.PROD_SQL_SERVER_PORT }}    # 45678
+          SQL_USER: Auto_user
+          SQL_PASSWORD: ${{ secrets.PROD_SQL_PASSWORD }}
+        run: |
+          /opt/mssql-tools/bin/sqlcmd -S "$SQL_SERVER,$SQL_PORT" -U "$SQL_USER" -P "$SQL_PASSWORD" -i scripts/setup1.sql -o output.log -x || echo "sqlcmd failed, check output.log"
+          cat output.log

@@ -1,0 +1,30 @@
+name: Setup AutoDBLuckyManamela Database
+ 
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+ 
+jobs:
+  deploy-dev:
+    uses: ./.github/workflows/deploy-template.yml
+    with:
+      environment: development
+    secrets:
+      SQL_SERVER_HOST: ${{ secrets.DEV_SQL_SERVER_HOST }}
+      SQL_SERVER_PORT: ${{ secrets.DEV_SQL_SERVER_PORT }}
+      SQL_USER: Auto_user
+      SQL_PASSWORD: ${{ secrets.DEV_SQL_PASSWORD }}
+ 
+  deploy-prod:
+    needs: deploy-dev
+    if: success()
+    uses: ./.github/workflows/deploy-template.yml
+    with:
+      environment: production
+    secrets:
+      SQL_SERVER_HOST: ${{ secrets.PROD_SQL_SERVER_HOST }}
+      SQL_SERVER_PORT: ${{ secrets.PROD_SQL_SERVER_PORT }}
+      SQL_USER: Auto_user
+      SQL_PASSWORD: ${{ secrets.PROD_SQL_PASSWORD }}

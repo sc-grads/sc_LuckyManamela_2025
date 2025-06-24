@@ -1,0 +1,76 @@
+
+name: Create Timesheet Database
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  create-db:
+    runs-on: windows-latest
+
+    steps:
+      - name: Step 1 - Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+        # Description: Clones the repository to access the T-SQL script.
+        # Purpose: Ensures the sql/create_timesheet_db.sql file is available.
+
+      - name: Step 2 - Install SQL Server command-line tools
+        run: |
+          Write-Host "Installing sqlserver-cmdlineutils via Chocolatey..."
+          choco install sqlserver-cmdlineutils -y
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Failed to install sqlserver-cmdlineutils"
+            exit 1
+          }
+          Write-Host "sqlserver-cmdlineutils installed successfully."
+        env:
+          CHOCO_INSTALL: 1
+        # Description: Installs sqlcmd for executing T-SQL scripts.
+        # Purpose: Ensures the runner has tools to interact with SQL Server.
+
+      - name: Step 3 - Execute T-SQL script to create database
+        run: |
+          $sqlServer = "localhost"  # Replace with your SQL Server instance
+          $database = "TimesheetDB"
+          $scriptPath = "sql/create_timesheet_db.sql"
+          Write-Host "Executing T-SQL script: $scriptPath"
+          Invoke-Sqlcmd -ServerInstance $sqlServer -Database "master" -Username $env:SQLCMDUSER -Password $env:SQLCMDPASSWORD -InputFile $scriptPath -Verbose -ErrorAction Stop
+          Write-Host "T-SQL script executed successfully."
+        env:
+          SQLCMDUSER: ${{ secrets.SQL_USER }}
+          SQLCMDPASSWORD: ${{ secrets.SQL_PASSWORD }}
+        # Description: Runs the T-SQL script to create TimesheetDB and its schema.
+        # Purpose: Creates tables, constraints, indexes, and triggers.
+
+      - name: Step 4 - Verify database and schema creation
+        run: |
+          $sqlServer = "localhost"  # Replace with your SQL Server instance
+          $database = "TimesheetDB"
+          Write-Host "Verifying database creation..."
+          $dbQuery = "SELECT name FROM sys.databases WHERE name = '$database'"
+          $dbResult = Invoke-Sqlcmd -ServerInstance $sqlServer -Database "master" -Username $env:SQLCMDUSER -Password $env:SQLCMDPASSWORD -Query $dbQuery -ErrorAction Stop
+          if (-not $dbResult) {
+            Write-Error "Database $database not found."
+            exit 1
+          }
+          Write-Host "Database $database exists."
+          
+          Write-Host "Verifying key tables..."
+          $tableQuery = "SELECT COUNT(*) AS TableCount FROM $database.sys.tables WHERE name IN ('Consultants', 'Clients', 'Projects', 'Timesheets', 'LeaveRequests', 'TimesheetMetadata', 'AuditLog', 'ErrorLog')"
+          $tableResult = Invoke-Sqlcmd -ServerInstance $sqlServer -Database $database -Username $env:SQLCMDUSER -Password $env:SQLCMDPASSWORD -Query $tableQuery -ErrorAction Stop
+          $tableCount = $tableResult.TableCount
+          if ($tableCount -eq 8) {
+            Write-Host "All 8 expected tables created successfully."
+          } else {
+            Write-Error "Expected 8 tables, found $tableCount."
+            exit 1
+          }
+        env:
+          SQLCMDUSER: ${{ secrets.SQL_USER }}
+          SQLCMDPASSWORD: ${{ secrets.SQL_PASSWORD }}
+        # Description: Checks if the database and all expected tables were created.
+        # Purpose: Ensures the schema was deployed correctly.
