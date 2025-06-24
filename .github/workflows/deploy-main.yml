@@ -10,130 +10,130 @@ on:
   workflow_dispatch:
 
 env:
-  DATABASE_NAME: TimesheetDB
-  SSIS_SOURCE_PATH: 'HandsOnProjects/TimesheetMigration/TimesheetMigration/bin/Development/TimesheetMigration.ispac'
+  SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}
+  SQL_USERNAME: ${{ secrets.SQL_USERNAME }}
+  SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
   SSIS_DEST_FOLDER: 'NewDataMigration'
   SSIS_PROJECTS_FOLDER: 'Timesheets'
   JOB_NAME: 'RunDataMigrationPackage'
   PACKAGE_NAME: 'TimeSheetMigration 1.dtsx'
-  SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}
-  SQL_USERNAME: ${{ secrets.SQL_USERNAME }}
-  SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
-  SQL_SERVER: 'SAMBE2025008'  # Local hostname for Agent/job execution
+  SSIS_SOURCE_PATH: 'HandsOnProjects/TimesheetMigration/TimesheetMigration/bin/Development/TimesheetMigration.ispac'
+  SQL_SERVER: 'SAMBE2025008'  # Adjust if needed
+  SSISDB_PASSWORD: ${{ secrets.SSISDB_PASSWORD }}
 
 jobs:
-  deploy-database:
-    runs-on: ubuntu-latest
+  deploy-ssis:
+    runs-on: [self-hosted, windows]
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install SQL Server tools
+      - name: Ensure PowerShell Execution Policy
+        run: Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+        shell: powershell
+
+      - name: Check and Create SSISDB Catalog if Missing
+        shell: powershell
         run: |
-          sudo apt-get update
-          sudo apt-get install -y curl gnupg
-          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-          curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
-          sudo apt-get update
-          sudo apt-get install -y mssql-tools unixodbc-dev
-          echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
-          source ~/.bashrc
+          $checkDbExists = @"
+          SELECT COUNT(*) FROM sys.databases WHERE name = 'SSISDB';
+          "@
+          $exists = sqlcmd -S $env:SQL_SERVER_NAME -U $env:SQL_USERNAME -P $env:SQL_PASSWORD -d master -Q $checkDbExists -h -1
+          if ($exists.Trim() -eq '0') {
+              Write-Output "SSISDB database not found. Creating SSISDB catalog..."
+              $createCatalogSql = "EXEC catalog.create_catalog @password = '$env:SSISDB_PASSWORD';"
+              sqlcmd -S $env:SQL_SERVER_NAME -U $env:SQL_USERNAME -P $env:SQL_PASSWORD -d master -Q $createCatalogSql -b
+              Write-Output "SSISDB catalog created."
+          }
+          else {
+              Write-Output "SSISDB database already exists."
+          }
 
-      - name: Execute SQL Script
-        run: |
-          /opt/mssql-tools/bin/sqlcmd -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -d master -i scripts/TimesheetDB.sql
-
-  deploy-and-run:
-    runs-on: self-hosted
-    needs: deploy-database
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Create SSIS Catalog Folder
+      - name: Create SSIS Folder if Missing
         shell: powershell
         run: |
           $sql = @"
           USE SSISDB;
-          IF NOT EXISTS (SELECT 1 FROM catalog.folders WHERE name = '${{ env.SSIS_DEST_FOLDER }}')
+          IF NOT EXISTS (SELECT 1 FROM catalog.folders WHERE name = N'$env:SSIS_DEST_FOLDER')
           BEGIN
-              EXEC catalog.create_folder @folder_name = '${{ env.SSIS_DEST_FOLDER }}';
-              PRINT 'Folder created.';
-          END
-          ELSE
-          BEGIN
-              PRINT 'Folder already exists.';
+            EXEC catalog.create_folder @folder_name = N'$env:SSIS_DEST_FOLDER';
           END
           "@
-          sqlcmd -S "${{ env.SQL_SERVER }}" -E -Q "$sql"
+          sqlcmd -S $env:SQL_SERVER_NAME -U $env:SQL_USERNAME -P $env:SQL_PASSWORD -Q "$sql" -b
 
-      - name: Deploy SSIS ISPAC to SSISDB
+      - name: Deploy SSIS Project
         shell: powershell
         run: |
-          $ispacPath = Join-Path $env:GITHUB_WORKSPACE "${{ env.SSIS_SOURCE_PATH }}"
+          $ispacPath = Join-Path $env:GITHUB_WORKSPACE "$env:SSIS_SOURCE_PATH"
           if (-not (Test-Path $ispacPath)) {
-              Write-Error "ISPAC not found at: $ispacPath"
-              exit 1
+              throw "ISPAC not found at $ispacPath"
           }
 
-          $sql = @"
-          DECLARE @ispac VARBINARY(MAX);
-          SELECT @ispac = BulkColumn FROM OPENROWSET(BULK '$ispacPath', SINGLE_BLOB) AS bin;
-          EXEC SSISDB.catalog.deploy_project
-              @folder_name = '${{ env.SSIS_DEST_FOLDER }}',
-              @project_name = '${{ env.SSIS_PROJECTS_FOLDER }}',
-              @project_stream = @ispac;
-          "@
+          & "C:\sqlpackage\sqlpackage.exe" /Action:DeployProject `
+                       /SourceFile:$ispacPath `
+                       /TargetServerName:$env:SQL_SERVER_NAME `
+                       /TargetUser:$env:SQL_USERNAME `
+                       /TargetPassword:$env:SQL_PASSWORD `
+                       /p:TargetProjectFolder=$env:SSIS_DEST_FOLDER `
+                       /p:CreateDeploymentUtility=true `
+                       /p:BlockOnPossibleDataLoss=false `
+                       /p:AllowIncompatiblePlatform=true
 
-          $tempSql = Join-Path $env:GITHUB_WORKSPACE "deploy_project.sql"
-          Set-Content -Path $tempSql -Value $sql
-          sqlcmd -S "${{ env.SQL_SERVER }}" -E -i $tempSql
-
-      - name: Grant SSIS Project Permissions
+      - name: Grant Project Permissions
         shell: powershell
         run: |
           $sql = @"
-          DECLARE @object_id BIGINT;
-          SELECT @object_id = project_id FROM SSISDB.catalog.projects WHERE name = '${{ env.SSIS_PROJECTS_FOLDER }}';
-          IF @object_id IS NOT NULL
+          DECLARE @project_id bigint;
+          SELECT @project_id = project_id
+          FROM SSISDB.catalog.projects
+          WHERE name = N'$env:SSIS_PROJECTS_FOLDER' AND folder_id = (
+              SELECT folder_id FROM SSISDB.catalog.folders WHERE name = N'$env:SSIS_DEST_FOLDER'
+          );
+
+          IF @project_id IS NOT NULL
           BEGIN
-              EXEC SSISDB.catalog.grant_permission @object_type=2, @object_id=@object_id, @principal_id=14, @permission_type=1;
-              EXEC SSISDB.catalog.grant_permission @object_type=2, @object_id=@object_id, @principal_id=14, @permission_type=2;
-              EXEC SSISDB.catalog.grant_permission @object_type=2, @object_id=@object_id, @principal_id=14, @permission_type=3;
-              EXEC SSISDB.catalog.grant_permission @object_type=2, @object_id=@object_id, @principal_id=14, @permission_type=4;
-              PRINT 'Permissions granted.';
-          END
-          ELSE
-          BEGIN
-              RAISERROR('Project not found.', 16, 1);
+              EXEC SSISDB.catalog.grant_permission @object_type=2, @object_id=@project_id, @principal_id=1, @permission_type=1;
+              EXEC SSISDB.catalog.grant_permission @object_type=2, @object_id=@project_id, @principal_id=1, @permission_type=2;
+              EXEC SSISDB.catalog.grant_permission @object_type=2, @object_id=@project_id, @principal_id=1, @permission_type=3;
+              EXEC SSISDB.catalog.grant_permission @object_type=2, @object_id=@project_id, @principal_id=1, @permission_type=4;
           END
           "@
-          sqlcmd -S "${{ env.SQL_SERVER }}" -E -Q "$sql"
+          sqlcmd -S $env:SQL_SERVER_NAME -U $env:SQL_USERNAME -P $env:SQL_PASSWORD -Q "$sql" -b
 
-      - name: Create SQL Agent Job to run SSIS
+      - name: Create SQL Agent Job if Missing
         shell: powershell
         run: |
           $sql = @"
           USE msdb;
-          IF NOT EXISTS (SELECT 1 FROM sysjobs WHERE name = '${{ env.JOB_NAME }}')
+          IF NOT EXISTS (SELECT 1 FROM msdb.dbo.sysjobs WHERE name = N'$env:JOB_NAME')
           BEGIN
-              DECLARE @jobId BINARY(16)
-              EXEC sp_add_job @job_name = '${{ env.JOB_NAME }}', @enabled = 1, @job_id = @jobId OUTPUT;
-              EXEC sp_add_jobstep @job_id = @jobId, @step_name = 'RunPackage',
-                   @subsystem = 'SSIS',
-                   @command = '/ISSERVER "\SSISDB\${{ env.SSIS_DEST_FOLDER }}\${{ env.SSIS_PROJECTS_FOLDER }}\${{ env.PACKAGE_NAME }}" /SERVER "${{ env.SQL_SERVER }}" /REPORTING E',
-                   @on_success_action = 1, @on_fail_action = 2;
-              EXEC sp_add_jobserver @job_id = @jobId, @server_name = N'(local)';
-              PRINT 'Created SQL Agent job.';
-          END
-          ELSE
-          BEGIN
-              PRINT 'SQL Agent job already exists.';
+            DECLARE @jobId UNIQUEIDENTIFIER;
+            EXEC msdb.dbo.sp_add_job
+              @job_name = N'$env:JOB_NAME',
+              @enabled = 1,
+              @description = N'Data Migration SSIS Job',
+              @start_step_id = 1,
+              @owner_login_name = SYSTEM_USER,
+              @job_id = @jobId OUTPUT;
+
+            EXEC msdb.dbo.sp_add_jobstep
+              @job_id = @jobId,
+              @step_id = 1,
+              @step_name = N'RunMigrationStep',
+              @subsystem = N'SSIS',
+              @command = N'/ISSERVER "\SSISDB\$env:SSIS_DEST_FOLDER\$env:SSIS_PROJECTS_FOLDER\$env:PACKAGE_NAME" /SERVER "$env:SQL_SERVER_NAME" /REPORTING E',
+              @database_name = N'master',
+              @on_success_action = 1,
+              @on_fail_action = 2;
+
+            EXEC msdb.dbo.sp_add_jobserver @job_id = @jobId, @server_name = N'(local)';
           END
           "@
-          sqlcmd -S "${{ env.SQL_SERVER }}" -E -Q "$sql"
+          sqlcmd -S $env:SQL_SERVER_NAME -U $env:SQL_USERNAME -P $env:SQL_PASSWORD -Q "$sql" -b
 
       - name: Start SQL Agent Job
         shell: powershell
         run: |
-          $sql = "EXEC msdb.
+          $sql = "EXEC msdb.dbo.sp_start_job @job_name = N'$env:JOB_NAME';"
+          sqlcmd -S $env:SQL_SERVER_NAME -U $env:SQL_USERNAME -P $env:SQL_PASSWORD -Q "$sql" -b
