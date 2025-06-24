@@ -87,22 +87,21 @@ jobs:
           "@
           sqlcmd -S $env:SQL_SERVER_NAME -U $env:SQL_USERNAME -P $env:SQL_PASSWORD -Q "$sql" -b
 
-      - name: Download and Install sqlpackage
+      - name: Ensure PowerShell Execution Policy
+        shell: powershell
+        run: Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+
+      - name: Install .NET SDK (required for dotnet tool)
+        shell: pwsh
+        run: |
+          choco install dotnet-7.0-sdk -y
+
+      - name: Install SqlPackage via .NET tool
         shell: powershell
         run: |
-          $url = "https://download.microsoft.com/download/5/4/d/54db77b2-249b-46da-8fb4-4f1e9e6e6c1d/sqlpackage-win-x64-en-US-160.8535.1.zip"
-          $zipPath = "$env:RUNNER_TEMP\sqlpackage.zip"
-          $installPath = "C:\sqlpackage"
+          dotnet tool install -g microsoft.sqlpackage
+          sqlpackage /version
 
-          Invoke-WebRequest -Uri $url -OutFile $zipPath
-
-          $size = (Get-Item $zipPath).Length
-          if ($size -lt 5000000) {
-            throw "Downloaded ZIP is too small or corrupt: $size bytes"
-          }
-
-          Expand-Archive -Path $zipPath -DestinationPath $installPath -Force
-          echo "$installPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
 
       - name: Deploy SSIS Project (.ispac)
