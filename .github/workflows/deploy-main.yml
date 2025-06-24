@@ -101,10 +101,8 @@ jobs:
         run: |
           dotnet tool install -g microsoft.sqlpackage
           sqlpackage /version
-
-
-
-      - name: Deploy SSIS Project (.ispac)
+      
+      - name: Deploy SSIS Project
         shell: powershell
         run: |
           $ispacPath = Join-Path $env:GITHUB_WORKSPACE $env:SSIS_SOURCE_PATH
@@ -112,15 +110,13 @@ jobs:
               throw "ISPAC not found at $ispacPath"
           }
 
-          sqlpackage /Action:DeployProject `
-                    /SourceFile:$ispacPath `
-                    /TargetServerName:$env:SQL_SERVER_NAME `
-                    /TargetUser:$env:SQL_USERNAME `
-                    /TargetPassword:$env:SQL_PASSWORD `
-                    /p:TargetProjectFolder=$env:SSIS_DEST_FOLDER `
-                    /p:CreateDeploymentUtility=true `
-                    /p:BlockOnPossibleDataLoss=false `
-                    /p:AllowIncompatiblePlatform=true
+          $isDeploymentWizardPath = "C:\Program Files\Microsoft SQL Server\160\DTS\Binn\ISDeploymentWizard.exe"
+          if (-not (Test-Path $isDeploymentWizardPath)) {
+              throw "ISDeploymentWizard.exe not found at $isDeploymentWizardPath"
+          }
+
+          & $isDeploymentWizardPath /Silent /SourcePath:$ispacPath /DestinationServer:$env:SQL_SERVER_NAME /DestinationPath:"\$env:SSIS_DEST_FOLDER"
+
 
       - name: Grant SSIS Project Permissions
         shell: powershell
