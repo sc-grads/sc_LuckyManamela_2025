@@ -1,4 +1,4 @@
-name: Deploy SSIS Packages
+name: Deploy SSIS Packages and Run Job
 
 on:
   repository_dispatch:
@@ -7,20 +7,22 @@ on:
 
 env:
   SSIS_PACKAGE_NAME: 'TimeSheetMigration 1.dtsx'
-  SSIS_FOLDER_NAME: NewDataMigration  # Updated to match the created folder
-  SSIS_PROJECT_NAME: Projects/Timesheets/Packages
+  SSIS_FOLDER_NAME: 'NewDataMigration'
+  SSIS_PROJECT_NAME: 'Timesheets'
   SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}
   SQL_USERNAME: ${{ secrets.SQL_USERNAME }}
   SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
+  SQL_AGENT_JOB_NAME: 'RunDataMigrationPackage'
 
 jobs:
   deploy-ssis:
     runs-on: [self-hosted, windows]
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Ensure PowerShell execution policy
+      - name: Ensure PowerShell Execution Policy
         run: Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
         shell: powershell
 
@@ -29,7 +31,7 @@ jobs:
         run: |
           $zipPath = "C:\actions-runner\sqlpackage-win-x64-en-170.0.94.3.zip"
           if (-not (Test-Path $zipPath)) {
-              throw "Local sqlpackage.zip not found at $zipPath"
+              throw "sqlpackage.zip not found at $zipPath"
           }
           $zipSize = (Get-Item $zipPath).Length
           if ($zipSize -lt 5000000) {
@@ -41,41 +43,100 @@ jobs:
       - name: Test SQL Server Connectivity
         shell: powershell
         run: |
-          $pingResult = Test-Connection -ComputerName ${{ env.SQL_SERVER_NAME }} -Count 4 -Quiet
-          if ($pingResult) {
-              Write-Output "Ping to ${{ env.SQL_SERVER_NAME }} succeeded"
-          } else {
-              Write-Error "Ping to ${{ env.SQL_SERVER_NAME }} failed"
+          if (-not (Test-Connection -ComputerName $env:SQL_SERVER_NAME -Count 2 -Quiet)) {
+              Write-Error "Cannot reach SQL Server: $env:SQL_SERVER_NAME"
               exit 1
           }
-          $portTest = Test-NetConnection -ComputerName ${{ env.SQL_SERVER_NAME }} -Port 1433
-          if ($portTest.TcpTestSucceeded) {
-              Write-Output "Port 1433 is open"
-          } else {
-              Write-Error "Port 1433 is closed or unreachable"
+          $port = Test-NetConnection -ComputerName $env:SQL_SERVER_NAME -Port 1433
+          if (-not $port.TcpTestSucceeded) {
+              Write-Error "SQL Server port 1433 is closed"
               exit 1
           }
+
+      - name: Create SSIS Folder if Missing
+        shell: powershell
+        run: |
+          $sql = @"
+          USE SSISDB;
+          IF NOT EXISTS (SELECT 1 FROM catalog.folders WHERE name = N'$env:SSIS_FOLDER_NAME')
+          BEGIN
+            EXEC catalog.create_folder @folder_name = N'$env:SSIS_FOLDER_NAME';
+          END
+          "@
+                    sqlcmd -S $env:SQL_SERVER_NAME -U $env:SQL_USERNAME -P $env:SQL_PASSWORD -Q "$sql" -b
 
       - name: Deploy SSIS Package
         shell: powershell
         run: |
           $ispacPath = Join-Path $env:GITHUB_WORKSPACE "HandsOnProjects/TimesheetMigration/TimesheetMigration/bin/Development/TimesheetMigration.ispac"
           if (-not (Test-Path $ispacPath)) {
-              throw "SSIS project file not found at $ispacPath"
+              throw "ISPAC not found at $ispacPath"
           }
-          $folderName = '${{ env.SSIS_FOLDER_NAME }}'
-          $server = '${{ env.SQL_SERVER_NAME }}'
-          $username = '${{ env.SQL_USERNAME }}'
-          $password = '${{ env.SQL_PASSWORD }}'
 
-          # Deploy SSIS project using sqlpackage
           & sqlpackage /Action:DeployProject `
-                      /SourceFile:$ispacPath `
-                      /TargetServerName:$server `
-                      /TargetUser:$username `
-                      /TargetPassword:$password `
-                      /p:TargetProjectFolder:$folderName `
-                      /p:CreateDeploymentUtility=true `
-                      /p:BlockOnPossibleDataLoss=false `
-                      /p:AllowIncompatiblePlatform=true
-          Write-Output "SSIS project deployed successfully."
+                       /SourceFile:$ispacPath `
+                       /TargetServerName:$env:SQL_SERVER_NAME `
+                       /TargetUser:$env:SQL_USERNAME `
+                       /TargetPassword:$env:SQL_PASSWORD `
+                       /p:TargetProjectFolder=$env:SSIS_FOLDER_NAME `
+                       /p:CreateDeploymentUtility=true `
+                       /p:BlockOnPossibleDataLoss=false `
+                       /p:AllowIncompatiblePlatform=true
+
+      - name: Grant Project Permissions
+        shell: powershell
+        run: |
+          $sql = @"
+          DECLARE @project_id bigint;
+          SELECT @project_id = project_id
+          FROM SSISDB.catalog.projects
+          WHERE name = N'$env:SSIS_PROJECT_NAME' AND folder_id = (
+              SELECT folder_id FROM SSISDB.catalog.folders WHERE name = N'$env:SSIS_FOLDER_NAME'
+          );
+
+          IF @project_id IS NOT NULL
+          BEGIN
+              EXEC SSISDB.catalog.grant_permission @object_type=2, @object_id=@project_id, @principal_id=1, @permission_type=1;
+              EXEC SSISDB.catalog.grant_permission @object_type=2, @object_id=@project_id, @principal_id=1, @permission_type=2;
+              EXEC SSISDB.catalog.grant_permission @object_type=2, @object_id=@project_id, @principal_id=1, @permission_type=3;
+              EXEC SSISDB.catalog.grant_permission @object_type=2, @object_id=@project_id, @principal_id=1, @permission_type=4;
+          END
+          "@
+          sqlcmd -S $env:SQL_SERVER_NAME -U $env:SQL_USERNAME -P $env:SQL_PASSWORD -Q "$sql" -b
+
+      - name: Create SQL Agent Job if Missing
+        shell: powershell
+        run: |
+          $sql = @"
+          USE msdb;
+          IF NOT EXISTS (SELECT 1 FROM msdb.dbo.sysjobs WHERE name = N'$env:SQL_AGENT_JOB_NAME')
+          BEGIN
+            DECLARE @jobId UNIQUEIDENTIFIER;
+            EXEC msdb.dbo.sp_add_job
+              @job_name = N'$env:SQL_AGENT_JOB_NAME',
+              @enabled = 1,
+              @description = N'Data Migration SSIS Job',
+              @start_step_id = 1,
+              @owner_login_name = SYSTEM_USER,
+              @job_id = @jobId OUTPUT;
+
+            EXEC msdb.dbo.sp_add_jobstep
+              @job_id = @jobId,
+              @step_id = 1,
+              @step_name = N'RunMigrationStep',
+              @subsystem = N'SSIS',
+              @command = N'/ISSERVER "\SSISDB\$env:SSIS_FOLDER_NAME\$env:SSIS_PROJECT_NAME\$env:SSIS_PACKAGE_NAME" /SERVER "$env:SQL_SERVER_NAME" /REPORTING E',
+              @database_name = N'master',
+              @on_success_action = 1,
+              @on_fail_action = 2;
+
+            EXEC msdb.dbo.sp_add_jobserver @job_id = @jobId, @server_name = N'(local)';
+          END
+          "@
+          sqlcmd -S $env:SQL_SERVER_NAME -U $env:SQL_USERNAME -P $env:SQL_PASSWORD -Q "$sql" -b
+
+      - name: Start SQL Agent Job
+        shell: powershell
+        run: |
+          $sql = "EXEC msdb.dbo.sp_start_job @job_name = N'$env:SQL_AGENT_JOB_NAME';"
+          sqlcmd -S $env:SQL_SERVER_NAME -U $env:SQL_USERNAME -P $env:SQL_PASSWORD -Q "$sql" -b
