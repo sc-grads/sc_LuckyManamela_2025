@@ -1,4 +1,4 @@
-name: Deploy TimesheetDB, SSIS Package, and Run Data Migration
+name: Full Deployment - TimesheetDB + SSIS + SQL Agent Job
 
 on:
   push:
@@ -13,25 +13,50 @@ env:
   SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}
   SQL_USERNAME: ${{ secrets.SQL_USERNAME }}
   SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
+  SSISDB_PASSWORD: ${{ secrets.SSISDB_PASSWORD }}
   SSIS_DEST_FOLDER: 'NewDataMigration'
   SSIS_PROJECTS_FOLDER: 'Timesheets'
-  JOB_NAME: 'RunDataMigrationPackage'
   PACKAGE_NAME: 'TimeSheetMigration 1.dtsx'
   SSIS_SOURCE_PATH: 'HandsOnProjects/TimesheetMigration/TimesheetMigration/bin/Development/TimesheetMigration.ispac'
-  SQL_SERVER: 'SAMBE2025008'  # Adjust if needed
-  SSISDB_PASSWORD: ${{ secrets.SSISDB_PASSWORD }}
+  JOB_NAME: 'RunDataMigrationPackage'
+  SQL_SERVER_LOCAL: 'SAMBE2025008'  # Adjust if needed (for job execution, usually the SQL Server hostname)
 
 jobs:
+  deploy-database:
+    name: Deploy Database Scripts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install SQL Server Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl gnupg
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+          curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
+          sudo apt-get update
+          sudo apt-get install -y mssql-tools unixodbc-dev
+          echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
+          source ~/.bashrc
+
+      - name: Run TimesheetDB SQL Script
+        run: |
+          /opt/mssql-tools/bin/sqlcmd -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -d master -i scripts/TimesheetDB.sql
+
   deploy-ssis:
+    name: Deploy SSIS Project and Run Job
     runs-on: [self-hosted, windows]
+    needs: deploy-database
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Ensure PowerShell Execution Policy
-        run: Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
         shell: powershell
+        run: Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
       - name: Check and Create SSISDB Catalog if Missing
         shell: powershell
@@ -62,7 +87,7 @@ jobs:
           "@
           sqlcmd -S $env:SQL_SERVER_NAME -U $env:SQL_USERNAME -P $env:SQL_PASSWORD -Q "$sql" -b
 
-      - name: Deploy SSIS Project
+      - name: Deploy SSIS Project (.ispac)
         shell: powershell
         run: |
           $ispacPath = Join-Path $env:GITHUB_WORKSPACE "$env:SSIS_SOURCE_PATH"
@@ -80,7 +105,7 @@ jobs:
                        /p:BlockOnPossibleDataLoss=false `
                        /p:AllowIncompatiblePlatform=true
 
-      - name: Grant Project Permissions
+      - name: Grant SSIS Project Permissions
         shell: powershell
         run: |
           $sql = @"
