@@ -100,11 +100,11 @@ jobs:
               throw "ISDeploymentWizard.exe not found at $deployExe"
           }
 
+          # Removed /ProjectName parameter as it causes error
           & $deployExe /Silent `
                       /SourcePath:"$ispacPath" `
                       /DestinationServer:$env:SQL_SERVER_NAME `
-                      /DestinationPath:"\SSISDB\$env:SSIS_DEST_FOLDER" `
-                      /ProjectName:$env:SSIS_PROJECTS_FOLDER
+                      /DestinationPath:"\SSISDB\$env:SSIS_DEST_FOLDER"
 
       - name: Grant SSIS Project Permissions
         shell: powershell
@@ -130,6 +130,9 @@ jobs:
       - name: Create SQL Agent Job if Missing
         shell: powershell
         run: |
+          $packagePath = "\\SSISDB\\$env:SSIS_DEST_FOLDER\\$env:SSIS_PROJECTS_FOLDER\\$env:PACKAGE_NAME"
+          $escapedPackagePath = $packagePath -replace '\\', '\\\\'
+
           $sql = @"
           USE msdb;
           IF NOT EXISTS (SELECT 1 FROM msdb.dbo.sysjobs WHERE name = N'$env:JOB_NAME')
@@ -148,7 +151,7 @@ jobs:
               @step_id = 1,
               @step_name = N'RunMigrationStep',
               @subsystem = N'SSIS',
-              @command = N'/ISSERVER "\"\SSISDB\$env:SSIS_DEST_FOLDER\$env:SSIS_PROJECTS_FOLDER\$env:PACKAGE_NAME\"" /SERVER "$env:SQL_SERVER_NAME" /REPORTING E',
+              @command = N'/ISSERVER \""$escapedPackagePath\"" /SERVER "$env:SQL_SERVER_NAME" /REPORTING E',
               @database_name = N'master',
               @on_success_action = 1,
               @on_fail_action = 2;
@@ -156,6 +159,7 @@ jobs:
             EXEC msdb.dbo.sp_add_jobserver @job_id = @jobId, @server_name = N'(local)';
           END
           "@
+
           sqlcmd -S $env:SQL_SERVER_NAME -U $env:SQL_USERNAME -P $env:SQL_PASSWORD -Q "$sql" -b
 
       - name: Start SQL Agent Job
