@@ -87,22 +87,7 @@ jobs:
           "@
           sqlcmd -S $env:SQL_SERVER_NAME -U $env:SQL_USERNAME -P $env:SQL_PASSWORD -Q "$sql" -b
 
-      - name: Ensure PowerShell Execution Policy
-        shell: powershell
-        run: Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-
-      - name: Install .NET SDK (required for dotnet tool)
-        shell: powershell
-        run: |
-          choco install dotnet-7.0-sdk -y
-
-      - name: Install SqlPackage via .NET tool
-        shell: powershell
-        run: |
-          dotnet tool install -g microsoft.sqlpackage
-          sqlpackage /version
-      
-      - name: Deploy SSIS Project
+      - name: Deploy SSIS Project Using ISDeploymentWizard
         shell: powershell
         run: |
           $ispacPath = Join-Path $env:GITHUB_WORKSPACE $env:SSIS_SOURCE_PATH
@@ -110,13 +95,16 @@ jobs:
               throw "ISPAC not found at $ispacPath"
           }
 
-          $isDeploymentWizardPath = "C:\Program Files\Microsoft SQL Server\160\DTS\Binn\ISDeploymentWizard.exe"
-          if (-not (Test-Path $isDeploymentWizardPath)) {
-              throw "ISDeploymentWizard.exe not found at $isDeploymentWizardPath"
+          $deployExe = "C:\Program Files\Microsoft SQL Server\160\DTS\Binn\ISDeploymentWizard.exe"
+          if (-not (Test-Path $deployExe)) {
+              throw "ISDeploymentWizard.exe not found at $deployExe"
           }
 
-          & $isDeploymentWizardPath /Silent /SourcePath:$ispacPath /DestinationServer:$env:SQL_SERVER_NAME /DestinationPath:"\$env:SSIS_DEST_FOLDER"
-
+          & $deployExe /Silent `
+                      /SourcePath:"$ispacPath" `
+                      /DestinationServer:$env:SQL_SERVER_NAME `
+                      /DestinationPath:"\SSISDB\$env:SSIS_DEST_FOLDER" `
+                      /ProjectName:$env:SSIS_PROJECTS_FOLDER
 
       - name: Grant SSIS Project Permissions
         shell: powershell
@@ -160,7 +148,7 @@ jobs:
               @step_id = 1,
               @step_name = N'RunMigrationStep',
               @subsystem = N'SSIS',
-              @command = N'/ISSERVER "\SSISDB\$env:SSIS_DEST_FOLDER\$env:SSIS_PROJECTS_FOLDER\$env:PACKAGE_NAME" /SERVER "$env:SQL_SERVER_NAME" /REPORTING E',
+              @command = N'/ISSERVER "\"\SSISDB\$env:SSIS_DEST_FOLDER\$env:SSIS_PROJECTS_FOLDER\$env:PACKAGE_NAME\"" /SERVER "$env:SQL_SERVER_NAME" /REPORTING E',
               @database_name = N'master',
               @on_success_action = 1,
               @on_fail_action = 2;
