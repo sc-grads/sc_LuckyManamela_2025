@@ -30,7 +30,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install SQL Server Tools (sqlcmd)
+      - name: Install SQL Server Tools
         run: |
           sudo apt-get update
           sudo apt-get install -y curl gnupg
@@ -40,7 +40,7 @@ jobs:
           sudo apt-get install -y mssql-tools unixodbc-dev
           echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> $GITHUB_ENV
 
-      - name: Run TimesheetDB SQL Script
+      - name: Run TimesheetDB SQL Script (optional)
         run: |
           /opt/mssql-tools/bin/sqlcmd -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -d master -i "$GITHUB_WORKSPACE/scripts/TimesheetDB.sql"
         env:
@@ -55,7 +55,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Deploy SSIS Project using catalog.deploy_project
+      - name: Deploy SSIS Project to SSISDB using Integrated Auth
         shell: powershell
         run: |
           $ispacPath = Join-Path $env:GITHUB_WORKSPACE $env:SSIS_SOURCE_PATH
@@ -63,15 +63,16 @@ jobs:
               throw "ISPAC not found at $ispacPath"
           }
 
-          # Read the .ispac file and convert to hex
           [byte[]]$bytes = [System.IO.File]::ReadAllBytes($ispacPath)
           $hexString = [System.BitConverter]::ToString($bytes) -replace '-', ''
 
-          # Optional: Wrap hex string every 512 characters for readability
-          $wrappedHex = $hexString -replace '(.{512})', '$1' + [Environment]::NewLine
-
           $sql = @"
-          DECLARE @project_stream VARBINARY(MAX) = CONVERT(VARBINARY(MAX), 0x$wrappedHex, 1);
+          IF NOT EXISTS (SELECT 1 FROM SSISDB.catalog.folders WHERE name = N'$env:SSIS_DEST_FOLDER')
+          BEGIN
+              EXEC SSISDB.catalog.create_folder @folder_name = N'$env:SSIS_DEST_FOLDER';
+          END
+
+          DECLARE @project_stream VARBINARY(MAX) = CONVERT(VARBINARY(MAX), 0x$hexString, 1);
           EXEC SSISDB.catalog.deploy_project
               @folder_name = N'$env:SSIS_DEST_FOLDER',
               @project_name = N'$env:SSIS_PROJECTS_FOLDER',
@@ -81,7 +82,7 @@ jobs:
           $tempSqlPath = "$env:RUNNER_TEMP\deploy_ssis_project.sql"
           [System.IO.File]::WriteAllText($tempSqlPath, $sql)
 
-          & sqlcmd -S $env:SQL_SERVER_NAME -U $env:SQL_USERNAME -P $env:SQL_PASSWORD -d SSISDB -i $tempSqlPath -b
+          & sqlcmd -S $env:SQL_SERVER_NAME -E -d SSISDB -i $tempSqlPath -b
 
           if ($LASTEXITCODE -ne 0) {
               throw "SSIS project deployment failed with exit code $LASTEXITCODE"
@@ -101,7 +102,7 @@ jobs:
               @enabled = 1,
               @description = N'Data Migration SSIS Job',
               @start_step_id = 1,
-              @owner_login_name = N'$env:SQL_USERNAME',
+              @owner_login_name = SUSER_SNAME(),
               @job_id = @jobId OUTPUT;
 
             EXEC msdb.dbo.sp_add_jobstep
@@ -117,11 +118,9 @@ jobs:
             EXEC msdb.dbo.sp_add_jobserver @job_id = @jobId, @server_name = N'$env:SQL_SERVER_LOCAL';
           END
           "@
-
-          sqlcmd -S $env:SQL_SERVER_NAME -U $env:SQL_USERNAME -P $env:SQL_PASSWORD -Q $sql -b
+          sqlcmd -S $env:SQL_SERVER_NAME -E -Q $sql -b
 
       - name: Start SQL Agent Job
         shell: powershell
         run: |
-          $sql = "EXEC msdb.dbo.sp_start_job @job_name = N'$env:JOB_NAME';"
-          sqlcmd -S $env:SQL_SERVER_NAME -U $env:SQL_USERNAME -P $env:SQL_PASSWORD -Q $sql -b
+          sqlcmd -S $env:SQL_SERVER_NAME -E -Q "EXEC msdb.dbo.sp_start_job @job_name = N'$env:JOB_NAME';" -b

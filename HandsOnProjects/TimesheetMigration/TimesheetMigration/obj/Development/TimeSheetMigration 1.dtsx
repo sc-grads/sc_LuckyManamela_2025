@@ -11,8 +11,8 @@
   DTS:LocaleID="1033"
   DTS:ObjectName="TimeSheetMigration"
   DTS:PackageType="5"
-  DTS:VersionBuild="313"
-  DTS:VersionGUID="{442CA185-0AF3-4B6A-B64F-21AA2FB3354D}">
+  DTS:VersionBuild="317"
+  DTS:VersionGUID="{56340FF6-D3F1-4E08-A485-9909FD3C1CA8}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:ConnectionManagers>
@@ -83,13 +83,13 @@
     <DTS:ConnectionManager
       DTS:refId="Package.ConnectionManagers[SAMBE2025008.TimesheetDB]"
       DTS:CreationName="OLEDB"
-      DTS:DTSID="{747CB163-36C7-406B-B37D-44C341601CA5}"
+      DTS:DTSID="{8F024CF3-7859-45F2-AE63-9A7FF37CFC9B}"
       DTS:ObjectName="SAMBE2025008.TimesheetDB">
       <DTS:ObjectData>
         <DTS:ConnectionManager
           DTS:ConnectRetryCount="1"
           DTS:ConnectRetryInterval="5"
-          DTS:ConnectionString="Data Source=SAMBE2025008;Initial Catalog=TimesheetDB;Provider=SQLOLEDB.1;Integrated Security=SSPI;Application Name=SSIS-TimeSheetMigration-{747CB163-36C7-406B-B37D-44C341601CA5}SAMBE2025008.TimesheetDB;Auto Translate=False;" />
+          DTS:ConnectionString="Data Source=SAMBE2025008;Initial Catalog=TimesheetDB;Provider=SQLOLEDB.1;Integrated Security=SSPI;Application Name=SSIS-TimeSheetMigration-{8F024CF3-7859-45F2-AE63-9A7FF37CFC9B}SAMBE2025008.TimesheetDB;Auto Translate=False;" />
       </DTS:ObjectData>
     </DTS:ConnectionManager>
   </DTS:ConnectionManagers>
@@ -188,7 +188,7 @@
       DTS:Namespace="User"
       DTS:ObjectName="SubmissionDate">
       <DTS:VariableValue
-        DTS:DataType="7">6/24/2025 10:33:32 PM</DTS:VariableValue>
+        DTS:DataType="7">6/27/2025 12:48:45 AM</DTS:VariableValue>
     </DTS:Variable>
     <DTS:Variable
       DTS:CreationName=""
@@ -11418,6 +11418,30 @@ where [refTable].[ConsultantName] = ?</property>
       <GraphLayout
         Capacity="64" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
         <NodeLayout
+          Size="196.8,41.6"
+          Id="Package\Loop Through Excel Files\MigratingTimeSheet\Derived Column AuditLog"
+          TopLeft="663.999990105629,303.999995470047" />
+        <NodeLayout
+          Size="180,41.6"
+          Id="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 2"
+          TopLeft="276.999995872378,441.399996140599" />
+        <NodeLayout
+          Size="170.4,41.6"
+          Id="Package\Loop Through Excel Files\MigratingTimeSheet\Script Component 1"
+          TopLeft="43.999999344349,410.999993875623" />
+        <NodeLayout
+          Size="161.6,41.6"
+          Id="Package\Loop Through Excel Files\MigratingTimeSheet\Derived Column 1"
+          TopLeft="150.833325092164,318.933331115511" />
+        <NodeLayout
+          Size="195.2,41.6"
+          Id="Package\Loop Through Excel Files\MigratingTimeSheet\Fuzzy Lookup Consultant"
+          TopLeft="557.499969539545,22.5333331766396" />
+        <NodeLayout
+          Size="156,41.6"
+          Id="Package\Loop Through Excel Files\MigratingTimeSheet\Data Conversion"
+          TopLeft="450.999993319313,232.166665164133" />
+        <NodeLayout
           Size="215.2,41.6"
           Id="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination AuditLog"
           TopLeft="649.999990314245,482.999992802739" />
@@ -11446,185 +11470,43 @@ where [refTable].[ConsultantName] = ?</property>
           Id="Package\Loop Through Excel Files\MigratingTimeSheet\Derived Column"
           TopLeft="197.166652834249,21.5999987689659" />
         <NodeLayout
-          Size="119.2,41.6"
-          Id="Package\Loop Through Excel Files\MigratingTimeSheet\Multicast"
-          TopLeft="642.33332376182,163.833330892026" />
-        <NodeLayout
-          Size="170.4,41.6"
-          Id="Package\Loop Through Excel Files\MigratingTimeSheet\Script Component 1"
-          TopLeft="43.999999344349,410.999993875623" />
-        <NodeLayout
-          Size="196.8,41.6"
-          Id="Package\Loop Through Excel Files\MigratingTimeSheet\Derived Column AuditLog"
-          TopLeft="663.999990105629,303.999995470047" />
-        <NodeLayout
-          Size="180,41.6"
-          Id="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 2"
-          TopLeft="276.999995872378,441.399996140599" />
+          Size="171.2,41.6"
+          Id="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination"
+          TopLeft="330.166661786536,320.499997181197" />
         <NodeLayout
           Size="153.6,41.6"
           Id="Package\Loop Through Excel Files\MigratingTimeSheet\Conditional Split"
           TopLeft="379.999976654848,18.0666655158337" />
         <NodeLayout
-          Size="161.6,41.6"
-          Id="Package\Loop Through Excel Files\MigratingTimeSheet\Derived Column 1"
-          TopLeft="150.833325092164,318.933331115511" />
-        <NodeLayout
-          Size="195.2,41.6"
-          Id="Package\Loop Through Excel Files\MigratingTimeSheet\Fuzzy Lookup Consultant"
-          TopLeft="557.499969539545,22.5333331766396" />
+          Size="119.2,41.6"
+          Id="Package\Loop Through Excel Files\MigratingTimeSheet\Multicast"
+          TopLeft="642.33332376182,163.833330892026" />
         <EdgeLayout
-          Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[ValidRows]"
-          TopLeft="533.599976654848,41.0999993462366">
+          Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Multicast Output 1]"
+          TopLeft="683.399990428487,205.433330892026">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="23.8999928846965,0"
+              EndConnector="-154.399997109174,26.7333342721068"
               Start="0,0"
-              End="16.3999928846965,0">
+              End="-154.399997109174,19.2333342721068">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="16.3999928846965,0" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="-15.1507652764018,5,46.7015234375,9.7490234375"
-              RelativePosition="Any" />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
-        <EdgeLayout
-          Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Union All Output 1]"
-          TopLeft="287.999986522728,226.199998716315">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="-56.3666614305643,92.733332399196"
-              Start="0,0"
-              End="-56.3666614305643,85.233332399196">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,33.8254382154615" />
+                    End="0,6.90578404742897" />
                   <mssgle:CubicBezierSegment
-                    Point1="0,33.8254382154615"
-                    Point2="0,37.8254382154615"
-                    Point3="-4,37.8254382154615" />
+                    Point1="0,6.90578404742897"
+                    Point2="0,10.905784047429"
+                    Point3="-4,10.905784047429" />
                   <mssgle:LineSegment
-                    End="-52.3666614305643,37.8254382154615" />
+                    End="-150.399997109174,10.905784047429" />
                   <mssgle:CubicBezierSegment
-                    Point1="-52.3666614305643,37.8254382154615"
-                    Point2="-56.3666614305643,37.8254382154615"
-                    Point3="-56.3666614305643,41.8254382154615" />
+                    Point1="-150.399997109174,10.905784047429"
+                    Point2="-154.399997109174,10.905784047429"
+                    Point3="-154.399997109174,14.905784047429" />
                   <mssgle:LineSegment
-                    End="-56.3666614305643,85.233332399196" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
-        <EdgeLayout
-          Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Output 01]"
-          TopLeft="129.199999344349,452.599993875623">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="42.7999994337558,53.6000010728833"
-              Start="0,0"
-              End="42.7999994337558,46.1000010728833">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,22.8000005364417" />
-                  <mssgle:CubicBezierSegment
-                    Point1="0,22.8000005364417"
-                    Point2="0,26.8000005364417"
-                    Point3="4,26.8000005364417" />
-                  <mssgle:LineSegment
-                    End="38.7999994337558,26.8000005364417" />
-                  <mssgle:CubicBezierSegment
-                    Point1="38.7999994337558,26.8000005364417"
-                    Point2="42.7999994337558,26.8000005364417"
-                    Point3="42.7999994337558,30.8000005364417" />
-                  <mssgle:LineSegment
-                    End="42.7999994337558,46.1000010728833" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
-        <EdgeLayout
-          Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Output 0]"
-          TopLeft="765.799989792705,417.599994397163">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="-8.19999947845997,65.399998405576"
-              Start="0,0"
-              End="-8.19999947845997,57.899998405576">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,28.699999202788" />
-                  <mssgle:CubicBezierSegment
-                    Point1="0,28.699999202788"
-                    Point2="0,32.699999202788"
-                    Point3="-4,32.699999202788" />
-                  <mssgle:LineSegment
-                    End="-4.19999947845997,32.699999202788" />
-                  <mssgle:CubicBezierSegment
-                    Point1="-4.19999947845997,32.699999202788"
-                    Point2="-8.19999947845997,32.699999202788"
-                    Point3="-8.19999947845997,36.699999202788" />
-                  <mssgle:LineSegment
-                    End="-8.19999947845997,57.899998405576" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
-        <EdgeLayout
-          Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Multicast Output 2]"
-          TopLeft="720.466657095154,205.433330892026">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="41.9333330104753,98.5666645780209"
-              Start="0,0"
-              End="41.9333330104753,91.0666645780209">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,36.209977072888" />
-                  <mssgle:CubicBezierSegment
-                    Point1="0,36.209977072888"
-                    Point2="0,40.209977072888"
-                    Point3="4,40.209977072888" />
-                  <mssgle:LineSegment
-                    End="37.9333330104753,40.209977072888" />
-                  <mssgle:CubicBezierSegment
-                    Point1="37.9333330104753,40.209977072888"
-                    Point2="41.9333330104753,40.209977072888"
-                    Point3="41.9333330104753,44.209977072888" />
-                  <mssgle:LineSegment
-                    End="41.9333330104753,91.0666645780209" />
+                    End="-154.399997109174,19.2333342721068" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -11948,6 +11830,40 @@ where [refTable].[ConsultantName] = ?</property>
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
+          Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Data Conversion Output]"
+          TopLeft="528.999993319313,273.766665164133">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-86.0333315327769,46.7333320170641"
+              Start="0,0"
+              End="-86.0333315327769,39.2333320170641">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,23.7803695879214" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,23.7803695879214"
+                    Point2="0,27.7803695879214"
+                    Point3="-4,27.7803695879214" />
+                  <mssgle:LineSegment
+                    End="-82.0333315327769,27.7803695879214" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-82.0333315327769,27.7803695879214"
+                    Point2="-86.0333315327769,27.7803695879214"
+                    Point3="-86.0333315327769,31.7803695879214" />
+                  <mssgle:LineSegment
+                    End="-86.0333315327769,39.2333320170641" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
           Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Conditional Split Error Output]"
           TopLeft="456.799976654848,59.6666655158337">
           <EdgeLayout.Curve>
@@ -11983,36 +11899,56 @@ where [refTable].[ConsultantName] = ?</property>
               RelativePosition="Any" />
           </EdgeLayout.Labels>
         </EdgeLayout>
-        <NodeLayout
-          Size="156,41.6"
-          Id="Package\Loop Through Excel Files\MigratingTimeSheet\Data Conversion"
-          TopLeft="450.999993319313,232.166665164133" />
         <EdgeLayout
-          Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Multicast Output 1]"
-          TopLeft="683.399990428487,205.433330892026">
+          Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[ValidRows]"
+          TopLeft="533.599976654848,41.0999993462366">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="-154.399997109174,26.7333342721068"
+              EndConnector="23.8999928846965,0"
               Start="0,0"
-              End="-154.399997109174,19.2333342721068">
+              End="16.3999928846965,0">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,6.90578404742897" />
-                  <mssgle:CubicBezierSegment
-                    Point1="0,6.90578404742897"
-                    Point2="0,10.905784047429"
-                    Point3="-4,10.905784047429" />
+                    End="16.3999928846965,0" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-15.1507652764018,5,46.7015234375,9.7490234375"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Union All Output 1]"
+          TopLeft="287.999986522728,226.199998716315">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-56.3666614305643,92.733332399196"
+              Start="0,0"
+              End="-56.3666614305643,85.233332399196">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
                   <mssgle:LineSegment
-                    End="-150.399997109174,10.905784047429" />
+                    End="0,33.8254382154615" />
                   <mssgle:CubicBezierSegment
-                    Point1="-150.399997109174,10.905784047429"
-                    Point2="-154.399997109174,10.905784047429"
-                    Point3="-154.399997109174,14.905784047429" />
+                    Point1="0,33.8254382154615"
+                    Point2="0,37.8254382154615"
+                    Point3="-4,37.8254382154615" />
                   <mssgle:LineSegment
-                    End="-154.399997109174,19.2333342721068" />
+                    End="-52.3666614305643,37.8254382154615" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-52.3666614305643,37.8254382154615"
+                    Point2="-56.3666614305643,37.8254382154615"
+                    Point3="-56.3666614305643,41.8254382154615" />
+                  <mssgle:LineSegment
+                    End="-56.3666614305643,85.233332399196" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -12021,36 +11957,66 @@ where [refTable].[ConsultantName] = ?</property>
             <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
-        <NodeLayout
-          Size="171.2,41.6"
-          Id="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination"
-          TopLeft="330.166661786536,320.499997181197" />
         <EdgeLayout
-          Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Data Conversion Output]"
-          TopLeft="528.999993319313,273.766665164133">
+          Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Output 01]"
+          TopLeft="129.199999344349,452.599993875623">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="-86.0333315327769,46.7333320170641"
+              EndConnector="42.7999994337558,53.6000010728833"
               Start="0,0"
-              End="-86.0333315327769,39.2333320170641">
+              End="42.7999994337558,46.1000010728833">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,23.7803695879214" />
+                    End="0,22.8000005364417" />
                   <mssgle:CubicBezierSegment
-                    Point1="0,23.7803695879214"
-                    Point2="0,27.7803695879214"
-                    Point3="-4,27.7803695879214" />
+                    Point1="0,22.8000005364417"
+                    Point2="0,26.8000005364417"
+                    Point3="4,26.8000005364417" />
                   <mssgle:LineSegment
-                    End="-82.0333315327769,27.7803695879214" />
+                    End="38.7999994337558,26.8000005364417" />
                   <mssgle:CubicBezierSegment
-                    Point1="-82.0333315327769,27.7803695879214"
-                    Point2="-86.0333315327769,27.7803695879214"
-                    Point3="-86.0333315327769,31.7803695879214" />
+                    Point1="38.7999994337558,26.8000005364417"
+                    Point2="42.7999994337558,26.8000005364417"
+                    Point3="42.7999994337558,30.8000005364417" />
                   <mssgle:LineSegment
-                    End="-86.0333315327769,39.2333320170641" />
+                    End="42.7999994337558,46.1000010728833" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Output 0]"
+          TopLeft="765.799989792705,417.599994397163">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-8.19999947845997,65.399998405576"
+              Start="0,0"
+              End="-8.19999947845997,57.899998405576">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,28.699999202788" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,28.699999202788"
+                    Point2="0,32.699999202788"
+                    Point3="-4,32.699999202788" />
+                  <mssgle:LineSegment
+                    End="-4.19999947845997,32.699999202788" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-4.19999947845997,32.699999202788"
+                    Point2="-8.19999947845997,32.699999202788"
+                    Point3="-8.19999947845997,36.699999202788" />
+                  <mssgle:LineSegment
+                    End="-8.19999947845997,57.899998405576" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -12095,9 +12061,69 @@ where [refTable].[ConsultantName] = ?</property>
               RelativePosition="Any" />
           </EdgeLayout.Labels>
         </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Loop Through Excel Files\MigratingTimeSheet.Paths[Multicast Output 2]"
+          TopLeft="720.466657095154,205.433330892026">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="41.9333330104753,98.5666645780209"
+              Start="0,0"
+              End="41.9333330104753,91.0666645780209">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,36.209977072888" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,36.209977072888"
+                    Point2="0,40.209977072888"
+                    Point3="4,40.209977072888" />
+                  <mssgle:LineSegment
+                    End="37.9333330104753,40.209977072888" />
+                  <mssgle:CubicBezierSegment
+                    Point1="37.9333330104753,40.209977072888"
+                    Point2="41.9333330104753,40.209977072888"
+                    Point3="41.9333330104753,44.209977072888" />
+                  <mssgle:LineSegment
+                    End="41.9333330104753,91.0666645780209" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
       </GraphLayout>
     </LayoutInfo>
   </TaskHost>
+  <PipelineComponentMetadata
+    design-time-name="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 2">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\Loop Through Excel Files\MigratingTimeSheet\Fuzzy Lookup Consultant">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
   <PipelineComponentMetadata
     design-time-name="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination AuditLog">
     <Properties>
@@ -12161,20 +12187,7 @@ where [refTable].[ConsultantName] = ?</property>
     </Properties>
   </PipelineComponentMetadata>
   <PipelineComponentMetadata
-    design-time-name="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination 2">
-    <Properties>
-      <Property>
-        <Name>DataSourceViewID</Name>
-      </Property>
-      <Property>
-        <Name>TableInfoObjectType</Name>
-        <Value
-          type="q2:string">Table</Value>
-      </Property>
-    </Properties>
-  </PipelineComponentMetadata>
-  <PipelineComponentMetadata
-    design-time-name="Package\Loop Through Excel Files\MigratingTimeSheet\Fuzzy Lookup Consultant">
+    design-time-name="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination">
     <Properties>
       <Property>
         <Name>DataSourceViewID</Name>
@@ -12419,19 +12432,6 @@ where [refTable].[ConsultantName] = ?</property>
       </Property>
       <Property>
         <Name>DataSourceViewID</Name>
-      </Property>
-    </Properties>
-  </PipelineComponentMetadata>
-  <PipelineComponentMetadata
-    design-time-name="Package\Loop Through Excel Files\MigratingTimeSheet\OLE DB Destination">
-    <Properties>
-      <Property>
-        <Name>DataSourceViewID</Name>
-      </Property>
-      <Property>
-        <Name>TableInfoObjectType</Name>
-        <Value
-          type="q2:string">Table</Value>
       </Property>
     </Properties>
   </PipelineComponentMetadata>
