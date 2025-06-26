@@ -14,12 +14,12 @@ env:
   SQL_USERNAME: ${{ secrets.SQL_USERNAME }}
   SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
   SSISDB_PASSWORD: ${{ secrets.SSISDB_PASSWORD }}
-  SSIS_DEST_FOLDER: 'NewDataMigration'
-  SSIS_PROJECTS_FOLDER: 'Timesheets'
-  PACKAGE_NAME: 'TimeSheetMigration 1.dtsx'
+  SSIS_DEST_FOLDER: 'NewDataMigration'          # SSISDB folder (must exist)
+  SSIS_PROJECTS_FOLDER: 'TimesheetMigration'    # Your SSIS project name
+  PACKAGE_NAME: 'TimeSheetMigration 1.dtsx'     # Package inside the project
   SSIS_SOURCE_PATH: 'HandsOnProjects/TimesheetMigration/TimesheetMigration/bin/Development/TimesheetMigration.ispac'
   JOB_NAME: 'RunDataMigrationPackage'
-  SQL_SERVER_LOCAL: 'SAMBE2025008'  # Adjust as needed
+  SQL_SERVER_LOCAL: 'SAMBE2025008'               # SQL Agent target server
 
 jobs:
   deploy-database:
@@ -55,24 +55,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Ensure SSISDB Folder Exists
-        shell: powershell
-        run: |
-          $folder = $env:SSIS_DEST_FOLDER
-          $sql = @"
-          IF NOT EXISTS (
-              SELECT 1 
-              FROM SSISDB.catalog.folders 
-              WHERE name = N'$folder'
-          )
-          BEGIN
-              EXEC SSISDB.catalog.create_folder @folder_name = N'$folder';
-          END
-          "@
-              sqlcmd -S $env:SQL_SERVER_NAME -U $env:SQL_USERNAME -P $env:SQL_PASSWORD -d SSISDB -Q $sql -b
-
-
-      - name: Deploy SSIS Project using dtutil.exe
+      - name: Deploy SSIS Project using ISDeploymentWizard.exe
         shell: powershell
         run: |
           $ispacPath = Join-Path $env:GITHUB_WORKSPACE $env:SSIS_SOURCE_PATH
@@ -80,21 +63,20 @@ jobs:
               throw "ISPAC not found at $ispacPath"
           }
 
-          # Destination folder path on SSIS catalog
-          $destinationFolder = "\SSISDB\" + $env:SSIS_DEST_FOLDER + "\" + $env:SSIS_PROJECTS_FOLDER
+          $folder = $env:SSIS_DEST_FOLDER
+          $project = $env:SSIS_PROJECTS_FOLDER
 
-          # Deploy the project using dtutil.exe
-          $dtutilPath = "C:\Program Files\Microsoft SQL Server\160\DTS\Binn\dtutil.exe"
-          if (-not (Test-Path $dtutilPath)) {
-              throw "dtutil.exe not found at $dtutilPath"
+          $deployWizard = "C:\Program Files\Microsoft SQL Server\160\DTS\Binn\ISDeploymentWizard.exe"
+          if (-not (Test-Path $deployWizard)) {
+              throw "ISDeploymentWizard.exe not found at $deployWizard"
           }
 
-          & $dtutilPath /FILE $ispacPath /DestServer $env:SQL_SERVER_NAME /COPY "SQL;$destinationFolder" /QUIET
+          Write-Host "Deploying SSIS project..."
+          & $deployWizard /Silent /SourcePath:"$ispacPath" /DestinationServer:$env:SQL_SERVER_NAME /DestinationPath:"\$folder\$project"
 
           if ($LASTEXITCODE -ne 0) {
-              throw "dtutil.exe deployment failed with exit code $LASTEXITCODE"
+              throw "ISDeploymentWizard.exe deployment failed with exit code $LASTEXITCODE"
           }
-
 
       - name: Create SQL Agent Job if Missing
         shell: powershell
