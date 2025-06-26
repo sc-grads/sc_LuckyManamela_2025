@@ -55,6 +55,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Ensure SSISDB Folder Exists
+        shell: powershell
+        run: |
+          $folder = $env:SSIS_DEST_FOLDER
+          $sql = @"
+          IF NOT EXISTS (
+              SELECT 1 
+              FROM SSISDB.catalog.folders 
+              WHERE name = N'$folder'
+          )
+          BEGIN
+              EXEC SSISDB.catalog.create_folder @folder_name = N'$folder';
+          END
+          "@
+              sqlcmd -S $env:SQL_SERVER_NAME -U $env:SQL_USERNAME -P $env:SQL_PASSWORD -d SSISDB -Q $sql -b
+
+
       - name: Deploy SSIS Project using dtutil.exe
         shell: powershell
         run: |
