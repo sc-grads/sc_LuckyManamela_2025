@@ -14,8 +14,8 @@ env:
   SQL_USERNAME: ${{ secrets.SQL_USERNAME }}
   SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
   SSISDB_PASSWORD: ${{ secrets.SSISDB_PASSWORD }}
-  SSIS_DEST_FOLDER: 'NewDataMigration'           # SSISDB folder
-  SSIS_PROJECTS_FOLDER: 'TimesheetMigration'     # SSIS project name
+  SSIS_DEST_FOLDER: 'NewDataMigration'
+  SSIS_PROJECTS_FOLDER: 'TimesheetMigration'
   PACKAGE_NAME: 'TimeSheetMigration 1.dtsx'
   SSIS_SOURCE_PATH: 'HandsOnProjects/TimesheetMigration/TimesheetMigration/bin/Development/TimesheetMigration.ispac'
   JOB_NAME: 'RunDataMigrationPackage'
@@ -55,7 +55,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Deploy SSIS Project using T-SQL catalog.deploy_project
+      - name: Deploy SSIS Project using catalog.deploy_project
         shell: powershell
         run: |
           $ispacPath = Join-Path $env:GITHUB_WORKSPACE $env:SSIS_SOURCE_PATH
@@ -63,19 +63,29 @@ jobs:
               throw "ISPAC not found at $ispacPath"
           }
 
-          # Read .ispac binary and convert to hex string for SQL injection
+          # Read the .ispac file and convert to hex
           [byte[]]$bytes = [System.IO.File]::ReadAllBytes($ispacPath)
           $hexString = [System.BitConverter]::ToString($bytes) -replace '-', ''
 
+          # Optional: Wrap hex string every 512 characters for readability
+          $wrappedHex = $hexString -replace '(.{512})', '$1' + [Environment]::NewLine
+
           $sql = @"
-          DECLARE @project_stream VARBINARY(MAX) = CONVERT(VARBINARY(MAX), 0x$hexString, 1);
+          DECLARE @project_stream VARBINARY(MAX) = CONVERT(VARBINARY(MAX), 0x$wrappedHex, 1);
           EXEC SSISDB.catalog.deploy_project
               @folder_name = N'$env:SSIS_DEST_FOLDER',
               @project_name = N'$env:SSIS_PROJECTS_FOLDER',
               @project_stream = @project_stream;
           "@
 
-          sqlcmd -S $env:SQL_SERVER_NAME -U $env:SQL_USERNAME -P $env:SQL_PASSWORD -d SSISDB -b -Q $sql
+          $tempSqlPath = "$env:RUNNER_TEMP\deploy_ssis_project.sql"
+          [System.IO.File]::WriteAllText($tempSqlPath, $sql)
+
+          & sqlcmd -S $env:SQL_SERVER_NAME -U $env:SQL_USERNAME -P $env:SQL_PASSWORD -d SSISDB -i $tempSqlPath -b
+
+          if ($LASTEXITCODE -ne 0) {
+              throw "SSIS project deployment failed with exit code $LASTEXITCODE"
+          }
 
       - name: Create SQL Agent Job if Missing
         shell: powershell
