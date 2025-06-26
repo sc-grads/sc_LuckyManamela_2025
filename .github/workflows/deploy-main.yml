@@ -64,7 +64,7 @@ jobs:
           }
 
           # Destination folder path on SSIS catalog
-          $destinationFolder = "\SSISDB\$env:SSIS_DEST_FOLDER"
+          $destinationFolder = "\SSISDB\" + $env:SSIS_DEST_FOLDER + "\" + $env:SSIS_PROJECTS_FOLDER
 
           # Deploy the project using dtutil.exe
           $dtutilPath = "C:\Program Files\Microsoft SQL Server\160\DTS\Binn\dtutil.exe"
@@ -72,11 +72,12 @@ jobs:
               throw "dtutil.exe not found at $dtutilPath"
           }
 
-          & $dtutilPath /FILE $ispacPath /DestServer $env:SQL_SERVER_NAME /COPY SQL;$destinationFolder\$env:SSIS_PROJECTS_FOLDER /QUIET
+          & $dtutilPath /FILE $ispacPath /DestServer $env:SQL_SERVER_NAME /COPY "SQL;$destinationFolder" /QUIET
 
           if ($LASTEXITCODE -ne 0) {
               throw "dtutil.exe deployment failed with exit code $LASTEXITCODE"
           }
+
 
       - name: Create SQL Agent Job if Missing
         shell: powershell
