@@ -10,16 +10,16 @@ on:
   workflow_dispatch:
 
 env:
-  SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}
-  SQL_USERNAME: ${{ secrets.SQL_USERNAME }}  # LuckyManamela
-  SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}  # Password for LuckyManamela
+  SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}  # Set to Sambe2025008 or localhost
+  SQL_USERNAME: ${{ secrets.SQL_USERNAME }}  # LuckyManamela (optional, not used with -E)
+  SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}  # Password for LuckyManamela (optional)
   SSISDB_PASSWORD: ${{ secrets.SSISDB_PASSWORD }}
   SSIS_DEST_FOLDER: 'NewDataMigration'
   SSIS_PROJECTS_FOLDER: 'TimesheetMigration'
   PACKAGE_NAME: 'TimeSheetMigration 1.dtsx'
   SSIS_SOURCE_PATH: 'HandsOnProjects/TimesheetMigration/TimesheetMigration/bin/Development/TimesheetMigration.ispac'
   JOB_NAME: 'RunDataMigrationPackage'
-  SQL_SERVER_LOCAL: 'SAMBE2025008'
+  SQL_SERVER_LOCAL: 'Sambe2025008'
 
 jobs:
   deploy-database:
@@ -55,7 +55,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Deploy SSIS Project to SSISDB using SQL Auth
+      - name: Deploy SSIS Project to SSISDB using Integrated Auth
         shell: powershell
         run: |
           $ispacPath = Join-Path $env:GITHUB_WORKSPACE $env:SSIS_SOURCE_PATH
@@ -82,15 +82,13 @@ jobs:
           $tempSqlPath = "$env:RUNNER_TEMP\deploy_ssis_project.sql"
           [System.IO.File]::WriteAllText($tempSqlPath, $sql)
 
-          & sqlcmd -S $env:SQL_SERVER_NAME -U $env:SQL_USERNAME -P $env:SQL_PASSWORD -d SSISDB -i $tempSqlPath -b
+          & sqlcmd -S $env:SQL_SERVER_NAME -E -d SSISDB -i $tempSqlPath -b
 
           if ($LASTEXITCODE -ne 0) {
               throw "SSIS project deployment failed with exit code $LASTEXITCODE"
           }
         env:
           SQL_SERVER_NAME: ${{ env.SQL_SERVER_NAME }}
-          SQL_USERNAME: ${{ env.SQL_USERNAME }}  # LuckyManamela
-          SQL_PASSWORD: ${{ env.SQL_PASSWORD }}  # Password for LuckyManamela
           SSIS_DEST_FOLDER: ${{ env.SSIS_DEST_FOLDER }}
           SSIS_PROJECTS_FOLDER: ${{ env.SSIS_PROJECTS_FOLDER }}
           SSIS_SOURCE_PATH: ${{ env.SSIS_SOURCE_PATH }}
@@ -125,9 +123,9 @@ jobs:
             EXEC msdb.dbo.sp_add_jobserver @job_id = @jobId, @server_name = N'$env:SQL_SERVER_LOCAL';
           END
           "@
-          & sqlcmd -S $env:SQL_SERVER_NAME -U $env:SQL_USERNAME -P $env:SQL_PASSWORD -Q $sql -b
+          & sqlcmd -S $env:SQL_SERVER_NAME -E -Q $sql -b
 
       - name: Start SQL Agent Job
         shell: powershell
         run: |
-          & sqlcmd -S $env:SQL_SERVER_NAME -U $env:SQL_USERNAME -P $env:SQL_PASSWORD -Q "EXEC msdb.dbo.sp_start_job @job_name = N'$env:JOB_NAME';" -b
+          & sqlcmd -S $env:SQL_SERVER_NAME -E -Q "EXEC msdb.dbo.sp_start_job @job_name = N'$env:JOB_NAME';" -b
