@@ -86,16 +86,15 @@ jobs:
 
           $deployExe = "C:\Program Files\Microsoft SQL Server\160\DTS\Binn\ISDeploymentWizard.exe"
           if (-not (Test-Path $deployExe)) {
-              throw "ISDeploymentWizard.exe not found."
+              throw "ISDeploymentWizard.exe not found at $deployExe"
           }
 
+          # Deploy using Windows Authentication (no /User or /Password flags)
           & $deployExe /Silent `
               /SourcePath:"$ispacPath" `
               /DestinationServer:"$env:SQL_SERVER_NAME" `
-              /DestinationPath:"\SSISDB\$env:SSIS_DEST_FOLDER" `
-              /User:"$env:SQL_USERNAME" `
-              /Password:"$env:SQL_PASSWORD" `
-              /ProjectPassword:"$env:SSISDB_PASSWORD"
+              /DestinationPath:"\SSISDB\$env:SSIS_DEST_FOLDER"
+
 
       - name: Grant SSIS Permissions
         shell: powershell
