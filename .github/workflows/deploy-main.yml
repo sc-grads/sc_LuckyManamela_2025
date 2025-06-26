@@ -19,7 +19,7 @@ env:
   PACKAGE_NAME: 'TimeSheetMigration 1.dtsx'
   SSIS_SOURCE_PATH: 'HandsOnProjects/TimesheetMigration/TimesheetMigration/bin/Development/TimesheetMigration.ispac'
   JOB_NAME: 'RunDataMigrationPackage'
-  SQL_SERVER_LOCAL: 'SAMBE2025008'  # Adjust if needed
+  SQL_SERVER_LOCAL: 'SAMBE2025008'  # Adjust as needed
 
 jobs:
   deploy-database:
@@ -30,7 +30,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install SQL Server Tools
+      - name: Install SQL Server Tools (sqlcmd)
         run: |
           sudo apt-get update
           sudo apt-get install -y curl gnupg
@@ -38,12 +38,11 @@ jobs:
           curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
           sudo apt-get update
           sudo apt-get install -y mssql-tools unixodbc-dev
-          echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
-          source ~/.bashrc
+          echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> $GITHUB_ENV
 
       - name: Run TimesheetDB SQL Script
         run: |
-          sqlcmd -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -d master -i "$GITHUB_WORKSPACE/scripts/TimesheetDB.sql"
+          /opt/mssql-tools/bin/sqlcmd -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -d master -i "$GITHUB_WORKSPACE/scripts/TimesheetDB.sql"
         env:
           GITHUB_WORKSPACE: ${{ github.workspace }}
 
@@ -56,53 +55,27 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Ensure PowerShell Execution Policy
-        shell: powershell
-        run: Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-
-      - name: Extract .ispac and Deploy Packages Using dtutil.exe
+      - name: Deploy SSIS Project using dtutil.exe
         shell: powershell
         run: |
           $ispacPath = Join-Path $env:GITHUB_WORKSPACE $env:SSIS_SOURCE_PATH
           if (-not (Test-Path $ispacPath)) {
-              throw "ISPAC file not found at $ispacPath"
+              throw "ISPAC not found at $ispacPath"
           }
 
-          # Prepare extraction folder
-          $extractFolder = Join-Path $env:GITHUB_WORKSPACE "extracted_ssis"
-          if (Test-Path $extractFolder) { Remove-Item -Recurse -Force $extractFolder }
-          New-Item -ItemType Directory -Path $extractFolder | Out-Null
+          # Destination folder path on SSIS catalog
+          $destinationFolder = "\SSISDB\$env:SSIS_DEST_FOLDER"
 
-          # Extract .ispac (zip archive) to get .dtsx packages
-          Add-Type -AssemblyName System.IO.Compression.FileSystem
-          [System.IO.Compression.ZipFile]::ExtractToDirectory($ispacPath, $extractFolder)
-
-          # Find all .dtsx files inside extracted folder
-          $packageFiles = Get-ChildItem -Path $extractFolder -Filter *.dtsx -Recurse
-          if ($packageFiles.Count -eq 0) {
-              throw "No .dtsx package files found after extracting .ispac"
-          }
-
-          # Locate dtutil.exe (adjust paths if needed)
-          $dtutilPath = "C:\Program Files\Microsoft SQL Server\150\DTS\Binn\dtutil.exe"
+          # Deploy the project using dtutil.exe
+          $dtutilPath = "C:\Program Files\Microsoft SQL Server\160\DTS\Binn\dtutil.exe"
           if (-not (Test-Path $dtutilPath)) {
-              $dtutilPath = "C:\Program Files\Microsoft SQL Server\140\DTS\Binn\dtutil.exe"
-          }
-          if (-not (Test-Path $dtutilPath)) {
-              throw "dtutil.exe not found in default locations."
+              throw "dtutil.exe not found at $dtutilPath"
           }
 
-          # Deploy each package to SSIS catalog (Windows Authentication)
-          foreach ($package in $packageFiles) {
-              Write-Output "Deploying package: $($package.FullName)"
-              $destFolder = "\\SSISDB\$env:SSIS_DEST_FOLDER\$env:SSIS_PROJECTS_FOLDER"
-              $destPackagePath = "$destFolder\$($package.Name)"
+          & $dtutilPath /FILE $ispacPath /DestServer $env:SQL_SERVER_NAME /COPY SQL;$destinationFolder\$env:SSIS_PROJECTS_FOLDER /QUIET
 
-              & $dtutilPath /FILE "$($package.FullName)" /COPY SQL"$destPackagePath" /SQLSERVER "$env:SQL_SERVER_NAME" /QUIET /ERRORLEVEL 1
-
-              if ($LASTEXITCODE -ne 0) {
-                  throw "dtutil.exe failed deploying package $($package.Name) with exit code $LASTEXITCODE"
-              }
+          if ($LASTEXITCODE -ne 0) {
+              throw "dtutil.exe deployment failed with exit code $LASTEXITCODE"
           }
 
       - name: Create SQL Agent Job if Missing
@@ -127,7 +100,7 @@ jobs:
               @step_id = 1,
               @step_name = N'RunMigrationStep',
               @subsystem = N'SSIS',
-              @command = N'/ISSERVER \""$packagePath\"" /SERVER "$env:SQL_SERVER_NAME" /ENVREFERENCE 0',
+              @command = N'/ISSERVER \""$packagePath\"" /SERVER "$env:SQL_SERVER_NAME"',
               @database_name = N'master',
               @on_success_action = 1,
               @on_fail_action = 2;
@@ -136,10 +109,10 @@ jobs:
           END
           "@
 
-          sqlcmd -S $env:SQL_SERVER_NAME -U $env:SQL_USERNAME -P $env:SQL_PASSWORD -Q "$sql" -b
+          sqlcmd -S $env:SQL_SERVER_NAME -U $env:SQL_USERNAME -P $env:SQL_PASSWORD -Q $sql -b
 
       - name: Start SQL Agent Job
         shell: powershell
         run: |
           $sql = "EXEC msdb.dbo.sp_start_job @job_name = N'$env:JOB_NAME';"
-          sqlcmd -S $env:SQL_SERVER_NAME -U $env:SQL_USERNAME -P $env:SQL_PASSWORD -Q "$sql" -b
+          sqlcmd -S $env:SQL_SERVER_NAME -U $env:SQL_USERNAME -P $env:SQL_PASSWORD -Q $sql -b
