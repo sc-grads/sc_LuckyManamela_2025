@@ -14,12 +14,12 @@ env:
   SQL_USERNAME: ${{ secrets.SQL_USERNAME }}
   SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
   SSISDB_PASSWORD: ${{ secrets.SSISDB_PASSWORD }}
-  SSIS_DEST_FOLDER: 'NewDataMigration'          # SSISDB folder (must exist)
-  SSIS_PROJECTS_FOLDER: 'TimesheetMigration'    # Your SSIS project name
-  PACKAGE_NAME: 'TimeSheetMigration 1.dtsx'     # Package inside the project
+  SSIS_DEST_FOLDER: 'NewDataMigration'           # SSISDB folder
+  SSIS_PROJECTS_FOLDER: 'TimesheetMigration'     # SSIS project name
+  PACKAGE_NAME: 'TimeSheetMigration 1.dtsx'
   SSIS_SOURCE_PATH: 'HandsOnProjects/TimesheetMigration/TimesheetMigration/bin/Development/TimesheetMigration.ispac'
   JOB_NAME: 'RunDataMigrationPackage'
-  SQL_SERVER_LOCAL: 'SAMBE2025008'               # SQL Agent target server
+  SQL_SERVER_LOCAL: 'SAMBE2025008'
 
 jobs:
   deploy-database:
@@ -55,7 +55,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Deploy SSIS Project using ISDeploymentWizard.exe
+      - name: Deploy SSIS Project using T-SQL catalog.deploy_project
         shell: powershell
         run: |
           $ispacPath = Join-Path $env:GITHUB_WORKSPACE $env:SSIS_SOURCE_PATH
@@ -63,20 +63,19 @@ jobs:
               throw "ISPAC not found at $ispacPath"
           }
 
-          $folder = $env:SSIS_DEST_FOLDER
-          $project = $env:SSIS_PROJECTS_FOLDER
+          # Read .ispac binary and convert to hex string for SQL injection
+          [byte[]]$bytes = [System.IO.File]::ReadAllBytes($ispacPath)
+          $hexString = [System.BitConverter]::ToString($bytes) -replace '-', ''
 
-          $deployWizard = "C:\Program Files\Microsoft SQL Server\160\DTS\Binn\ISDeploymentWizard.exe"
-          if (-not (Test-Path $deployWizard)) {
-              throw "ISDeploymentWizard.exe not found at $deployWizard"
-          }
+          $sql = @"
+          DECLARE @project_stream VARBINARY(MAX) = CONVERT(VARBINARY(MAX), 0x$hexString, 1);
+          EXEC SSISDB.catalog.deploy_project
+              @folder_name = N'$env:SSIS_DEST_FOLDER',
+              @project_name = N'$env:SSIS_PROJECTS_FOLDER',
+              @project_stream = @project_stream;
+          "@
 
-          Write-Host "Deploying SSIS project..."
-          & $deployWizard /Silent /SourcePath:"$ispacPath" /DestinationServer:$env:SQL_SERVER_NAME /DestinationPath:"\$folder\$project"
-
-          if ($LASTEXITCODE -ne 0) {
-              throw "ISDeploymentWizard.exe deployment failed with exit code $LASTEXITCODE"
-          }
+          sqlcmd -S $env:SQL_SERVER_NAME -U $env:SQL_USERNAME -P $env:SQL_PASSWORD -d SSISDB -b -Q $sql
 
       - name: Create SQL Agent Job if Missing
         shell: powershell
