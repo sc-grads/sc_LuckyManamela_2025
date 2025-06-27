@@ -84,6 +84,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) {
               throw "SSIS project deployment failed with exit code $LASTEXITCODE"
           }
+
       - name: Create and Start SQL Agent Job
         shell: powershell
         run: |
@@ -139,6 +140,17 @@ jobs:
           & sqlcmd -S $env:SQL_SERVER_NAME -E -i $tempSql -b
           if ($LASTEXITCODE -ne 0) {
               throw "SQL Agent job creation failed with exit code $LASTEXITCODE"
+          }
+
+          # Run JobDeploy.sql script after job creation
+          $jobDeployScript = "C:\sc_LuckyManamela_2025\scripts\JobDeploy.sql"
+          if (-not (Test-Path $jobDeployScript)) {
+              throw "JobDeploy.sql not found at $jobDeployScript"
+          }
+
+          & sqlcmd -S $env:SQL_SERVER_NAME -E -i $jobDeployScript -b
+          if ($LASTEXITCODE -ne 0) {
+              throw "JobDeploy.sql execution failed with exit code $LASTEXITCODE"
           }
         env:
           SQL_SERVER_NAME: ${{ env.SQL_SERVER_NAME }}
