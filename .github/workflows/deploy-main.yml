@@ -10,9 +10,7 @@ on:
   workflow_dispatch:
 
 env:
-  SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}  # Set to Sambe2025008 or localhost
-  SQL_USERNAME: ${{ secrets.SQL_USERNAME }}  # LuckyManamela (optional, not used with -E)
-  SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}  # Password for LuckyManamela (optional)
+  SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}  
   SSISDB_PASSWORD: ${{ secrets.SSISDB_PASSWORD }}
   SSIS_DEST_FOLDER: 'NewDataMigration'
   SSIS_PROJECTS_FOLDER: 'TimesheetMigration'
@@ -24,7 +22,7 @@ env:
 jobs:
   deploy-database:
     name: Deploy Database Scripts
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, windows]
 
     steps:
       - name: Checkout repository
@@ -32,18 +30,25 @@ jobs:
 
       - name: Install SQL Server Tools
         run: |
-          sudo apt-get update
-          sudo apt-get install -y curl gnupg
-          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-          curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
-          sudo apt-get update
-          sudo apt-get install -y mssql-tools unixodbc-dev
-          echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> $GITHUB_ENV
+          choco install sqlserver-odbcdriver -y
+          choco install mssql-scripter -y
+          echo 'C:\Program Files\Microsoft SQL Server Client SDK\ODBC\170\Tools\Binn\' | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        shell: powershell
 
-      - name: Run TimesheetDB SQL Script (optional)
+      - name: Test SQL Server Connectivity
         run: |
-          /opt/mssql-tools/bin/sqlcmd -S "${{ env.SQL_SERVER_NAME }}" -U "${{ env.SQL_USERNAME }}" -P "${{ env.SQL_PASSWORD }}" -d master -i "$GITHUB_WORKSPACE/scripts/TimesheetDB.sql"
+          ping -n 4 "${{ env.SQL_SERVER_NAME }}"
+          Test-NetConnection -ComputerName "${{ env.SQL_SERVER_NAME }}" -Port 1433
+        shell: powershell
         env:
+          SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}
+
+      - name: Run TimesheetDB SQL Script
+        run: |
+          sqlcmd -S "${{ env.SQL_SERVER_NAME }}" -E -d master -i "$env:GITHUB_WORKSPACE/scripts/TimesheetDB.sql" -b
+        shell: powershell
+        env:
+          SQL_SERVER_NAME: ${{ env.SQL_SERVER_NAME }}
           GITHUB_WORKSPACE: ${{ github.workspace }}
 
   deploy-ssis:
