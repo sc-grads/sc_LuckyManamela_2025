@@ -1,4 +1,4 @@
-name: Full Deployment - TimesheetDB + SSIS + SQL Agent Job with Retry
+name: Full Deployment - TimesheetDB + SSIS + SQL Agent Job
 
 on:
   push:
@@ -10,8 +10,7 @@ on:
   workflow_dispatch:
 
 env:
-  SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}   # e.g. Sambe2025008 or localhost
-  SSISDB_PASSWORD: ${{ secrets.SSISDB_PASSWORD }}
+  SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}
   SSIS_DEST_FOLDER: 'NewDataMigration'
   SSIS_PROJECTS_FOLDER: 'TimesheetMigration'
   PACKAGE_NAME: 'TimeSheetMigration 1.dtsx'
@@ -32,8 +31,6 @@ jobs:
         run: |
           choco install sqlserver-odbcdriver -y
           choco install sqlserver-cmdlineutils -y
-          $env:Path += ";C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn\"
-          [Environment]::SetEnvironmentVariable("Path", $env:Path, [System.EnvironmentVariableTarget]::Process)
         shell: powershell
 
       - name: Test SQL Server Connectivity
@@ -97,6 +94,61 @@ jobs:
           SSIS_SOURCE_PATH: ${{ env.SSIS_SOURCE_PATH }}
           GITHUB_WORKSPACE: ${{ github.workspace }}
 
+      - name: Create Retry Stored Procedure
+        shell: powershell
+        run: |
+          $proc = @"
+          USE SSISDB;
+          IF OBJECT_ID('dbo.RunSSISPackageWithRetries', 'P') IS NOT NULL
+              DROP PROCEDURE dbo.RunSSISPackageWithRetries;
+          GO
+          CREATE PROCEDURE dbo.RunSSISPackageWithRetries
+          AS
+          BEGIN
+              SET NOCOUNT ON;
+              DECLARE @try INT = 1;
+              DECLARE @max_tries INT = 3;
+              DECLARE @execution_id BIGINT;
+              DECLARE @execution_status INT;
+
+              WHILE @try <= @max_tries
+              BEGIN
+                  EXEC SSISDB.catalog.create_execution
+                      @package_name = N'$env:PACKAGE_NAME',
+                      @execution_id = @execution_id OUTPUT,
+                      @folder_name = N'$env:SSIS_DEST_FOLDER',
+                      @project_name = N'$env:SSIS_PROJECTS_FOLDER',
+                      @use32bitruntime = 0,
+                      @reference_id = NULL;
+
+                  EXEC SSISDB.catalog.start_execution @execution_id;
+                  WAITFOR DELAY '00:00:10';
+
+                  SELECT TOP 1 @execution_status = status
+                  FROM SSISDB.catalog.executions
+                  WHERE execution_id = @execution_id;
+
+                  IF @execution_status = 7
+                      BREAK;
+
+                  SET @try += 1;
+              END
+
+              IF @execution_status <> 7
+                  THROW 50000, 'SSIS package failed after 3 attempts.', 1;
+          END
+          GO
+          "@
+
+          $procFile = "$env:RUNNER_TEMP\retry_proc.sql"
+          [System.IO.File]::WriteAllText($procFile, $proc)
+          & sqlcmd -S $env:SQL_SERVER_NAME -E -d SSISDB -i $procFile -b
+        env:
+          SQL_SERVER_NAME: ${{ env.SQL_SERVER_NAME }}
+          SSIS_DEST_FOLDER: ${{ env.SSIS_DEST_FOLDER }}
+          SSIS_PROJECTS_FOLDER: ${{ env.SSIS_PROJECTS_FOLDER }}
+          PACKAGE_NAME: ${{ env.PACKAGE_NAME }}
+
       - name: Create SQL Agent Job
         shell: powershell
         run: |
@@ -109,13 +161,13 @@ jobs:
               @job_name = N'$env:JOB_NAME',
               @enabled = 1,
               @description = N'Schedule to run SSIS package with retry logic',
-              @owner_login_name = SUSER_SNAME(),
+              @owner_login_name = N'$(SUSER_SNAME())',
               @job_id = @jobId OUTPUT;
 
             EXEC msdb.dbo.sp_add_jobstep
               @job_id = @jobId,
               @step_id = 1,
-              @step_name = N'Run SSIS Package with Retry',
+              @step_name = N'RunWithRetries',
               @subsystem = N'TSQL',
               @command = N'EXEC SSISDB.dbo.RunSSISPackageWithRetries;',
               @database_name = N'SSISDB',
@@ -128,18 +180,17 @@ jobs:
           END
           "@
 
-          $tempSqlPath = "$env:RUNNER_TEMP\create_sql_agent_job.sql"
-          [System.IO.File]::WriteAllText($tempSqlPath, $sql)
-
-          & sqlcmd -S $env:SQL_SERVER_NAME -E -i $tempSqlPath -b
+          $file = "$env:RUNNER_TEMP\job_script.sql"
+          [System.IO.File]::WriteAllText($file, $sql)
+          & sqlcmd -S $env:SQL_SERVER_NAME -E -i $file -b
 
           if ($LASTEXITCODE -ne 0) {
               throw "SQL Agent job creation failed with exit code $LASTEXITCODE"
           }
         env:
           SQL_SERVER_NAME: ${{ env.SQL_SERVER_NAME }}
-          JOB_NAME: ${{ env.JOB_NAME }}
           SQL_SERVER_LOCAL: ${{ env.SQL_SERVER_LOCAL }}
+          JOB_NAME: ${{ env.JOB_NAME }}
           RUNNER_TEMP: ${{ runner.temp }}
 
       - name: Start SQL Agent Job
