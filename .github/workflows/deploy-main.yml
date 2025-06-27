@@ -106,12 +106,13 @@ jobs:
           END
 
           DECLARE @jobId BINARY(16);
+          DECLARE @owner NVARCHAR(128) = SUSER_SNAME();
           EXEC @ReturnCode = msdb.dbo.sp_add_job
               @job_name = N'$($env:JOB_NAME)',
               @enabled = 1,
               @description = N'Schedule-based SSIS Deployment',
               @category_name = N'[Uncategorized (Local)]',
-              @owner_login_name = SUSER_SNAME(),
+              @owner_login_name = @owner,
               @job_id = @jobId OUTPUT;
 
           EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'deploy',
@@ -140,7 +141,7 @@ jobs:
           IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback;
           COMMIT TRANSACTION;
 
-          -- Auto-start the job
+          -- Auto-start the job after creation
           EXEC msdb.dbo.sp_start_job @job_name = N'$($env:JOB_NAME)';
 
           GOTO EndSave;
