@@ -103,6 +103,7 @@ jobs:
         shell: powershell
         run: |
           $packagePath = "/SSISDB/$env:SSIS_DEST_FOLDER/$env:SSIS_PROJECTS_FOLDER/$env:PACKAGE_NAME"
+          $command = "/ISSERVER `"$packagePath`" /SERVER `"$env:SQL_SERVER_NAME`""
           $sql = @'
           USE msdb;
           IF NOT EXISTS (SELECT 1 FROM msdb.dbo.sysjobs WHERE name = N'$env:JOB_NAME')
@@ -121,14 +122,14 @@ jobs:
               @step_id = 1,
               @step_name = N''RunMigrationStep'',
               @subsystem = N''SSIS'',
-              @command = N''/ISSERVER \"'$packagePath\'" /SERVER "$env:SQL_SERVER_NAME"''',
+              @command = N''$command'',
               @database_name = N''master'',
               @on_success_action = 1,
               @on_fail_action = 2;
 
             EXEC msdb.dbo.sp_add_jobserver @job_id = @jobId, @server_name = N''$env:SQL_SERVER_LOCAL'';
           END
-          '@ -replace '\$packagePath', $packagePath -replace '\$env:SQL_SERVER_NAME', $env:SQL_SERVER_NAME -replace '\$env:SQL_SERVER_LOCAL', $env:SQL_SERVER_LOCAL
+          '@ -replace '\$env:JOB_NAME', $env:JOB_NAME -replace '\$env:SQL_SERVER_LOCAL', $env:SQL_SERVER_LOCAL -replace '\$command', $command
           & sqlcmd -S $env:SQL_SERVER_NAME -E -Q $sql -b
         env:
           SQL_SERVER_NAME: ${{ env.SQL_SERVER_NAME }}
