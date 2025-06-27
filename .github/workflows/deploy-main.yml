@@ -1,4 +1,4 @@
-name: Full Deployment - TimesheetDB + SSIS + SQL Agent Job
+name: Full Deployment - TimesheetDB + SSIS + SQL Agent Job with Retry
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 env:
-  SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}  # e.g. Sambe2025008 or localhost
+  SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}   # e.g. Sambe2025008 or localhost
   SSISDB_PASSWORD: ${{ secrets.SSISDB_PASSWORD }}
   SSIS_DEST_FOLDER: 'NewDataMigration'
   SSIS_PROJECTS_FOLDER: 'TimesheetMigration'
@@ -25,28 +25,29 @@ jobs:
     runs-on: [self-hosted, windows]
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Install SQL Server Tools
-        shell: powershell
         run: |
           choco install sqlserver-odbcdriver -y
           choco install sqlserver-cmdlineutils -y
           $env:Path += ";C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn\"
           [Environment]::SetEnvironmentVariable("Path", $env:Path, [System.EnvironmentVariableTarget]::Process)
+        shell: powershell
 
       - name: Test SQL Server Connectivity
-        shell: powershell
         run: |
           ping -n 4 "${{ env.SQL_SERVER_NAME }}"
           Test-NetConnection -ComputerName "${{ env.SQL_SERVER_NAME }}" -Port 1433
+        shell: powershell
 
       - name: Run TimesheetDB SQL Script
+        run: |
+          sqlcmd -S "${{ env.SQL_SERVER_NAME }}" -E -d master -i "$env:GITHUB_WORKSPACE/scripts/TimesheetDB.sql" -b
         shell: powershell
         env:
           GITHUB_WORKSPACE: ${{ github.workspace }}
-        run: |
-          sqlcmd -S "${{ env.SQL_SERVER_NAME }}" -E -d master -i "$env:GITHUB_WORKSPACE/scripts/TimesheetDB.sql" -b
 
   deploy-ssis:
     name: Deploy SSIS Project and Create SQL Agent Job
@@ -54,47 +55,50 @@ jobs:
     needs: deploy-database
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Deploy SSIS Project to SSISDB using Integrated Auth
         shell: powershell
-        env:
-          SQL_SERVER_NAME: ${{ env.SQL_SERVER_NAME }}
-          SSIS_DEST_FOLDER: ${{ env.SSIS_DEST_FOLDER }}
-          SSIS_PROJECTS_FOLDER: ${{ env.SSIS_PROJECTS_FOLDER }}
-          SSIS_SOURCE_PATH: ${{ env.SSIS_SOURCE_PATH }}
-          GITHUB_WORKSPACE: ${{ github.workspace }}
         run: |
           $ispacPath = Join-Path $env:GITHUB_WORKSPACE $env:SSIS_SOURCE_PATH
-          if (-not (Test-Path $ispacPath)) { throw "ISPAC not found at $ispacPath" }
+          if (-not (Test-Path $ispacPath)) {
+              throw "ISPAC not found at $ispacPath"
+          }
+
           [byte[]]$bytes = [System.IO.File]::ReadAllBytes($ispacPath)
           $hexString = [System.BitConverter]::ToString($bytes) -replace '-', ''
+
           $sql = @"
           IF NOT EXISTS (SELECT 1 FROM SSISDB.catalog.folders WHERE name = N'$env:SSIS_DEST_FOLDER')
           BEGIN
               EXEC SSISDB.catalog.create_folder @folder_name = N'$env:SSIS_DEST_FOLDER';
           END
+
           DECLARE @project_stream VARBINARY(MAX) = CONVERT(VARBINARY(MAX), 0x$hexString, 1);
           EXEC SSISDB.catalog.deploy_project
               @folder_name = N'$env:SSIS_DEST_FOLDER',
               @project_name = N'$env:SSIS_PROJECTS_FOLDER',
               @project_stream = @project_stream;
           "@
+
           $tempSqlPath = "$env:RUNNER_TEMP\deploy_ssis_project.sql"
           [System.IO.File]::WriteAllText($tempSqlPath, $sql)
-          & sqlcmd -S $env:SQL_SERVER_NAME -E -d SSISDB -i $tempSqlPath -b
-          if ($LASTEXITCODE -ne 0) { throw "SSIS project deployment failed with exit code $LASTEXITCODE" }
 
-      - name: Create SQL Agent Job with Retry Logic
-        shell: powershell
+          & sqlcmd -S $env:SQL_SERVER_NAME -E -d SSISDB -i $tempSqlPath -b
+
+          if ($LASTEXITCODE -ne 0) {
+              throw "SSIS project deployment failed with exit code $LASTEXITCODE"
+          }
         env:
           SQL_SERVER_NAME: ${{ env.SQL_SERVER_NAME }}
           SSIS_DEST_FOLDER: ${{ env.SSIS_DEST_FOLDER }}
           SSIS_PROJECTS_FOLDER: ${{ env.SSIS_PROJECTS_FOLDER }}
-          PACKAGE_NAME: ${{ env.PACKAGE_NAME }}
-          JOB_NAME: ${{ env.JOB_NAME }}
-          SQL_SERVER_LOCAL: ${{ env.SQL_SERVER_LOCAL }}
-          RUNNER_TEMP: ${{ runner.temp }}
+          SSIS_SOURCE_PATH: ${{ env.SSIS_SOURCE_PATH }}
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+
+      - name: Create SQL Agent Job to Run Retry Stored Procedure
+        shell: powershell
         run: |
           $sql = @"
           USE msdb;
@@ -104,62 +108,44 @@ jobs:
             EXEC msdb.dbo.sp_add_job
               @job_name = N'$env:JOB_NAME',
               @enabled = 1,
-              @description = N'Schedule-based SSIS Deployment',
+              @description = N'Schedule to run SSIS package with retry logic',
               @owner_login_name = SUSER_SNAME(),
               @job_id = @jobId OUTPUT;
+
             EXEC msdb.dbo.sp_add_jobstep
               @job_id = @jobId,
               @step_id = 1,
-              @step_name = N'deploy',
+              @step_name = N'Run SSIS Package with Retry',
               @subsystem = N'TSQL',
-              @command = N'
-            DECLARE @try INT = 1;
-            DECLARE @max_tries INT = 3;
-            DECLARE @execution_id BIGINT;
-            DECLARE @execution_status INT;
-            WHILE @try <= @max_tries
-            BEGIN
-                EXEC SSISDB.catalog.create_execution
-                    @package_name = N''$env:PACKAGE_NAME'',
-                    @execution_id = @execution_id OUTPUT,
-                    @folder_name = N''$env:SSIS_DEST_FOLDER'',
-                    @project_name = N''$env:SSIS_PROJECTS_FOLDER'',
-                    @use32bitruntime = 0,
-                    @reference_id = NULL;
-                EXEC SSISDB.catalog.start_execution @execution_id;
-                WAITFOR DELAY ''00:00:10'';
-                SELECT TOP 1 @execution_status = operation_status
-                FROM SSISDB.catalog.operation_messages
-                WHERE operation_id = @execution_id
-                ORDER BY message_time DESC;
-                IF @execution_status = 7
-                BEGIN
-                    BREAK;
-                END
-                SET @try += 1;
-            END
-            IF @execution_status <> 7
-            BEGIN
-                THROW 50000, ''SSIS package failed after 3 attempts.'', 1;
-            END
-            ',
-              @database_name = N'master',
+              @command = N'EXEC SSISDB.dbo.RunSSISPackageWithRetries;',
+              @database_name = N'SSISDB',
               @on_success_action = 1,
               @on_fail_action = 2;
+
             EXEC msdb.dbo.sp_add_jobserver
               @job_id = @jobId,
               @server_name = N'$env:SQL_SERVER_LOCAL';
           END
           "@
-          $tempSqlPath = Join-Path $env:RUNNER_TEMP "create_sql_agent_job.sql"
-          [System.IO.File]::WriteAllText($tempSqlPath, $sql)
-          & sqlcmd -S $env:SQL_SERVER_NAME -E -i $tempSqlPath -b
-          if ($LASTEXITCODE -ne 0) { throw "SQL Agent job creation failed with exit code $LASTEXITCODE" }
 
-      - name: Start SQL Agent Job
-        shell: powershell
+          $tempSqlPath = "$env:RUNNER_TEMP\create_sql_agent_job.sql"
+          [System.IO.File]::WriteAllText($tempSqlPath, $sql)
+
+          & sqlcmd -S $env:SQL_SERVER_NAME -E -i $tempSqlPath -b
+
+          if ($LASTEXITCODE -ne 0) {
+              throw "SQL Agent job creation failed with exit code $LASTEXITCODE"
+          }
         env:
           SQL_SERVER_NAME: ${{ env.SQL_SERVER_NAME }}
           JOB_NAME: ${{ env.JOB_NAME }}
+          SQL_SERVER_LOCAL: ${{ env.SQL_SERVER_LOCAL }}
+          RUNNER_TEMP: ${{ runner.temp }}
+
+      - name: Start SQL Agent Job
+        shell: powershell
         run: |
           & sqlcmd -S $env:SQL_SERVER_NAME -E -Q "EXEC msdb.dbo.sp_start_job @job_name = N'$env:JOB_NAME';" -b
+        env:
+          SQL_SERVER_NAME: ${{ env.SQL_SERVER_NAME }}
+          JOB_NAME: ${{ env.JOB_NAME }}
