@@ -149,6 +149,7 @@ jobs:
           END
           "@
 
+          Write-Host "Generated SQL: $sql"
           $tempSqlPath = "$env:RUNNER_TEMP\create_agent_job.sql"
           [System.IO.File]::WriteAllText($tempSqlPath, $sql)
           & sqlcmd -S $env:SQL_SERVER_NAME -E -i $tempSqlPath -b
