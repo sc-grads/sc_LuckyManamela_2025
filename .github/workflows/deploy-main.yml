@@ -97,7 +97,7 @@ jobs:
           SSIS_SOURCE_PATH: ${{ env.SSIS_SOURCE_PATH }}
           GITHUB_WORKSPACE: ${{ github.workspace }}
 
-      - name: Create SQL Agent Job to Run Retry Stored Procedure
+      - name: Create SQL Agent Job
         shell: powershell
         run: |
           $sql = @"
