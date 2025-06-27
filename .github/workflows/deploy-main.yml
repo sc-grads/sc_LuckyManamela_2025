@@ -103,7 +103,7 @@ jobs:
         shell: powershell
         run: |
           $packagePath = "/SSISDB/$env:SSIS_DEST_FOLDER/$env:SSIS_PROJECTS_FOLDER/$env:PACKAGE_NAME"
-          $command = "/ISSERVER `"$packagePath`" /SERVER `"$env:SQL_SERVER_NAME`""
+          $command = "/ISSERVER `"`"$packagePath`"`" /SERVER `"`"$env:SQL_SERVER_NAME`"`""
           $sql = @'
           USE msdb;
           IF NOT EXISTS (SELECT 1 FROM msdb.dbo.sysjobs WHERE name = N'$env:JOB_NAME')
