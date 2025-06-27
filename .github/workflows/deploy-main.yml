@@ -10,13 +10,14 @@ on:
   workflow_dispatch:
 
 env:
-  SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}  # Set to Sambe2025008 or localhost
+  SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}
+  SSISDB_PASSWORD: ${{ secrets.SSISDB_PASSWORD }}
   SSIS_DEST_FOLDER: 'NewDataMigration'
   SSIS_PROJECTS_FOLDER: 'TimesheetMigration'
   PACKAGE_NAME: 'TimeSheetMigration 1.dtsx'
   SSIS_SOURCE_PATH: 'HandsOnProjects/TimesheetMigration/TimesheetMigration/bin/Development/TimesheetMigration.ispac'
-  JOB_NAME: 'RunDataMigrationPackage'
-  SQL_SERVER_LOCAL: 'Sambe2025008'
+  JOB_NAME: 'DeploySSIS'
+  SQL_SERVER_LOCAL: '(local)'
 
 jobs:
   deploy-database:
@@ -35,6 +36,12 @@ jobs:
           [Environment]::SetEnvironmentVariable("Path", $env:Path, [System.EnvironmentVariableTarget]::Process)
         shell: powershell
 
+      - name: Test SQL Server Connectivity
+        run: |
+          ping -n 4 "${{ env.SQL_SERVER_NAME }}"
+          Test-NetConnection -ComputerName "${{ env.SQL_SERVER_NAME }}" -Port 1433
+        shell: powershell
+
       - name: Run TimesheetDB SQL Script
         run: |
           sqlcmd -S "${{ env.SQL_SERVER_NAME }}" -E -d master -i "$env:GITHUB_WORKSPACE/scripts/TimesheetDB.sql" -b
@@ -43,7 +50,7 @@ jobs:
           GITHUB_WORKSPACE: ${{ github.workspace }}
 
   deploy-ssis:
-    name: Deploy SSIS Project and Create/Run SQL Agent Job
+    name: Deploy SSIS Project and Create Job
     runs-on: [self-hosted, windows]
     needs: deploy-database
 
@@ -58,118 +65,85 @@ jobs:
           if (-not (Test-Path $ispacPath)) {
               throw "ISPAC not found at $ispacPath"
           }
-
           [byte[]]$bytes = [System.IO.File]::ReadAllBytes($ispacPath)
           $hexString = [System.BitConverter]::ToString($bytes) -replace '-', ''
-
           $sql = @"
           IF NOT EXISTS (SELECT 1 FROM SSISDB.catalog.folders WHERE name = N'$env:SSIS_DEST_FOLDER')
           BEGIN
               EXEC SSISDB.catalog.create_folder @folder_name = N'$env:SSIS_DEST_FOLDER';
           END
-
           DECLARE @project_stream VARBINARY(MAX) = CONVERT(VARBINARY(MAX), 0x$hexString, 1);
           EXEC SSISDB.catalog.deploy_project
               @folder_name = N'$env:SSIS_DEST_FOLDER',
               @project_name = N'$env:SSIS_PROJECTS_FOLDER',
               @project_stream = @project_stream;
           "@
-
           $tempSqlPath = "$env:RUNNER_TEMP\deploy_ssis_project.sql"
           [System.IO.File]::WriteAllText($tempSqlPath, $sql)
           & sqlcmd -S $env:SQL_SERVER_NAME -E -d SSISDB -i $tempSqlPath -b
-        env:
-          SQL_SERVER_NAME: ${{ env.SQL_SERVER_NAME }}
-          SSIS_DEST_FOLDER: ${{ env.SSIS_DEST_FOLDER }}
-          SSIS_PROJECTS_FOLDER: ${{ env.SSIS_PROJECTS_FOLDER }}
-          SSIS_SOURCE_PATH: ${{ env.SSIS_SOURCE_PATH }}
-          GITHUB_WORKSPACE: ${{ github.workspace }}
-
-      - name: Create SQL Agent Job to run SSIS package with 3 retries
+          if ($LASTEXITCODE -ne 0) {
+              throw "SSIS project deployment failed with exit code $LASTEXITCODE"
+          }
+      - name: Create and Start SQL Agent Job
         shell: powershell
         run: |
           $sql = @"
-          USE msdb;
-
-          IF NOT EXISTS (SELECT 1 FROM msdb.dbo.sysjobs WHERE name = N'$env:JOB_NAME')
+          USE [msdb];
+          BEGIN TRANSACTION;
+          DECLARE @ReturnCode INT;
+          SELECT @ReturnCode = 0;
+          IF NOT EXISTS (SELECT name FROM msdb.dbo.syscategories WHERE name=N'[Uncategorized (Local)]' AND category_class=1)
           BEGIN
-            DECLARE @jobId UNIQUEIDENTIFIER;
-
-            EXEC msdb.dbo.sp_add_job
-              @job_name = N'$env:JOB_NAME',
-              @enabled = 1,
-              @description = N'Schedule to run SSIS package with retry logic',
-              @owner_login_name = SUSER_SNAME(),
-              @job_id = @jobId OUTPUT;
-
-            EXEC msdb.dbo.sp_add_jobstep
-              @job_id = @jobId,
-              @step_name = N'RunWithRetries',
-              @subsystem = N'TSQL',
-              @command = N'
-                DECLARE @try INT = 1;
-                DECLARE @max_tries INT = 3;
-                DECLARE @execution_id BIGINT;
-                DECLARE @execution_status INT;
-
-                WHILE @try <= @max_tries
-                BEGIN
-                  EXEC SSISDB.catalog.create_execution
-                    @package_name = N''$env:PACKAGE_NAME'',
-                    @execution_id = @execution_id OUTPUT,
-                    @folder_name = N''$env:SSIS_DEST_FOLDER'',
-                    @project_name = N''$env:SSIS_PROJECTS_FOLDER'',
-                    @use32bitruntime = 0,
-                    @reference_id = NULL;
-
-                  EXEC SSISDB.catalog.start_execution @execution_id; -- Simplified
-
-                  WAITFOR DELAY ''00:00:10'';
-
-                  SELECT @execution_status = status
-                  FROM SSISDB.catalog.executions
-                  WHERE execution_id = @execution_id;
-
-                  IF @execution_status = 7 -- Success
-                    BREAK;
-
-                  SET @try += 1;
-                END
-
-                IF @execution_status <> 7
-                  THROW 50000, ''SSIS package failed after 3 attempts.'', 1;
-              ',
-              @database_name = N'master',
-              @on_success_action = 1,
-              @on_fail_action = 2;
-
-            EXEC msdb.dbo.sp_add_jobserver
-              @job_id = @jobId,
-              @server_name = N'$env:SQL_SERVER_LOCAL';
+              EXEC @ReturnCode = msdb.dbo.sp_add_category @class=N'JOB', @type=N'LOCAL', @name=N'[Uncategorized (Local)]';
+              IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback;
           END
+          DECLARE @jobId BINARY(16);
+          DECLARE @owner NVARCHAR(128) = SUSER_SNAME();
+          EXEC @ReturnCode = msdb.dbo.sp_add_job
+              @job_name = N'$($env:JOB_NAME)',
+              @enabled = 1,
+              @description = N'Schedule-based SSIS Deployment',
+              @category_name = N'[Uncategorized (Local)]',
+              @owner_login_name = @owner,
+              @job_id = @jobId OUTPUT;
+          EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'deploy',
+              @step_id=1,
+              @subsystem=N'SSIS',
+              @command=N'/ISSERVER "\"\SSISDB\$($env:SSIS_DEST_FOLDER)\$($env:SSIS_PROJECTS_FOLDER)\$($env:PACKAGE_NAME)\"" /SERVER "\".\"" /Par "\"$ServerOption::LOGGING_LEVEL(Int16)\"";1 /Par "\"$ServerOption::SYNCHRONIZED(Boolean)\"";True /CALLERINFO SQLAGENT /REPORTING E',
+              @database_name=N'master',
+              @on_success_action=1,
+              @on_fail_action=2;
+          EXEC @ReturnCode = msdb.dbo.sp_update_job @job_id = @jobId, @start_step_id = 1;
+          EXEC @ReturnCode = msdb.dbo.sp_add_jobschedule @job_id=@jobId, @name=N'jobschedule',
+              @enabled=1,
+              @freq_type=4,
+              @freq_interval=1,
+              @freq_subday_type=8,
+              @freq_subday_interval=1,
+              @active_start_date=20250627,
+              @active_end_date=99991231,
+              @active_start_time=0,
+              @active_end_time=235959;
+          EXEC @ReturnCode = msdb.dbo.sp_add_jobserver @job_id = @jobId, @server_name = N'$($env:SQL_SERVER_LOCAL)';
+          IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback;
+          COMMIT TRANSACTION;
+          -- Auto-start the job after creation
+          EXEC msdb.dbo.sp_start_job @job_name = N'$($env:JOB_NAME)';
+          GOTO EndSave;
+          QuitWithRollback:
+              IF (@@TRANCOUNT > 0) ROLLBACK TRANSACTION;
+          EndSave:
           "@
-
-          Write-Host "Generated SQL: $sql"
-          $tempSqlPath = "$env:RUNNER_TEMP\create_agent_job.sql"
-          [System.IO.File]::WriteAllText($tempSqlPath, $sql)
-          & sqlcmd -S $env:SQL_SERVER_NAME -E -i $tempSqlPath -b
-
+          $tempSql = "$env:RUNNER_TEMP\create_agent_job.sql"
+          [System.IO.File]::WriteAllText($tempSql, $sql)
+          & sqlcmd -S $env:SQL_SERVER_NAME -E -i $tempSql -b
           if ($LASTEXITCODE -ne 0) {
               throw "SQL Agent job creation failed with exit code $LASTEXITCODE"
           }
         env:
           SQL_SERVER_NAME: ${{ env.SQL_SERVER_NAME }}
+          JOB_NAME: ${{ env.JOB_NAME }}
           SSIS_DEST_FOLDER: ${{ env.SSIS_DEST_FOLDER }}
           SSIS_PROJECTS_FOLDER: ${{ env.SSIS_PROJECTS_FOLDER }}
           PACKAGE_NAME: ${{ env.PACKAGE_NAME }}
-          JOB_NAME: ${{ env.JOB_NAME }}
           SQL_SERVER_LOCAL: ${{ env.SQL_SERVER_LOCAL }}
-          RUNNER_TEMP: ${{ runner.temp }}
-
-      - name: Start SQL Agent Job
-        shell: powershell
-        run: |
-          & sqlcmd -S $env:SQL_SERVER_NAME -E -Q "EXEC msdb.dbo.sp_start_job @job_name = N'$env:JOB_NAME';" -b
-        env:
-          SQL_SERVER_NAME: ${{ env.SQL_SERVER_NAME }}
-          JOB_NAME: ${{ env.JOB_NAME }}
