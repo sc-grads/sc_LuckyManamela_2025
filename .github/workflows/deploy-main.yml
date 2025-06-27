@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 env:
-  SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}  # Set to Sambe2025008 or localhost
+  SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}
   SSISDB_PASSWORD: ${{ secrets.SSISDB_PASSWORD }}
   SSIS_DEST_FOLDER: 'NewDataMigration'
   SSIS_PROJECTS_FOLDER: 'TimesheetMigration'
@@ -103,16 +103,17 @@ jobs:
         shell: powershell
         run: |
           $packagePath = "/SSISDB/$env:SSIS_DEST_FOLDER/$env:SSIS_PROJECTS_FOLDER/$env:PACKAGE_NAME"
-          $command = "/ISSERVER `"`"$packagePath`"`" /SERVER `"`"$env:SQL_SERVER_NAME`"`""
-          $sql = @'
+          $command = "/ISSERVER `"$packagePath`" /SERVER `"$env:SQL_SERVER_NAME`""
+
+          $sql = @"
           USE msdb;
-          IF NOT EXISTS (SELECT 1 FROM msdb.dbo.sysjobs WHERE name = N'$env:JOB_NAME')
+          IF NOT EXISTS (SELECT 1 FROM msdb.dbo.sysjobs WHERE name = N'$($env:JOB_NAME)')
           BEGIN
             DECLARE @jobId UNIQUEIDENTIFIER;
             EXEC msdb.dbo.sp_add_job
-              @job_name = N'$env:JOB_NAME',
+              @job_name = N'$($env:JOB_NAME)',
               @enabled = 1,
-              @description = N''Data Migration SSIS Job'',
+              @description = N'Data Migration SSIS Job',
               @start_step_id = 1,
               @owner_login_name = SUSER_SNAME(),
               @job_id = @jobId OUTPUT;
@@ -120,23 +121,32 @@ jobs:
             EXEC msdb.dbo.sp_add_jobstep
               @job_id = @jobId,
               @step_id = 1,
-              @step_name = N''RunMigrationStep'',
-              @subsystem = N''SSIS'',
-              @command = N''$command'',
-              @database_name = N''master'',
+              @step_name = N'RunMigrationStep',
+              @subsystem = N'SSIS',
+              @command = N'$command',
+              @database_name = N'master',
               @on_success_action = 1,
               @on_fail_action = 2;
 
-            EXEC msdb.dbo.sp_add_jobserver @job_id = @jobId, @server_name = N''$env:SQL_SERVER_LOCAL'';
+            EXEC msdb.dbo.sp_add_jobserver
+              @job_id = @jobId,
+              @server_name = N'$($env:SQL_SERVER_LOCAL)';
           END
-          '@ -replace '\$env:JOB_NAME', $env:JOB_NAME -replace '\$env:SQL_SERVER_LOCAL', $env:SQL_SERVER_LOCAL -replace '\$command', $command
-          & sqlcmd -S $env:SQL_SERVER_NAME -E -Q $sql -b
+          "@
+
+          $tempPath = "$env:RUNNER_TEMP\create_sql_agent_job.sql"
+          [System.IO.File]::WriteAllText($tempPath, $sql)
+
+          & sqlcmd -S $env:SQL_SERVER_NAME -E -i $tempPath -b
+
+          if ($LASTEXITCODE -ne 0) {
+              throw "Failed to create SQL Agent Job with exit code $LASTEXITCODE"
+          }
         env:
           SQL_SERVER_NAME: ${{ env.SQL_SERVER_NAME }}
           SSIS_DEST_FOLDER: ${{ env.SSIS_DEST_FOLDER }}
           SSIS_PROJECTS_FOLDER: ${{ env.SSIS_PROJECTS_FOLDER }}
           PACKAGE_NAME: ${{ env.PACKAGE_NAME }}
-          SSIS_SOURCE_PATH: ${{ env.SSIS_SOURCE_PATH }}
           JOB_NAME: ${{ env.JOB_NAME }}
           SQL_SERVER_LOCAL: ${{ env.SQL_SERVER_LOCAL }}
 
