@@ -12,7 +12,7 @@ on:
 env:
   SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}
   SSISDB_PASSWORD: ${{ secrets.SSISDB_PASSWORD }}
-  SSIS_DEST_FOLDER: 'NewDataMigration'
+  SSIS_DEST_FOLDER: 'TimesheetMigration'
   SSIS_PROJECTS_FOLDER: 'TimesheetMigration'
   PACKAGE_NAME: 'TimeSheetMigration 1.dtsx'
   SSIS_SOURCE_PATH: 'HandsOnProjects/TimesheetMigration/TimesheetMigration/bin/Development/TimesheetMigration.ispac'
