@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 env:
-  SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}
+  SQL_SERVER_NAME: ${{ secrets.SQL_SERVER_NAME }}  # Set to Sambe2025008 or localhost
   SSIS_DEST_FOLDER: 'NewDataMigration'
   SSIS_PROJECTS_FOLDER: 'TimesheetMigration'
   PACKAGE_NAME: 'TimeSheetMigration 1.dtsx'
@@ -31,7 +31,7 @@ jobs:
         run: |
           choco install sqlserver-odbcdriver -y
           choco install sqlserver-cmdlineutils -y
-          $env:Path += ";C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn\" 
+          $env:Path += ";C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn\"
           [Environment]::SetEnvironmentVariable("Path", $env:Path, [System.EnvironmentVariableTarget]::Process)
         shell: powershell
 
@@ -114,30 +114,30 @@ jobs:
 
                 WHILE @try <= @max_tries
                 BEGIN
-                    EXEC SSISDB.catalog.create_execution
-                        @package_name = N''$env:PACKAGE_NAME'',
-                        @execution_id = @execution_id OUTPUT,
-                        @folder_name = N''$env:SSIS_DEST_FOLDER'',
-                        @project_name = N''$env:SSIS_PROJECTS_FOLDER'',
-                        @use32bitruntime = 0,
-                        @reference_id = NULL;
+                  EXEC SSISDB.catalog.create_execution
+                    @package_name = N''$env:PACKAGE_NAME'',
+                    @execution_id = @execution_id OUTPUT,
+                    @folder_name = N''$env:SSIS_DEST_FOLDER'',
+                    @project_name = N''$env:SSIS_PROJECTS_FOLDER'',
+                    @use32bitruntime = 0,
+                    @reference_id = NULL;
 
-                    EXEC SSISDB.catalog.start_execution @execution_id;
+                  EXEC SSISDB.catalog.start_execution @execution_id, @retry_count = 0, @synchronous = 1;
 
-                    WAITFOR DELAY ''00:00:10'';
+                  WAITFOR DELAY ''00:00:10'';
 
-                    SELECT @execution_status = status
-                    FROM SSISDB.catalog.executions
-                    WHERE execution_id = @execution_id;
+                  SELECT @execution_status = status
+                  FROM SSISDB.catalog.executions
+                  WHERE execution_id = @execution_id;
 
-                    IF @execution_status = 7
-                        BREAK;
+                  IF @execution_status = 7 -- Success
+                    BREAK;
 
-                    SET @try += 1;
+                  SET @try += 1;
                 END
 
                 IF @execution_status <> 7
-                    THROW 50000, ''SSIS package failed after 3 attempts.'', 1;
+                  THROW 50000, ''SSIS package failed after 3 attempts.'', 1;
               ',
               @database_name = N'master',
               @on_success_action = 1,
