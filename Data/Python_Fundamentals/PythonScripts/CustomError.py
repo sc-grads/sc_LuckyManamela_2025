@@ -1,0 +1,2 @@
+class TooManyPagesReadError(ValueError):
+    pass
